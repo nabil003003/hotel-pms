@@ -1,0 +1,155 @@
+# docker-compose.prod.yml — Sprint 8 (D15), spec §8.1 point 2.
+#
+# Overlay sur docker-compose.yml (PAS un fichier autonome — les deux
+# fichiers déclarent le même service sous le même nom, Compose fusionne) :
+#
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.prod.yml \
+#     --profile core --profile gateway up -d
+#
+# Ajoute par rapport à la base : réplicas sur les 3 services critiques
+# (reservation/front-office/channel-manager), restart policy explicite sur
+# tous les services, réseaux isolés (frontend/backend/database/monitoring
+# au lieu du réseau unique `amh-backend` de dev), et un service `frontend`
+# conteneurisé (absent de docker-compose.yml — le frontend tourne en
+# `npm run dev` en dev, jamais empaqueté avant ce sprint).
+#
+# LIMITE HONNÊTE (voir D15) : validé via `docker compose config` (parsing +
+# résolution de variables corrects) sur cette machine de dev, PAS démarré
+# en conditions de prod réelles. `deploy.replicas` n'a d'effet réel que
+# sous Docker Swarm — en `docker compose up` simple (sans Swarm), il faut
+# `docker compose up --scale reservation-service=2` pour obtenir plusieurs
+# instances ; le champ est renseigné ici pour la conformité déclarative
+# avec le spec et comme documentation de l'intention, pas comme une
+# garantie d'auto-scaling en `compose up` nu.
+
+x-restart-policy: &restart-policy
+  restart: unless-stopped
+
+networks:
+  amh-frontend:
+    driver: bridge
+  amh-backend:
+    driver: bridge
+  amh-database:
+    driver: bridge
+  amh-monitoring:
+    driver: bridge
+
+services:
+  # ------------------------------------------------------------ database ---
+  postgres:
+    <<: *restart-policy
+    networks: [amh-database]
+
+  redis:
+    <<: *restart-policy
+    networks: [amh-database, amh-backend]
+
+  rabbitmq:
+    <<: *restart-policy
+    networks: [amh-database, amh-backend]
+
+  keycloak:
+    <<: *restart-policy
+    networks: [amh-database, amh-backend, amh-frontend]
+
+  minio:
+    <<: *restart-policy
+    networks: [amh-database, amh-backend]
+
+  # -------------------------------------------------- microservices core ---
+  auth-gateway-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-frontend, amh-monitoring]
+
+  establishment-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  housekeeping-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  pricing-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  partner-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  # Réplicas — spec §8.1 point 2 nomme explicitement reservation,
+  # front-office, channel-manager comme services critiques à répliquer.
+  channel-manager-service:
+    <<: *restart-policy
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  reservation-service:
+    <<: *restart-policy
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  front-office-service:
+    <<: *restart-policy
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  analytics-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  night-audit-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  notification-service:
+    <<: *restart-policy
+    networks: [amh-backend, amh-database, amh-monitoring]
+
+  # ---------------------------------------------------------- gateway/ui ---
+  kong:
+    <<: *restart-policy
+    networks: [amh-frontend, amh-backend]
+
+  swagger-ui:
+    <<: *restart-policy
+    networks: [amh-frontend, amh-backend]
+
+  # Sprint 8 (D15) : absent de docker-compose.yml — n'existait qu'en
+  # `npm run dev` avant ce sprint. Voir frontend/Dockerfile (build
+  # multi-stage, sortie `output: "standalone"`).
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      AUTH_GATEWAY_SERVICE_URL: http://auth-gateway-service:8000
+      ESTABLISHMENT_SERVICE_URL: http://establishment-service:8000
+      HOUSEKEEPING_SERVICE_URL: http://housekeeping-service:8000
+      PRICING_SERVICE_URL: http://pricing-service:8000
+      PARTNER_SERVICE_URL: http://partner-service:8000
+      CHANNEL_MANAGER_SERVICE_URL: http://channel-manager-service:8000
+      RESERVATION_SERVICE_URL: http://reservation-service:8000
+      FRONT_OFFICE_SERVICE_URL: http://front-office-service:8000
+      ANALYTICS_SERVICE_URL: http://analytics-service:8000
+      NIGHT_AUDIT_SERVICE_URL: http://night-audit-service:8000
+      NOTIFICATION_SERVICE_URL: http://notification-service:8000
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8080}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-gateway-service
+    networks: [amh-frontend, amh-backend]

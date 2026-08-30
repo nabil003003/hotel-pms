@@ -1,0 +1,45 @@
+import asyncio
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1.endpoints import router as notifications_router
+from app.config import get_settings
+from app.events.consumer import run_consumers_forever
+
+settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    consumer_task = asyncio.create_task(run_consumers_forever())
+    yield
+    consumer_task.cancel()
+    try:
+        await consumer_task
+    except asyncio.CancelledError:
+        pass
+
+
+app = FastAPI(title=settings.service_name, version="0.1.0", lifespan=lifespan)
+
+Instrumentator(excluded_handlers=["/healthz", "/metrics"]).instrument(
+    app, metric_namespace="pms", metric_subsystem="api"
+).expose(app, endpoint="/metrics", include_in_schema=False)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(notifications_router)
+
+
+@app.get("/healthz")
+async def healthz() -> dict[str, str]:
+    return {"status": "ok", "service": settings.service_name}

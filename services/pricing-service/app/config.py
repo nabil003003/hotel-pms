@@ -1,0 +1,24 @@
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    service_name: str = "pricing-service"
+    database_url: str = "postgresql+asyncpg://amh:amh_dev_password@localhost:5432/pricing_db"
+    rabbitmq_url: str = "amqp://amh:amh_dev_password@localhost:5672/"
+
+    keycloak_url: str = "http://localhost:8080"
+    keycloak_issuer_url: str = "http://localhost:8080"
+    keycloak_realm: str = "amh-hospitality"
+    keycloak_client_id: str = "svc-pricing"
+    keycloak_client_secret: str = "dev-secret-pricing"
+
+    cors_origins: list[str] = ["http://localhost:3000"]
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

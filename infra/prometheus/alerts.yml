@@ -1,0 +1,36 @@
+# Sprint 8 (D15) : sur les 5 alertes du spec §6.7, seules 2 sont
+# mécaniquement exprimables à partir des métriques réellement câblées ce
+# sprint (requêtes HTTP via prometheus-fastapi-instrumentator sur les 11
+# services). Les 3 autres (Night Audit échoué 3 jours consécutifs,
+# PostgreSQL connections > 80%, Channel Manager sync échec > 5 min)
+# demanderaient des métriques métier custom (compteur de succès/échec
+# Night Audit, un postgres_exporter, un compteur d'échecs de sync par OTA)
+# non ajoutées ce sprint — voir docs/runbook.md pour la procédure manuelle
+# en attendant. Documenté comme dette (D15), pas simulé.
+groups:
+  - name: pms-api
+    rules:
+      - alert: HighErrorRate
+        # Note : prometheus-fastapi-instrumentator regroupe le statut par
+        # classe ("2xx"/"4xx"/"5xx"), pas par code exact — vérifié sur le
+        # /metrics réel d'un service (label `status="4xx"`, pas `"404"`).
+        expr: |
+          sum(rate(pms_api_http_requests_total{status="5xx"}[5m])) by (job)
+          /
+          sum(rate(pms_api_http_requests_total[5m])) by (job)
+          > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Taux d'erreur > 1% sur {{ $labels.job }} depuis 5 minutes"
+          runbook: "docs/runbook.md#error-rate--1-pendant-5-min"
+
+      - alert: ServiceDown
+        expr: up{job=~".*-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} ne répond plus au scrape Prometheus depuis 1 minute"
+          runbook: "docs/runbook.md#service-down"

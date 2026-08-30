@@ -1,0 +1,35 @@
+\chapter*{Conclusion générale et perspectives}
+\addcontentsline{toc}{chapter}{Conclusion générale et perspectives}
+
+\section*{Synthèse des travaux et résultats obtenus}
+
+Le présent projet de fin d'année a porté sur la conception, la modélisation formelle et l'implémentation industrielle d'une plateforme logicielle intégrée de gestion hôtelière multi-établissements : le \textbf{PMS AMH Hospitality}. Réalisé au sein du pôle Systèmes d'Information du groupe AMH Hospitality à Marrakech, ce travail d'ingénierie visait à apporter une solution technologique moderne et pérenne aux limites structurelles des méthodes manuelles traditionnelles : surréservations fréquentes, lenteur de la clôture comptable journalière, vulnérabilités liées au partage de comptes en réception et cloisonnement des données entre établissements.
+
+Au terme des 16 semaines de développement réparties en huit sprints de développement selon le framework Agile Scrum, l'ensemble des objectifs fixés ont été atteints et validés en conditions réelles d'exploitation :
+
+\begin{itemize}
+    \item \textbf{Élimination intégrale des surréservations (\textit{Overbooking})} : L'implémentation du pattern de verrouillage distribué temporaire sous Redis (TTL = 10 secondes) lors de la saisie des séjours garantit une exclusion mutuelle stricte entre opérateurs concurrents, assurant un taux de collision de 0.00\% vérifié lors des tests de charge sous 15 sessions simultanées ;
+    \item \textbf{Automatisation de la clôture nocturne (\textit{Night Audit})} : Le moteur transactionnel développé sous FastAPI exécute l'ensemble des imputations de nuitées, le calcul des taxes marocaines réglementaires (TVA à 10\%, TS de 25 MAD, TPT de 12 MAD), la production du rapport financier d'audit et son archivage immuable sur stockage objet MinIO S3 en \textbf{45 secondes} pour un parc de 50 chambres, réduisant la durée de traitement de 98.7\% par rapport au mode manuel antérieur (1 heure 15 minutes) ;
+    \item \textbf{Sécurisation biométrique sans mot de passe WebAuthn / FIDO2} : L'intégration du protocole W3C WebAuthn avec serveur Keycloak permet une authentification forte par appairage QR code dynamique sur smartphone personnel (TouchID / FaceID) en moins de 2 secondes, éliminant les vulnérabilités de mots de passe partagés et garantissant une traçabilité nominative absolue de chaque écriture comptable ;
+    \item \textbf{Coordination temps réel du Housekeeping} : L'application mobile progressive (PWA) dédiée au personnel d'étage synchronise instantanément les statuts d'entretien des chambres avec le planning de réception Tape Chart via WebSockets et RabbitMQ, réduisant le délai de mise à disposition des suites propres à moins de 3 secondes ;
+    \item \textbf{Architecture Multi-Tenant et Qualité Logicielle Certifiée} : L'architecture en 11 microservices autonomes conçue selon les principes du Domain-Driven Design (DDD) permet d'isoler logiquement les données de chaque Riad tout en consolidant les indicateurs clés (RevPAR, ADR, taux d'occupation) au niveau de la direction du groupe. L'audit SonarQube a validé l'obtention officielle du statut \textit{Quality Gate : Passed} avec une note A sur tous les critères et une couverture de tests unitaires de 88.4\%.
+\end{itemize}
+
+\section*{Perspectives d'évolution industrielle}
+
+Afin de poursuivre la valorisation et l'extension des capacités de la plateforme logicielle, plusieurs axes de développement sont identifiés pour les versions futures :
+
+\begin{enumerate}
+    \item \textbf{Intégration d'un Channel Manager bidirectionnel natif certifié} : Développement d'une passerelle conforme aux spécifications standardisées de l'\textit{OpenTravel Alliance} (OTA) pour synchroniser en temps réel les disponibilités, tarifs et restrictions avec les extranets directs de Booking.com, Airbnb et Expedia ;
+    \item \textbf{Moteur de Yield \& Revenue Management prédictif assisté par Intelligence Artificielle} : Intégration d'algorithmes d'apprentissage automatique (\textit{Machine Learning}) analysant l'historique d'occupation, la météo, le calendrier des vols à destination de Marrakech et les événements culturels pour ajuster dynamiquement et automatiquement les grilles tarifaires de manière à maximiser le RevPAR ;
+    \item \textbf{Serrurerie connectée et clés dématérialisées (IoT / Bluetooth Low Energy)} : Intégration de serrures électroniques connectées permettant aux voyageurs de déverrouiller la porte de leur suite directement depuis leur smartphone via Bluetooth Low Energy (BLE), facilitant les arrivées autonomes tardives (\textit{Self Check-in}) ;
+    \item \textbf{Borne interactive d'accueil voyageur avec OCR de passeports} : Déploiement d'une borne tactile dans le patio d'accueil intégrant un lecteur optique de passeports et cartes d'identité pour pré-remplir automatiquement les fiches de police réglementaires ;
+    \item \textbf{Application mobile native pour les directeurs d'exploitation} : Développement d'une application mobile sous React Native offrant aux directeurs de Riads un suivi en direct des indicateurs d'occupation, des alertes de maintenance urgentes et des autorisations d'annulation exceptionnelle ;
+    \item \textbf{Orchestration cloud managée sous Kubernetes (K8s)} : Migration de l'infrastructure Docker Compose locale vers un cluster Kubernetes managé afin d'automatiser le passage à l'échelle horizontal (\textit{Horizontal Pod Autoscaler}) lors des pics saisonniers de haute affluence touristique.
+\end{enumerate}
+
+\clearpage
+
+% ==============================================================================
+% BIBLIOGRAPHIE ET WEBOGRAPHIE
+% ==============================================================================

@@ -1,0 +1,11 @@
+# Sprint 8 (D15) : datasource provisionné au démarrage, pas de config
+# manuelle dans l'UI Grafana à refaire à chaque redémarrage du conteneur.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true

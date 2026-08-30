@@ -1,0 +1,74 @@
+\chapter{Bilan du Stage et Apports d'Ingénierie}
+\label{chap:bilan}
+
+\section{Introduction}
+
+Ce sixième chapitre dresse le bilan d'ingénierie, technique et méthodologique de ce projet de fin d'année réalisé au sein du groupe \textbf{AMH Hospitality}. Il analyse les compétences théoriques et pratiques développées, la valeur ajoutée de l'immersion sur le terrain opérationnel des Riads à Marrakech, ainsi que les enseignements tirés de la gestion d'un projet informatique complexe mené selon le framework Agile Scrum en équipe de trois élèves-ingénieurs.
+
+\section{Apports techniques et maîtrise des technologies cloud-native}
+
+Sur le plan technique, la réalisation du système PMS AMH Hospitality a constitué un projet d'apprentissage intensif et de consolidation des compétences d'ingénierie logicielle moderne :
+
+\begin{itemize}
+    \item \textbf{Maîtrise approfondie des architectures microservices} : Conception et découpage modulaire d'un système complexe en 11 services autonomes selon les principes du \textit{Domain-Driven Design} (DDD) et du patron \textit{Database per Service}, avec isolation stricte des données et communication asynchrone par bus de messages AMQP (RabbitMQ) ;
+    \item \textbf{Expertise sur l'écosystème Python / FastAPI} : Développement d'API REST asynchrones haute vitesse avec sérialisation stricte via Pydantic, intégration de l'ORM SQLAlchemy avec gestion fine des transactions ACID et injection de dépendances avancée pour la sécurité ;
+    \item \textbf{Maîtrise du frontend moderne Next.js 14 / TypeScript} : Exploitation de l'architecture App Router, des Server Components, de la gestion d'état réactive et de l'intégration de flux bidirectionnels WebSockets pour le planning interactif Tape Chart et la PWA mobile Housekeeping ;
+    \item \textbf{Sécurité cryptographique et authentification sans mot de passe} : Implémentation pratique du standard W3C WebAuthn / FIDO2 par appairage QR code sur terminal mobile via Keycloak, signature asymétrique de jetons JWT (RS256) et conformité stricte aux référentiels de sécurité OWASP Top 10 ;
+    \item \textbf{Gestion de la concurrence distribuée sous Redis} : Conception d'algorithmes d'exclusion mutuelle à bail temporel (\textit{Distributed Locks}) pour éliminer définitivement les risques d'overbooking ;
+    \item \textbf{Industrialisation DevOps et Assurance Qualité} : Orchestration multi-conteneurs via Docker Compose, automatisation des suites de tests Pytest (88.4\% de couverture) et analyse statique continue sous SonarQube avec validation du Quality Gate Passed (Note A).
+\end{itemize}
+
+\section{Apports professionnels et immersion métier}
+
+Au-delà de la dimension purement logicielle, ce stage a offert une immersion précieuse au cœur des enjeux stratégiques et opérationnels du secteur de l'hôtellerie de luxe marocaine :
+
+\begin{itemize}
+    \item \textbf{Compréhension intime du métier hôtelier} : L'observation directe des pratiques quotidiennes en réception et en gouvernance d'étage a permis de saisir les impératifs d'ergonomie, de réactivité et de fiabilité indispensables aux outils professionnels de gestion hôtelière ;
+    \item \textbf{Maîtrise de la réglementation fiscale marocaine} : Intégration rigoureuse des règles de calcul et de ventilation de la TVA à 10\%, de la Taxe de Séjour communale et de la Taxe de Promotion Touristique dans les moteurs de facturation et de Night Audit ;
+    \item \textbf{Conduite du changement et relation utilisateurs} : Accompagnement bienveillant des réceptionnistes et gouvernantes lors de la prise en main des prototypes, écoute active des retours d'expérience et adaptation continue des interfaces pour maximiser l'adoption sur le terrain.
+\end{itemize}
+
+\section{Enseignements organisationnels et travail d'équipe Agile}
+
+La conduite de ce projet en équipe de trois élèves-ingénieurs sur une durée de 16 semaines a constitué une mise en situation managériale particulièrement formatrice :
+
+\begin{itemize}
+    \item \textbf{Rigueur de la méthodologie Agile Scrum} : La tenue scrupuleuse des rituels agiles (Daily Stand-up de 15 minutes, Sprint Planning, revues bimensuelles et rétrospectives) a assuré une visibilité totale sur l'avancement et a permis d'adapter rapidement les priorités du backlog ;
+    \item \textbf{Collaboration et gouvernance Git} : Le respect strict du Feature Branch Workflow avec revues de code systématiques par les pairs avant toute fusion sur la branche principale a renforcé la qualité logicielle et favorisé le partage continu des connaissances au sein du trinôme ;
+    \item \textbf{Gestion des imprévus et résilience} : Face aux défis techniques rencontrés (lenteurs initiales du Night Audit, synchronisation WebSocket multi-onglets), l'équipe a su analyser méthodiquement les causes racines et concevoir des solutions pérennes conformes aux standards industriels.
+\end{itemize}
+
+\section{Synthèse des compétences d'ingénieur développées}
+
+Le Tableau~\ref{tab:competences_synthese} résume la cartographie des compétences d'ingénierie acquises et consolidées lors de la réalisation du projet PMS AMH Hospitality.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4cm}|p{3.5cm}|X|}
+\hline
+\textbf{Axe de Compétence} & \textbf{Domaine Spécifique} & \textbf{Niveau de Maîtrise Démontré} \\
+\hline
+\textbf{Architecture Logicielle} & Microservices \& DDD & Conception complète d'un système distribué en 11 services autonomes avec Database per Service et bus AMQP. \\
+\hline
+\textbf{Développement Backend} & Python / FastAPI & Développement d'API REST asynchrones, ORM SQLAlchemy, validation Pydantic, calculs fiscaux précis. \\
+\hline
+\textbf{Développement Frontend} & Next.js 14 / TypeScript & Interface riche interactive (Tape Chart Drag \& Drop), PWA mobile Housekeeping, WebSockets temps réel. \\
+\hline
+\textbf{Sécurité \& Cryptographie} & WebAuthn / FIDO2 & Authentification biométrique sans mot de passe par QR code, serveur Keycloak OIDC, RBAC et JWT RS256. \\
+\hline
+\textbf{Systèmes \& Middleware} & PostgreSQL, Redis, RabbitMQ & Transactions ACID complexes, verrous distribués anti-collision, messaging asynchrone durable. \\
+\hline
+\textbf{DevOps \& Qualité} & Docker, Pytest, SonarQube & Conteneurisation multi-services, automatisation des tests unitaires (88.4\%), Quality Gate Passed. \\
+\hline
+\textbf{Gestion de Projet} & Agile Scrum & Pilotage itératif en 8 sprints de 2 semaines, réunions quotidiennes, livraisons continues. \\
+\hline
+\end{tabularx}
+\caption{Matrice d'évaluation des compétences d'ingénierie acquises}
+\label{tab:competences_synthese}
+\end{table}
+
+\section{Conclusion}
+
+Ce sixième chapitre a synthétisé les apports hautement enrichissants de ce projet de fin d'année, tant sur les plans technique, méthodologique que professionnel. La confrontation aux exigences industrielles réelles du groupe AMH Hospitality a permis à notre équipe de démontrer sa capacité à concevoir et livrer une solution logicielle d'envergure, robuste, ergonomique et certifiée conforme aux plus hauts standards de qualité logicielle.

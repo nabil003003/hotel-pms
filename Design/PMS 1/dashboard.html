@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Tableau de bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle {
+            font-size: 10px;
+            font-weight: 600;
+            color: #8a9bb5;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0;
+            padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px;
+            color: #6b7a8e;
+            font-size: 13px;
+            font-weight: 400;
+            text-decoration: none;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: '';
+            position: absolute;
+            left: 26px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #f0f2f6;
+        }
+        .sidebar .logout-block a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #ef4444;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #1a1a2e;
+            cursor: pointer;
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            margin-left: 270px;
+            flex: 1;
+            padding: 24px 32px;
+            min-height: 100vh;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .topbar .greeting h1 {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .topbar .greeting h1 #greetingIcon {
+            font-size: 21px;
+            color: #f59e0b;
+            transition: color 0.3s;
+        }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; position: relative; }
+        .topbar .actions .notification {
+            background: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .topbar .actions .user-menu {
+            display: none;
+            position: absolute;
+            top: 52px;
+            right: 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            padding: 8px;
+            min-width: 180px;
+            z-index: 200;
+        }
+        .topbar .actions .user-menu.open { display: block; }
+        .topbar .actions .user-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .topbar .actions .user-menu a:hover { background: #f4f6fa; }
+        .topbar .actions .user-menu a.danger { color: #ef4444; }
+        .topbar .actions .user-menu a.danger:hover { background: #fef2f2; }
+
+        /* ===== KPI CARDS ("en gras, très visibles, épurés, percutants") ===== */
+        .kpi-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #8a9bb5;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .kpi-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(74, 108, 247, 0.10);
+            border-color: #eef2ff;
+        }
+        .kpi-card .label {
+            font-size: 12px;
+            color: #7a8aa0;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .kpi-card .label i { font-size: 14px; color: #4a6cf7; }
+        .kpi-card .value {
+            font-size: 23px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+        }
+        .kpi-card .change {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        .kpi-card .change.up { color: #16a34a; background: #f0fdf4; }
+        .kpi-card .change.down { color: #dc2626; background: #fef2f2; }
+        .kpi-card .change i { font-size: 10px; }
+
+        /* ============================================================ */
+        /* ===== PLANNING SECTION (priorité visuelle maximale) ===== */
+        /* ============================================================ */
+
+        .planning-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .planning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .planning-header .left { display: flex; align-items: center; gap: 16px; }
+        .planning-header .left h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .planning-header .left h3 i { color: #4a6cf7; font-size: 22px; }
+        .planning-header .left .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f4f6fa;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .planning-header .left .date-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #5a6a7e;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .planning-header .left .date-nav button:hover { background: #e5e7eb; }
+        .planning-header .right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .planning-header .right select,
+        .planning-header .right button {
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+        }
+        .planning-header .right select:hover,
+        .planning-header .right button:hover { border-color: #4a6cf7; }
+        .planning-header .right .btn-primary {
+            background: #4a6cf7;
+            color: #fff;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .planning-header .right .btn-primary:hover {
+            background: #3b5de7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30);
+        }
+
+        /* --- LEGENDE --- */
+        .legend-modern {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            background: #f8f9fc;
+            border-radius: 12px;
+        }
+        .legend-modern .item { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: #374151; }
+        .legend-modern .item .dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; transition: 0.2s; }
+        .legend-modern .item .dot:hover { transform: scale(1.15); }
+        .legend-modern .item .count {
+            font-size: 10px;
+            color: #8a9bb5;
+            background: #eef2f6;
+            padding: 0 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* --- OCCUPANCY BAR --- */
+        .occupancy-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #f8f9fc, #f0f2f6);
+            border-radius: 10px;
+        }
+        .occupancy-bar .label { font-size: 13px; font-weight: 600; color: #374151; white-space: nowrap; }
+        .occupancy-bar .track {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .occupancy-bar .track .fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #4a6cf7, #6a4cf7);
+            transition: width 1s ease;
+            width: 75%;
+        }
+        .occupancy-bar .track .fill .shine {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .occupancy-bar .percentage { font-size: 18px; font-weight: 700; color: #4a6cf7; min-width: 60px; text-align: right; }
+
+        /* ============================================================ */
+        /* ===== PLANNING TABLE AVEC COLSPAN ===== */
+        /* ============================================================ */
+
+        .planning-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid #f0f2f6; }
+        .planning-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
+
+        .planning-table thead th {
+            text-align: left;
+            padding: 12px 14px;
+            font-weight: 600;
+            color: #5a6a7e;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8f9fc;
+            border-bottom: 2px solid #eef2f6;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        .planning-table thead th:first-child { width: 160px; min-width: 160px; }
+        .planning-table thead th .date-sub { font-weight: 400; color: #8a9bb5; font-size: 10px; display: block; margin-top: 2px; }
+        .planning-table thead th .day-badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #4a6cf7;
+            padding: 0 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .planning-table tbody td { padding: 6px 8px; border-bottom: 1px solid #f5f6fa; vertical-align: middle; min-height: 48px; position: relative; }
+
+        /* --- KPI PAR JOUR (bas de tableau, à l'image de l'export Excel) --- */
+        .planning-table tfoot td {
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            background: #f8f9fc;
+            border-top: 1px solid #eef2f6;
+            color: #374151;
+        }
+        .planning-table tfoot tr:first-child td { border-top: 2px solid #e5e7eb; }
+        .planning-table tfoot tr:last-child td:first-child { border-radius: 0 0 0 10px; }
+        .planning-table tfoot td:first-child {
+            text-align: left;
+            color: #5a6a7e;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+        .planning-table tfoot td:first-child i { color: #4a6cf7; margin-right: 6px; }
+        .planning-table tfoot tr.kpi-to td:not(:first-child) { color: #4a6cf7; font-weight: 800; }
+
+        .planning-table .category-row td {
+            background: #f8f9fc;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 12px;
+            color: #4a6cf7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 2px solid #eef2f6;
+            border-bottom: 2px solid #eef2f6;
+        }
+        .planning-table .category-row td i { margin-right: 8px; }
+
+        .room-cell { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+        .room-cell .room-number { font-weight: 600; color: #1a1a2e; font-size: 14px; min-width: 36px; }
+        .room-cell .room-badge {
+            font-size: 9px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .room-cell .room-badge.standard { background: #eef2ff; color: #4a6cf7; }
+        .room-cell .room-badge.suite { background: #fef3c7; color: #b45309; }
+        .room-cell .room-badge.lodge { background: #d1fae5; color: #065f46; }
+        .room-cell .room-status-icon { font-size: 14px; margin-left: auto; }
+        .room-cell .room-status-icon.available { color: #22c55e; }
+        .room-cell .room-status-icon.occupied { color: #f59e0b; }
+        .room-cell .room-status-icon.maintenance { color: #ef4444; }
+
+        /* ============================================================ */
+        /* ===== RÉSERVATION BLOC AVEC COLSPAN ===== */
+        /* ============================================================ */
+
+        .reservation-block {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px 6px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            position: relative;
+            width: 100%;
+            border: 2px solid transparent;
+            min-height: 36px;
+        }
+        .reservation-block:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+        }
+        .reservation-block .drag-handle { cursor: grab; opacity: 0.4; font-size: 12px; transition: 0.2s; flex-shrink: 0; }
+        .reservation-block .drag-handle:hover { opacity: 0.8; }
+        .reservation-block .guest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+        .reservation-block .guest-name .vip-star { color: #fbbf24; margin-right: 2px; }
+        .reservation-block .channel-tag {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 0 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .reservation-block .nights-badge { font-size: 9px; font-weight: 700; background: rgba(0, 0, 0, 0.08); padding: 0 6px; border-radius: 4px; flex-shrink: 0; }
+        .reservation-block .vip-badge { background: #fbbf24; color: #000; font-size: 9px; padding: 0 8px; border-radius: 4px; font-weight: 700; flex-shrink: 0; }
+        .reservation-block .penalty-badge { background: #ef4444; color: #fff; font-size: 9px; padding: 0 8px; border-radius: 4px; font-weight: 700; flex-shrink: 0; }
+        .reservation-block .cancelled-badge { background: #9ca3af; color: #fff; font-size: 9px; padding: 0 8px; border-radius: 4px; font-weight: 700; flex-shrink: 0; }
+
+        /* --- STATUTS COULEURS --- */
+        .status-option { background: #e8eaf0; color: #5a6a7e; border-left: 4px solid #9aa9be; }
+        .status-confirmed { background: #dbeafe; color: #1d4ed8; border-left: 4px solid #3b82f6; }
+        .status-voucher { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+        .status-inhouse { background: #fef3c7; color: #b45309; border-left: 4px solid #f59e0b; animation: pulse-inhouse 2s infinite; }
+        @keyframes pulse-inhouse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2); }
+            50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
+        }
+        .status-checkout { background: #f3f4f6; color: #4b5563; border-left: 4px solid #6b7280; }
+        .status-no-show { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+        .status-cancelled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            border-left: 4px solid #d1d5db;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        /* ===== TOOLTIP ===== */
+        .reservation-block .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 400;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
+            min-width: 180px;
+            text-align: left;
+        }
+        .reservation-block .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1a1a2e;
+        }
+        .reservation-block .tooltip .tt-row { display: flex; justify-content: space-between; gap: 16px; padding: 2px 0; }
+        .reservation-block .tooltip .tt-row .tt-label { color: #9aa9be; }
+        .reservation-block:hover .tooltip { display: block; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .hamburger { display: block !important; }
+            .planning-header { flex-direction: column; align-items: stretch; }
+            .planning-header .right { flex-wrap: wrap; }
+        }
+        @media (max-width: 600px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .legend-modern { gap: 6px 12px; }
+            .legend-modern .item { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="#" class="active">
+                    <i class="ph ph-gauge"></i> Dashboard
+                    <i class="ph ph-caret-right arrow"></i>
+                </a>
+                <div class="sub-menu open">
+                    <a href="#"><i class="ph ph-chart-bar"></i> KPI Overview</a>
+                    <a href="#"><i class="ph ph-calendar-blank"></i> Planning Général</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/reservations.html"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="../PMS 5/reservations.html"><i class="ph ph-plus-circle"></i> Nouvelle Réservation</a>
+                    <a href="../PMS 5/reservations.html"><i class="ph ph-list"></i> Toutes les Réservations</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/front-office.html"><i class="ph ph-door"></i> Front Office</a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/housekeeping.html"><i class="ph ph-broom"></i> Housekeeping</a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="#"><i class="ph ph-plus-circle"></i> Nouvelle Chambre</a>
+                    <a href="#"><i class="ph ph-list"></i> Liste des Chambres</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="#"><i class="ph ph-user-plus"></i> Nouveau Client</a>
+                    <a href="#"><i class="ph ph-users"></i> Liste Clients</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-table"></i> Grille Tarifaire</a>
+                    <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-receipt"></i> Taxes</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-package"></i> Inventaire <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="#"><i class="ph ph-boxes"></i> Stocks</a>
+                    <a href="#"><i class="ph ph-plus-circle"></i> Ajouter Article</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 3/night-audit.html"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="../PMS 3/night-audit.html"><i class="ph ph-moon"></i> Night Audit</a>
+                    <a href="#"><i class="ph ph-file-pdf"></i> Rapports</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/analytics.html"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="../PMS 5/analytics.html"><i class="ph ph-pie-chart"></i> Segmentation</a>
+                    <a href="../PMS 5/analytics.html"><i class="ph ph-trend-up"></i> Évolution</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-star"></i> Avis <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="#"><i class="ph ph-list"></i> Tous les Avis</a>
+                    <a href="#"><i class="ph ph-chart-bar"></i> Statistiques</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="#"><i class="ph ph-users"></i> Utilisateurs</a>
+                    <a href="#"><i class="ph ph-sliders"></i> Paramètres</a>
+                </div>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-sun" id="greetingIcon"></i> <span id="greetingText">Bonjour</span>, Yasmine El Amrani</h1>
+                    <p>Résumé de l'activité · <strong>Hôtel Marrakech Palace</strong> · <span id="liveClock"></span></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification">
+                    <i class="ph ph-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="avatar" id="avatarBtn">YE</div>
+                <div class="user-menu" id="userMenu">
+                    <a href="#"><i class="ph ph-user"></i> Mon profil</a>
+                    <a href="#"><i class="ph ph-gear-six"></i> Paramètres</a>
+                    <a href="login.html" class="danger"><i class="ph ph-sign-out"></i> Déconnexion</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================================ -->
+        <!-- ===== 3. KPI PRIORITAIRES (haut de page, gras, comparatif N-1) ===== -->
+        <!-- ============================================================ -->
+        <div class="kpi-section-title"><i class="ph ph-lightning"></i> Indicateurs clés · Temps réel</div>
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="label"><i class="ph ph-chart-bar"></i> T.O. Mensuel</div>
+                <div class="value">78%</div>
+                <div class="change up"><i class="ph ph-caret-up"></i> +5% vs Juin 2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label"><i class="ph ph-calendar-check"></i> T.O. Journalier</div>
+                <div class="value">65%</div>
+                <div class="change down"><i class="ph ph-caret-down"></i> -2% vs 12 Juin 2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label"><i class="ph ph-coin"></i> ADR</div>
+                <div class="value">1 250 DH</div>
+                <div class="change up"><i class="ph ph-caret-up"></i> +8% vs Juin 2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label"><i class="ph ph-trend-up"></i> RevPAR</div>
+                <div class="value">975 DH</div>
+                <div class="change up"><i class="ph ph-caret-up"></i> +12% vs Juin 2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label"><i class="ph ph-clock"></i> DMS</div>
+                <div class="value">3.2 nuits</div>
+                <div class="change up"><i class="ph ph-caret-up"></i> +0.5 vs Juin 2025</div>
+            </div>
+            <div class="kpi-card">
+                <div class="label"><i class="ph ph-wallet"></i> CA Mensuel</div>
+                <div class="value">875K DH</div>
+                <div class="change up"><i class="ph ph-caret-up"></i> +15% vs Juin 2025</div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- ===== 2. PLANNING — PRIORITÉ VISUELLE, ESPACE PRINCIPAL ===== -->
+        <!-- ============================================================ -->
+
+        <section class="planning-section">
+            <!-- HEADER -->
+            <div class="planning-header">
+                <div class="left">
+                    <h3><i class="ph ph-calendar-blank"></i> Planning des Chambres</h3>
+                    <div class="date-nav">
+                        <button id="prevWeekBtn" title="Semaine précédente"><i class="ph ph-caret-left"></i></button>
+                        <span id="weekLabel">Semaine du 12 au 18 Juin 2026</span>
+                        <button id="nextWeekBtn" title="Semaine suivante"><i class="ph ph-caret-right"></i></button>
+                        <button id="todayBtn" style="background:#4a6cf7;color:#fff;padding:2px 12px;border-radius:20px;font-size:11px;border:none;cursor:pointer;font-family:'Inter',sans-serif;">Aujourd'hui</button>
+                    </div>
+                </div>
+                <div class="right">
+                    <select>
+                        <option>Toutes catégories</option>
+                        <option>Standard</option>
+                        <option>Suite</option>
+                        <option>Lodge</option>
+                    </select>
+                    <select>
+                        <option>Tous statuts</option>
+                        <option>Option</option>
+                        <option>Confirmée</option>
+                        <option>In-House</option>
+                    </select>
+                    <button class="btn-primary"><i class="ph ph-plus-circle"></i> Nouvelle Réservation</button>
+                </div>
+            </div>
+
+            <!-- LÉGENDE -->
+            <div class="legend-modern">
+                <span class="item"><span class="dot" style="background:#e8eaf0;border:1px solid #d1d5db;"></span> Option <span class="count" id="cntOption">2</span></span>
+                <span class="item"><span class="dot" style="background:#dbeafe;"></span> Confirmée <span class="count" id="cntConfirmed">4</span></span>
+                <span class="item"><span class="dot" style="background:#d1fae5;"></span> Voucher <span class="count" id="cntVoucher">1</span></span>
+                <span class="item"><span class="dot" style="background:#fef3c7;animation:pulse-inhouse 2s infinite;"></span> In-House <span class="count" id="cntInhouse">3</span></span>
+                <span class="item"><span class="dot" style="background:#f3f4f6;"></span> Check-out <span class="count" id="cntCheckout">2</span></span>
+                <span class="item"><span class="dot" style="background:#fee2e2;"></span> No-Show <span class="count" id="cntNoshow">1</span></span>
+                <span class="item"><span class="dot" style="background:#f3f4f6;border:1px dashed #d1d5db;"></span> Annulée <span class="count" id="cntCancelled">1</span></span>
+                <span class="item" style="margin-left:auto;color:#4a6cf7;">
+                    <i class="ph ph-dots-six-vertical"></i> Glisser-déposer
+                </span>
+            </div>
+
+            <!-- OCCUPANCY BAR -->
+            <div class="occupancy-bar">
+                <span class="label"><i class="ph ph-users"></i> Taux d'occupation</span>
+                <div class="track">
+                    <div class="fill" id="occFill" style="width:75%;">
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <span class="percentage" id="occPercentage">75%</span>
+                <span style="font-size:12px;color:#8a9bb5;" id="occRoomsText">42 / 56 chambres</span>
+            </div>
+
+            <!-- PLANNING TABLE -->
+            <div class="planning-wrapper">
+                <table class="planning-table" id="planningTable">
+                    <thead>
+                        <tr>
+                            <th>Chambres <span class="date-sub">Catégorie</span></th>
+                            <th>Lun 12 <span class="date-sub"><span class="day-badge">Aujourd'hui</span></span></th>
+                            <th>Mar 13 <span class="date-sub">Arrivées: 3</span></th>
+                            <th>Mer 14 <span class="date-sub">Départs: 2</span></th>
+                            <th>Jeu 15 <span class="date-sub">Complet</span></th>
+                            <th>Ven 16 <span class="date-sub">Arrivées: 5</span></th>
+                            <th>Sam 17 <span class="date-sub">Week-end</span></th>
+                            <th>Dim 18 <span class="date-sub">Départs: 4</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="planningTbody"></tbody>
+                    <!-- ===== KPI PAR JOUR (bas de tableau, à l'image du planning Excel) ===== -->
+                    <tfoot>
+                        <tr class="kpi-row kpi-nuitees">
+                            <td><i class="ph ph-bed"></i> Nuitées</td>
+                            <td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td>
+                            <td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td>
+                        </tr>
+                        <tr class="kpi-row kpi-capacite">
+                            <td><i class="ph ph-buildings"></i> Capacité</td>
+                            <td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td>
+                            <td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td>
+                        </tr>
+                        <tr class="kpi-row kpi-to">
+                            <td><i class="ph ph-chart-bar"></i> T.O.</td>
+                            <td class="kpi-cell">0%</td><td class="kpi-cell">0%</td><td class="kpi-cell">0%</td>
+                            <td class="kpi-cell">0%</td><td class="kpi-cell">0%</td><td class="kpi-cell">0%</td><td class="kpi-cell">0%</td>
+                        </tr>
+                        <tr class="kpi-row kpi-pax">
+                            <td><i class="ph ph-users"></i> Nbr Pax</td>
+                            <td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td>
+                            <td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td><td class="kpi-cell">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ===== TOGGLE SOUS-MENUS =====
+        document.querySelectorAll('.nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href !== '#') return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub) {
+                    sub.classList.toggle('open');
+                    if (arrow) {
+                        arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                    }
+                }
+            });
+        });
+
+        // ===== HAMBURGER =====
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // ===== USER MENU (LOGOUT) =====
+        const avatarBtn = document.getElementById('avatarBtn');
+        const userMenu = document.getElementById('userMenu');
+        avatarBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenu.classList.toggle('open');
+        });
+        document.addEventListener('click', function() {
+            userMenu.classList.remove('open');
+        });
+
+        // ===== LIVE CLOCK =====
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveClock').textContent = now.toLocaleString('fr-FR', {
+                weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        // ===== GREETING DYNAMIQUE (remplace l'emoji par une icône contextuelle) =====
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const icon = document.getElementById('greetingIcon');
+            const text = document.getElementById('greetingText');
+            if (hour >= 5 && hour < 12) {
+                text.textContent = 'Bonjour';
+                icon.className = 'ph ph-sun';
+                icon.style.color = '#f59e0b';
+            } else if (hour >= 12 && hour < 18) {
+                text.textContent = 'Bon après-midi';
+                icon.className = 'ph ph-sun-dim';
+                icon.style.color = '#f97316';
+            } else {
+                text.textContent = 'Bonsoir';
+                icon.className = 'ph ph-moon-stars';
+                icon.style.color = '#6a4cf7';
+            }
+        }
+
+        updateClock();
+        updateGreeting();
+        setInterval(() => { updateClock(); updateGreeting(); }, 60000);
+
+        // ================================================================
+        // ===== SÉLECTION DE SEMAINE + KPI PAR JOUR DU PLANNING =====
+        // ================================================================
+        const DAY_NAMES = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        const MONTH_NAMES = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        const DEFAULT_WEEK_START = getMonday(new Date(2026, 5, 12)); // lundi de la semaine de démonstration
+
+        const ROOMS_LAYOUT = [
+            { category: 'STANDARD', icon: 'ph-building', badge: 'standard', label: 'Standard', rooms: [101, 102, 103] },
+            { category: 'SUITE', icon: 'ph-armchair', badge: 'suite', label: 'Suite', rooms: [201, 202] },
+            { category: 'LODGE', icon: 'ph-tree', badge: 'lodge', label: 'Lodge', rooms: [301, 302, 303] }
+        ];
+        const TOTAL_ROOMS = ROOMS_LAYOUT.reduce((sum, cat) => sum + cat.rooms.length, 0);
+
+        // Exemples de clients avec des durées de séjour différentes (jours de la semaine, 1=Lun … 7=Dim)
+        // Chambre 303 volontairement laissée libre pour montrer une chambre disponible.
+        const DEFAULT_BOOKINGS = {
+            101: { guest: 'Karim Idrissi', channel: 'Direct', status: 'status-confirmed', statusKey: 'Confirmed', statusLabel: '🔵 Confirmée', startDay: 1, endDay: 3, pax: 2, total: '2 400 DH' },
+            102: { guest: 'Option Bennani', channel: 'Booking', status: 'status-option', statusKey: 'Option', statusLabel: '⚪ Option', startDay: 1, endDay: 2, pax: 1, total: '900 DH' },
+            103: { guest: 'Agence Atlas Voyages', channel: 'Voucher', status: 'status-voucher', statusKey: 'Voucher', statusLabel: '🟢 Voucher', startDay: 3, endDay: 6, pax: 4, total: '3 600 DH' },
+            201: { guest: 'Sophie Laurent', channel: 'Booking', status: 'status-inhouse', statusKey: 'Inhouse', statusLabel: '🟡 In-House', startDay: 2, endDay: 5, pax: 3, total: '5 600 DH' },
+            202: { guest: 'Marc Dubois', channel: 'Direct', status: 'status-checkout', statusKey: 'Checkout', statusLabel: '⚫ Check-out', startDay: 1, endDay: 2, pax: 2, total: '1 200 DH' },
+            301: { guest: 'Carlos Garcia', channel: 'Booking', status: 'status-no-show', statusKey: 'Noshow', statusLabel: '🔴 No-Show', startDay: 4, endDay: 7, pax: 2, total: '750 DH (pénalité)', badge: { cls: 'penalty-badge', text: 'Pénalité' } },
+            302: { guest: 'Marie Petit', channel: 'Agoda', status: 'status-cancelled', statusKey: 'Cancelled', statusLabel: '⛔ Annulée', startDay: 1, endDay: 3, pax: 2, total: 'Annulée', badge: { cls: 'cancelled-badge', text: 'Annulé' } }
+        };
+
+        function toDateKey(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        function getMonday(d) {
+            const date = new Date(d);
+            const day = date.getDay();
+            date.setDate(date.getDate() + (day === 0 ? -6 : 1) - day);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        }
+        function attachReservationDragHandlers() {
+            document.querySelectorAll('.reservation-block').forEach(block => {
+                block.setAttribute('draggable', 'true');
+                block.addEventListener('dragstart', function(e) {
+                    this.style.opacity = '0.5';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                block.addEventListener('dragend', function() {
+                    this.style.opacity = '1';
+                });
+            });
+        }
+
+        function buildTbody(bookingsByRoom) {
+            return ROOMS_LAYOUT.map(cat => {
+                const rows = cat.rooms.map(num => {
+                    const b = bookingsByRoom[num];
+                    let cellsHTML;
+                    if (b) {
+                        const before = b.startDay - 1;
+                        const span = b.endDay - b.startDay + 1;
+                        const after = 7 - b.endDay;
+                        cellsHTML = (before > 0 ? `<td colspan="${before}"></td>` : '') + `
+                            <td colspan="${span}">
+                                <div class="reservation-block ${b.status}">
+                                    <span class="drag-handle"><i class="ph ph-dots-six-vertical"></i></span>
+                                    <span class="guest-name">${b.guest}</span>
+                                    <span class="channel-tag">${b.channel}</span>
+                                    <span class="nights-badge">${span}j</span>
+                                    ${b.badge ? `<span class="${b.badge.cls}">${b.badge.text}</span>` : ''}
+                                    <div class="tooltip">
+                                        <div class="tt-row"><span class="tt-label">Client</span><span>${b.guest}</span></div>
+                                        <div class="tt-row"><span class="tt-label">Chambre</span><span>${num} · ${cat.label}</span></div>
+                                        <div class="tt-row"><span class="tt-label">Séjour</span><span>Jour ${b.startDay} → Jour ${b.endDay}</span></div>
+                                        <div class="tt-row"><span class="tt-label">Statut</span><span>${b.statusLabel}</span></div>
+                                        <div class="tt-row"><span class="tt-label">Total</span><span>${b.total}</span></div>
+                                    </div>
+                                </div>
+                            </td>` + (after > 0 ? `<td colspan="${after}"></td>` : '');
+                    } else {
+                        cellsHTML = `<td colspan="7"></td>`;
+                    }
+                    return `
+                        <tr>
+                            <td>
+                                <div class="room-cell">
+                                    <span class="room-number">${num}</span>
+                                    <span class="room-badge ${cat.badge}">${cat.label}</span>
+                                    <span class="room-status-icon ${b ? 'occupied' : 'available'}"><i class="ph ph-circle-fill"></i></span>
+                                </div>
+                            </td>
+                            ${cellsHTML}
+                        </tr>`;
+                }).join('');
+                return `<tr class="category-row"><td colspan="8"><i class="ph ${cat.icon}"></i> ${cat.category}</td></tr>${rows}`;
+            }).join('');
+        }
+
+        function setKpiRow(rowClass, values) {
+            document.querySelectorAll(`.${rowClass} .kpi-cell`).forEach((cell, i) => { cell.textContent = values[i]; });
+        }
+
+        function renderWeek(anchorDate) {
+            const monday = getMonday(anchorDate);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            const isDefaultWeek = toDateKey(monday) === toDateKey(DEFAULT_WEEK_START);
+            const bookingsByRoom = isDefaultWeek ? DEFAULT_BOOKINGS : {};
+            const bookingsList = Object.values(bookingsByRoom);
+            const today = new Date();
+
+            document.getElementById('weekLabel').textContent = monday.getMonth() === sunday.getMonth()
+                ? `Semaine du ${monday.getDate()} au ${sunday.getDate()} ${MONTH_NAMES[monday.getMonth()]} ${monday.getFullYear()}`
+                : `Semaine du ${monday.getDate()} ${MONTH_NAMES[monday.getMonth()]} au ${sunday.getDate()} ${MONTH_NAMES[sunday.getMonth()]} ${sunday.getFullYear()}`;
+
+            // En-têtes des colonnes (jour + arrivées/départs calculés à partir des réservations)
+            const ths = document.querySelectorAll('#planningTable thead th');
+            for (let i = 0; i < 7; i++) {
+                const dayNum = i + 1;
+                const cellDate = new Date(monday);
+                cellDate.setDate(monday.getDate() + i);
+                const isToday = toDateKey(cellDate) === toDateKey(today);
+                const arrivals = bookingsList.filter(b => b.startDay === dayNum).length;
+                const departures = bookingsList.filter(b => b.endDay === dayNum).length;
+                let sub = '';
+                if (arrivals > 0) sub = `Arrivées: ${arrivals}`;
+                else if (departures > 0) sub = `Départs: ${departures}`;
+                else if (cellDate.getDay() === 0 || cellDate.getDay() === 6) sub = 'Week-end';
+                const subHTML = isToday ? '<span class="day-badge">Aujourd\'hui</span>' : sub;
+                ths[i + 1].innerHTML = `${DAY_NAMES[cellDate.getDay()]} ${cellDate.getDate()} <span class="date-sub">${subHTML}</span>`;
+            }
+
+            // Grille des chambres
+            document.getElementById('planningTbody').innerHTML = buildTbody(bookingsByRoom);
+            attachReservationDragHandlers();
+
+            // KPI par jour (Nuitées, Capacité, T.O., Nbr Pax) — même logique que le planning Excel
+            const nuitees = new Array(7).fill(0);
+            const pax = new Array(7).fill(0);
+            bookingsList.forEach(b => {
+                for (let d = b.startDay; d <= b.endDay; d++) {
+                    nuitees[d - 1] += 1;
+                    pax[d - 1] += b.pax;
+                }
+            });
+            const capacite = new Array(7).fill(TOTAL_ROOMS);
+            const to = nuitees.map(n => Math.round((n / TOTAL_ROOMS) * 100));
+
+            setKpiRow('kpi-nuitees', nuitees);
+            setKpiRow('kpi-capacite', capacite);
+            setKpiRow('kpi-to', to.map(v => v + '%'));
+            setKpiRow('kpi-pax', pax);
+
+            // Barre d'occupation + légende (dérivées des mêmes réservations)
+            const totalNuitees = nuitees.reduce((a, v) => a + v, 0);
+            const totalCapacity = capacite.reduce((a, v) => a + v, 0);
+            const weekTO = totalCapacity ? Math.round((totalNuitees / totalCapacity) * 100) : 0;
+            document.getElementById('occFill').style.width = weekTO + '%';
+            document.getElementById('occPercentage').textContent = weekTO + '%';
+            document.getElementById('occRoomsText').textContent = `${totalNuitees} / ${totalCapacity} nuitées`;
+
+            const counts = { Option: 0, Confirmed: 0, Voucher: 0, Inhouse: 0, Checkout: 0, Noshow: 0, Cancelled: 0 };
+            bookingsList.forEach(b => { counts[b.statusKey] = (counts[b.statusKey] || 0) + 1; });
+            document.getElementById('cntOption').textContent = counts.Option;
+            document.getElementById('cntConfirmed').textContent = counts.Confirmed;
+            document.getElementById('cntVoucher').textContent = counts.Voucher;
+            document.getElementById('cntInhouse').textContent = counts.Inhouse;
+            document.getElementById('cntCheckout').textContent = counts.Checkout;
+            document.getElementById('cntNoshow').textContent = counts.Noshow;
+            document.getElementById('cntCancelled').textContent = counts.Cancelled;
+        }
+
+        let currentAnchor = new Date(DEFAULT_WEEK_START);
+        document.getElementById('prevWeekBtn').addEventListener('click', () => {
+            currentAnchor.setDate(currentAnchor.getDate() - 7);
+            renderWeek(currentAnchor);
+        });
+        document.getElementById('nextWeekBtn').addEventListener('click', () => {
+            currentAnchor.setDate(currentAnchor.getDate() + 7);
+            renderWeek(currentAnchor);
+        });
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            currentAnchor = new Date();
+            renderWeek(currentAnchor);
+        });
+
+        renderWeek(currentAnchor);
+    </script>
+
+</body>
+</html>

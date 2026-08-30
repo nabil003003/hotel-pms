@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Housekeeping</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle { font-size: 10px; font-weight: 600; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0; padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px; color: #6b7a8e; font-size: 13px; font-weight: 400;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: ''; position: absolute; left: 26px;
+            width: 4px; height: 4px; border-radius: 50%; background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block { margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+        .sidebar .logout-block a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 14px; border-radius: 10px;
+            color: #ef4444; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: #1a1a2e; cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main { margin-left: 270px; flex: 1; padding: 24px 32px; min-height: 100vh; }
+
+        /* ===== TOP BAR ===== */
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .topbar .greeting h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .topbar .greeting h1 i { color: #4a6cf7; font-size: 22px; }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .actions .notification {
+            background: #fff; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+        }
+
+        /* ============================================================ */
+        /* ===== HOUSEKEEPING ===== */
+        /* ============================================================ */
+
+        /* --- STATS ROW --- */
+        .hk-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .hk-stat-card {
+            background: #fff; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease; border: 1px solid transparent;
+        }
+        .hk-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74, 108, 247, 0.08); border-color: #eef2ff; }
+        .hk-stat-card .stat-label {
+            font-size: 12px; color: #7a8aa0; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .hk-stat-card .stat-label i { font-size: 14px; }
+        .hk-stat-card .stat-value { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-top: 4px; }
+        .hk-stat-card .stat-sub { font-size: 12px; color: #7a8aa0; margin-top: 2px; }
+
+        /* --- FILTERS --- */
+        .hk-filters {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px;
+            background: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .hk-filters select, .hk-filters button {
+            padding: 8px 16px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; font-weight: 500; color: #374151; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;
+        }
+        .hk-filters select:hover, .hk-filters button:hover { border-color: #4a6cf7; }
+        .hk-filters .btn-primary { background: #4a6cf7; color: #fff; border: none; display: flex; align-items: center; gap: 8px; }
+        .hk-filters .btn-primary:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .hk-filters .search-box {
+            flex: 1; min-width: 180px; display: flex; align-items: center;
+            background: #f4f6fa; border-radius: 10px; padding: 0 14px; border: 1px solid transparent; transition: 0.2s;
+        }
+        .hk-filters .search-box:focus-within { border-color: #4a6cf7; background: #fff; }
+        .hk-filters .search-box i { color: #8a9bb5; }
+        .hk-filters .search-box input {
+            border: none; background: transparent; padding: 8px 12px; font-size: 13px;
+            font-family: 'Inter', sans-serif; width: 100%; outline: none; color: #1a1a2e;
+        }
+        .hk-filters .search-box input::placeholder { color: #8a9bb5; }
+
+        /* --- LEGENDE --- */
+        .hk-legend {
+            display: flex; flex-wrap: wrap; gap: 16px 24px; margin-bottom: 18px;
+            padding: 12px 16px; background: #f8f9fc; border-radius: 12px;
+        }
+        .hk-legend .item { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: #374151; }
+        .hk-legend .item .dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+        .hk-legend .item .dot.dirty { background: #6b7280; }
+        .hk-legend .item .dot.cleaning { background: #f59e0b; }
+        .hk-legend .item .dot.clean { background: #22c55e; }
+        .hk-legend .item .dot.controlled { background: #4a6cf7; }
+        .hk-legend .item .dot.blocked { background: #ef4444; }
+
+        /* --- TABLE --- */
+        .hk-wrapper { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); overflow-x: auto; }
+        .hk-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+        .hk-table thead th {
+            text-align: left; padding: 14px 16px; font-weight: 600; color: #5a6a7e; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px; background: #f8f9fc; border-bottom: 2px solid #eef2f6;
+            position: sticky; top: 0; z-index: 5;
+        }
+        .hk-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f5f6fa; vertical-align: middle; }
+        .hk-table tbody tr:hover { background: #fafbff; }
+        .hk-table tbody tr:last-child td { border-bottom: none; }
+
+        /* --- ROOM CELL --- */
+        .hk-room { display: flex; align-items: center; gap: 10px; }
+        .hk-room .room-number { font-weight: 700; font-size: 15px; color: #1a1a2e; min-width: 40px; }
+        .hk-room .room-badge { font-size: 9px; padding: 2px 10px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+        .hk-room .room-badge.standard { background: #eef2ff; color: #4a6cf7; }
+        .hk-room .room-badge.suite { background: #fef3c7; color: #b45309; }
+        .hk-room .room-badge.lodge { background: #d1fae5; color: #065f46; }
+        .hk-room .floor-tag { font-size: 11px; color: #8a9bb5; background: #f4f6fa; padding: 2px 10px; border-radius: 20px; }
+
+        /* --- STATUS BADGES --- */
+        .hk-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .hk-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .hk-status.dirty { background: #f3f4f6; color: #4b5563; }
+        .hk-status.dirty .dot { background: #6b7280; }
+        .hk-status.cleaning { background: #fef3c7; color: #b45309; }
+        .hk-status.cleaning .dot { background: #f59e0b; animation: pulse-dot 1s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        .hk-status.clean { background: #dcfce7; color: #16a34a; }
+        .hk-status.clean .dot { background: #22c55e; }
+        .hk-status.controlled { background: #dbeafe; color: #1d4ed8; }
+        .hk-status.controlled .dot { background: #3b82f6; }
+        .hk-status.blocked { background: #fee2e2; color: #991b1b; }
+        .hk-status.blocked .dot { background: #ef4444; }
+
+        /* --- PRIORITY --- */
+        .hk-priority { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+        .hk-priority .pill { padding: 2px 10px; border-radius: 20px; }
+        .hk-priority .pill.high { background: #fee2e2; color: #dc2626; }
+        .hk-priority .pill.normal { background: #dbeafe; color: #2563eb; }
+        .hk-priority .pill.low { background: #f3f4f6; color: #6b7280; }
+
+        /* --- ASSIGNED STAFF --- */
+        .hk-staff { display: flex; align-items: center; gap: 8px; }
+        .hk-staff .avatar-sm {
+            width: 28px; height: 28px; border-radius: 50%; background: #4a6cf7; color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600;
+        }
+        .hk-staff .name { font-size: 12px; font-weight: 500; color: #1a1a2e; }
+
+        /* --- ACTION BUTTONS --- */
+        .hk-actions { display: flex; gap: 4px; }
+        .hk-actions button { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; color: #8a9bb5; transition: 0.2s; font-size: 14px; }
+        .hk-actions button:hover { background: #eef2ff; color: #4a6cf7; }
+        .hk-actions button.clean-btn:hover { color: #22c55e; }
+        .hk-actions button.block-btn:hover { color: #ef4444; }
+        .hk-actions button.control-btn:hover { color: #4a6cf7; }
+        .hk-actions button.unblock-btn:hover { color: #f59e0b; }
+
+        /* ============================================================ */
+        /* ===== MODALE DE BLOCAGE ===== */
+        /* ============================================================ */
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #fff; border-radius: 16px; padding: 32px; max-width: 480px; width: 90%; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.20); animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal .modal-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .modal .modal-header h3 i { color: #ef4444; }
+        .modal .modal-header .close-btn { background: none; border: none; font-size: 24px; color: #8a9bb5; cursor: pointer; transition: 0.2s; }
+        .modal .modal-header .close-btn:hover { color: #1a1a2e; }
+        .modal .modal-body { margin-bottom: 20px; }
+        .modal .modal-body .room-info { background: #f8f9fc; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; }
+        .modal .modal-body .room-info .label { font-size: 12px; color: #7a8aa0; }
+        .modal .modal-body .room-info .value { font-size: 16px; font-weight: 700; }
+        .modal .modal-body label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #374151; }
+        .modal .modal-body .reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .modal .modal-body .reason-grid .reason-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid #e5e7eb;
+            border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 13px; font-weight: 500; color: #374151;
+        }
+        .modal .modal-body .reason-grid .reason-item:hover { border-color: #4a6cf7; background: #f8f9ff; }
+        .modal .modal-body .reason-grid .reason-item.selected { border-color: #4a6cf7; background: #eef2ff; }
+        .modal .modal-body .reason-grid .reason-item input[type="radio"] { accent-color: #4a6cf7; width: 16px; height: 16px; cursor: pointer; }
+        .modal .modal-body .reason-grid .reason-item i { font-size: 18px; color: #4a6cf7; }
+        .modal .modal-body .notes-input { margin-top: 12px; }
+        .modal .modal-body .notes-input textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 13px;
+            font-family: 'Inter', sans-serif; resize: vertical; min-height: 60px; outline: none; transition: 0.2s;
+        }
+        .modal .modal-body .notes-input textarea:focus { border-color: #4a6cf7; }
+        .modal .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal .modal-footer button { padding: 10px 24px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; }
+        .modal .modal-footer .btn-secondary { background: transparent; border: 1px solid #e5e7eb; color: #5a6a7e; }
+        .modal .modal-footer .btn-secondary:hover { border-color: #4a6cf7; color: #4a6cf7; }
+        .modal .modal-footer .btn-danger { background: #ef4444; border: none; color: #fff; }
+        .modal .modal-footer .btn-danger:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.30); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) { .hk-stats { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .hamburger { display: block !important; }
+            .hk-stats { grid-template-columns: repeat(2, 1fr); }
+            .hk-filters { flex-direction: column; align-items: stretch; }
+            .hk-filters .search-box { min-width: unset; }
+            .modal .modal-body .reason-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .hk-stats { grid-template-columns: 1fr; }
+            .hk-table { font-size: 11px; min-width: 700px; }
+            .hk-table thead th, .hk-table tbody td { padding: 8px 10px; }
+            .hk-actions button { padding: 2px 6px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="../PMS 1/dashboard.html"><i class="ph ph-gauge"></i> Dashboard <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/reservations.html"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="front-office.html"><i class="ph ph-door"></i> Front Office <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active"><i class="ph ph-broom"></i> Housekeeping <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu open">
+                    <a href="#"><i class="ph ph-grid-four"></i> Vue Chambres</a>
+                    <a href="#"><i class="ph ph-list"></i> Liste des Tâches</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 3/night-audit.html"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/analytics.html"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="../PMS 1/login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-broom"></i> Housekeeping</h1>
+                    <p>Gouvernance · États des chambres en temps réel · <strong>Hôtel Marrakech Palace</strong></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification"><i class="ph ph-bell"></i><span class="badge">3</span></div>
+                <div class="avatar">YE</div>
+            </div>
+        </header>
+
+        <!-- ===== STATS ===== -->
+        <section class="hk-stats">
+            <div class="hk-stat-card">
+                <div class="stat-label"><i class="ph ph-bed"></i> Total Chambres</div>
+                <div class="stat-value" id="statTotal">56</div>
+                <div class="stat-sub">Capacité totale</div>
+            </div>
+            <div class="hk-stat-card">
+                <div class="stat-label"><i class="ph ph-broom"></i> Sale</div>
+                <div class="stat-value" id="statDirty" style="color:#6b7280;">0</div>
+                <div class="stat-sub">À traiter</div>
+            </div>
+            <div class="hk-stat-card">
+                <div class="stat-label"><i class="ph ph-spinner"></i> Nettoyage en cours</div>
+                <div class="stat-value" id="statCleaning" style="color:#f59e0b;">0</div>
+                <div class="stat-sub">En cours de traitement</div>
+            </div>
+            <div class="hk-stat-card">
+                <div class="stat-label"><i class="ph ph-check-circle"></i> Propre / Contrôlée</div>
+                <div class="stat-value" id="statClean" style="color:#22c55e;">0</div>
+                <div class="stat-sub">Prêtes à la vente</div>
+            </div>
+            <div class="hk-stat-card">
+                <div class="stat-label"><i class="ph ph-lock"></i> Bloquées</div>
+                <div class="stat-value" id="statBlocked" style="color:#ef4444;">0</div>
+                <div class="stat-sub">Hors service</div>
+            </div>
+        </section>
+
+        <!-- ===== FILTERS ===== -->
+        <section class="hk-filters">
+            <div class="search-box">
+                <i class="ph ph-magnifying-glass"></i>
+                <input type="text" placeholder="Rechercher une chambre..." id="hkSearch" oninput="filterRooms()" />
+            </div>
+            <select id="hkFilterStatus" onchange="filterRooms()">
+                <option value="all">Tous les statuts</option>
+                <option value="dirty">Sale</option>
+                <option value="cleaning">Nettoyage en cours</option>
+                <option value="clean">Propre</option>
+                <option value="controlled">Contrôlée</option>
+                <option value="blocked">Bloquée</option>
+            </select>
+            <select id="hkFilterFloor" onchange="filterRooms()">
+                <option value="all">Tous les étages</option>
+                <option value="1">1er étage</option>
+                <option value="2">2ème étage</option>
+                <option value="3">3ème étage</option>
+                <option value="4">4ème étage</option>
+            </select>
+            <button class="btn-primary"><i class="ph ph-plus-circle"></i> Nouvelle Tâche</button>
+        </section>
+
+        <!-- ===== LEGENDE (5 statuts obligatoires) ===== -->
+        <div class="hk-legend">
+            <span class="item"><span class="dot dirty"></span> Sale</span>
+            <span class="item"><span class="dot cleaning"></span> Nettoyage en cours</span>
+            <span class="item"><span class="dot clean"></span> Propre</span>
+            <span class="item"><span class="dot controlled"></span> Contrôlée</span>
+            <span class="item"><span class="dot blocked"></span> Bloquée</span>
+            <span class="item" style="margin-left:auto;color:#4a6cf7;"><i class="ph ph-arrows-clockwise"></i> Synchronisé avec le Planning Général</span>
+        </div>
+
+        <!-- ===== TABLE ===== -->
+        <div class="hk-wrapper">
+            <table class="hk-table" id="hkTable">
+                <thead>
+                    <tr>
+                        <th>Chambre</th>
+                        <th>Étage</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th>Priorité</th>
+                        <th>Personnel assigné</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="hkTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ===== MODALE DE BLOCAGE (4 motifs obligatoires) ===== -->
+        <div class="modal-overlay" id="blockModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3><i class="ph ph-lock"></i> Bloquer la chambre</h3>
+                    <button class="close-btn" onclick="closeBlockModal()"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="room-info">
+                        <div class="label">Chambre sélectionnée</div>
+                        <div class="value" id="blockRoomNumber">101</div>
+                    </div>
+                    <label>Motif de blocage <span style="color:#ef4444;">*</span></label>
+                    <div class="reason-grid">
+                        <div class="reason-item" onclick="selectReason(this)">
+                            <input type="radio" name="blockReason" value="dayuse" /><i class="ph ph-sun"></i> Day Use
+                        </div>
+                        <div class="reason-item" onclick="selectReason(this)">
+                            <input type="radio" name="blockReason" value="technical" /><i class="ph ph-wrench"></i> Problème technique
+                        </div>
+                        <div class="reason-item" onclick="selectReason(this)">
+                            <input type="radio" name="blockReason" value="late_checkout" /><i class="ph ph-clock"></i> Départ tardif
+                        </div>
+                        <div class="reason-item" onclick="selectReason(this)">
+                            <input type="radio" name="blockReason" value="renovation" /><i class="ph ph-hammer"></i> Travaux
+                        </div>
+                    </div>
+                    <div class="notes-input">
+                        <label style="font-size:12px;font-weight:500;color:#5a6a7e;">Notes supplémentaires (optionnel)</label>
+                        <textarea id="blockNotes" placeholder="Ex: Fuite d'eau, peinture à refaire..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeBlockModal()">Annuler</button>
+                    <button class="btn-danger" onclick="confirmBlock()"><i class="ph ph-lock"></i> Bloquer</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ================================================================
+        // ===== DONNÉES DES CHAMBRES =====
+        // Chaque chambre possède obligatoirement l'un des 5 statuts :
+        // dirty (Sale), cleaning, clean (Propre), controlled (Contrôlée), blocked
+        // ================================================================
+        let rooms = [
+            { id: 101, floor: 1, type: 'Standard', status: 'dirty', priority: 'high', staff: 'Amelia Reyes', staffInitials: 'AR', notes: 'Départ ce matin - à traiter en priorité' },
+            { id: 102, floor: 1, type: 'Standard', status: 'cleaning', priority: 'normal', staff: 'Leo Tan', staffInitials: 'LT', notes: 'Serviettes et articles de toilette remplacés' },
+            { id: 103, floor: 1, type: 'Standard', status: 'dirty', priority: 'high', staff: 'Grace Miller', staffInitials: 'GM', notes: 'Client VIP arrivant cet après-midi' },
+            { id: 104, floor: 1, type: 'Standard', status: 'controlled', priority: 'low', staff: 'Kevin Park', staffInitials: 'KP', notes: 'Contrôlée - prête pour check-in' },
+            { id: 201, floor: 2, type: 'Suite', status: 'controlled', priority: 'normal', staff: 'Maria Lopez', staffInitials: 'ML', notes: 'Chambre désinfectée, minibar réapprovisionné' },
+            { id: 202, floor: 2, type: 'Suite', status: 'dirty', priority: 'low', staff: 'Daniel Cruz', staffInitials: 'DC', notes: 'Nécessite une intervention maintenance' },
+            { id: 203, floor: 2, type: 'Suite', status: 'cleaning', priority: 'high', staff: 'Hannah Smith', staffInitials: 'HS', notes: 'Nettoyage approfondi après départ famille' },
+            { id: 204, floor: 2, type: 'Suite', status: 'clean', priority: 'low', staff: 'Oliver Green', staffInitials: 'OG', notes: 'Nettoyage quotidien effectué - en attente de contrôle' },
+            { id: 301, floor: 3, type: 'Lodge', status: 'dirty', priority: 'normal', staff: 'Clara Lee', staffInitials: 'CL', notes: 'En attente de livraison de linge' },
+            { id: 302, floor: 3, type: 'Lodge', status: 'controlled', priority: 'normal', staff: 'Jacob Flores', staffInitials: 'JF', notes: 'Inspection réalisée ce matin' },
+            { id: 303, floor: 3, type: 'Lodge', status: 'blocked', priority: 'normal', staff: '-', staffInitials: '-', notes: 'Problème technique - Plomberie' },
+            { id: 304, floor: 3, type: 'Lodge', status: 'cleaning', priority: 'low', staff: 'Mia Johnson', staffInitials: 'MJ', notes: 'Nettoyage rapide avant arrivée du soir' },
+            { id: 305, floor: 3, type: 'Lodge', status: 'clean', priority: 'high', staff: 'Ethan Wong', staffInitials: 'EW', notes: 'Client a demandé des oreillers supplémentaires' },
+            { id: 401, floor: 4, type: 'Standard', status: 'blocked', priority: 'normal', staff: '-', staffInitials: '-', notes: 'Travaux - Rénovation' },
+            { id: 402, floor: 4, type: 'Standard', status: 'clean', priority: 'normal', staff: 'Sarah Kim', staffInitials: 'SK', notes: 'Propre - en attente de contrôle' },
+            { id: 403, floor: 4, type: 'Standard', status: 'blocked', priority: 'normal', staff: '-', staffInitials: '-', notes: 'Day Use - Occupation journée' },
+            { id: 404, floor: 4, type: 'Standard', status: 'dirty', priority: 'high', staff: 'Michael Chen', staffInitials: 'MC', notes: 'Urgent - Départ tardif' }
+        ];
+
+        let currentBlockRoom = null;
+
+        // ================================================================
+        // ===== RENDU DU TABLEAU =====
+        // ================================================================
+        function renderRooms(filteredRooms) {
+            const tbody = document.getElementById('hkTableBody');
+            const roomsToRender = filteredRooms || rooms;
+
+            tbody.innerHTML = roomsToRender.map(room => `
+                        <tr data-room="${room.id}">
+                            <td><div class="hk-room"><span class="room-number">${room.id}</span><span class="floor-tag">${room.floor}er étage</span></div></td>
+                            <td>${room.floor}er</td>
+                            <td><span class="room-badge ${room.type.toLowerCase()}">${room.type}</span></td>
+                            <td><span class="hk-status ${room.status}"><span class="dot"></span> ${getStatusLabel(room.status)}</span></td>
+                            <td><span class="hk-priority"><span class="pill ${room.priority}">${getPriorityLabel(room.priority)}</span></span></td>
+                            <td>
+                                <div class="hk-staff">
+                                    ${room.staff !== '-' ? `<span class="avatar-sm">${room.staffInitials}</span><span class="name">${room.staff}</span>` : '<span style="color:#8a9bb5;font-size:12px;">Non assigné</span>'}
+                                </div>
+                            </td>
+                            <td style="font-size:12px;color:#5a6a7e;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${room.notes}</td>
+                            <td>
+                                <div class="hk-actions">
+                                    ${room.status !== 'cleaning' && room.status !== 'clean' && room.status !== 'controlled' && room.status !== 'blocked' ? `<button class="clean-btn" onclick="updateStatus(${room.id}, 'cleaning')" title="Nettoyer"><i class="ph ph-broom"></i></button>` : ''}
+                                    ${room.status === 'cleaning' ? `<button class="clean-btn" onclick="updateStatus(${room.id}, 'clean')" title="Marquer Propre"><i class="ph ph-check"></i></button>` : ''}
+                                    ${room.status === 'clean' ? `<button class="control-btn" onclick="updateStatus(${room.id}, 'controlled')" title="Contrôler"><i class="ph ph-clipboard-check"></i></button>` : ''}
+                                    ${room.status !== 'blocked' ? `<button class="block-btn" onclick="openBlockModal(${room.id})" title="Bloquer"><i class="ph ph-lock"></i></button>` : ''}
+                                    ${room.status === 'blocked' ? `<button class="unblock-btn" onclick="updateStatus(${room.id}, 'dirty')" title="Libérer"><i class="ph ph-lock-open"></i></button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+        }
+
+        function getStatusLabel(status) {
+            const labels = { dirty: 'Sale', cleaning: 'Nettoyage en cours', clean: 'Propre', controlled: 'Contrôlée', blocked: 'Bloquée' };
+            return labels[status] || status;
+        }
+        function getPriorityLabel(priority) {
+            const labels = { high: 'Haute', normal: 'Normale', low: 'Basse' };
+            return labels[priority] || priority;
+        }
+
+        // ================================================================
+        // ===== FILTRES =====
+        // ================================================================
+        function filterRooms() {
+            const search = document.getElementById('hkSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('hkFilterStatus').value;
+            const floorFilter = document.getElementById('hkFilterFloor').value;
+
+            const filtered = rooms.filter(room => {
+                const matchSearch = room.id.toString().includes(search) || room.notes.toLowerCase().includes(search);
+                const matchStatus = statusFilter === 'all' || room.status === statusFilter;
+                const matchFloor = floorFilter === 'all' || room.floor.toString() === floorFilter;
+                return matchSearch && matchStatus && matchFloor;
+            });
+            renderRooms(filtered);
+        }
+
+        // ================================================================
+        // ===== ACTIONS SUR LE STATUT =====
+        // ================================================================
+        function updateStatus(roomId, newStatus) {
+            const room = rooms.find(r => r.id === roomId);
+            if (!room) return;
+
+            if (room.status === 'blocked' && newStatus === 'dirty') {
+                room.status = 'dirty';
+                room.notes = 'Libérée - ' + room.notes;
+                room.staff = '-';
+                room.staffInitials = '-';
+                updateStats();
+                filterRooms();
+                return;
+            }
+
+            room.status = newStatus;
+            const statusLabels = {
+                dirty: 'En attente de nettoyage',
+                cleaning: 'Nettoyage en cours',
+                clean: 'Propre - En attente de contrôle',
+                controlled: 'Contrôlée - Prête pour check-in'
+            };
+            if (newStatus !== 'blocked') room.notes = statusLabels[newStatus] || room.notes;
+
+            updateStats();
+            filterRooms();
+
+            const row = document.querySelector(`tr[data-room="${roomId}"]`);
+            if (row) {
+                row.style.transition = 'background 0.3s';
+                row.style.background = '#d1fae5';
+                setTimeout(() => { row.style.background = ''; }, 500);
+            }
+        }
+
+        // ================================================================
+        // ===== MODALE DE BLOCAGE =====
+        // ================================================================
+        function openBlockModal(roomId) {
+            const room = rooms.find(r => r.id === roomId);
+            if (!room) return;
+
+            currentBlockRoom = roomId;
+            document.getElementById('blockRoomNumber').textContent = room.id + ' · ' + room.type;
+            document.querySelectorAll('.reason-item').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('input[name="blockReason"]').forEach(el => el.checked = false);
+            document.getElementById('blockNotes').value = '';
+            document.getElementById('blockModal').classList.add('active');
+        }
+        function closeBlockModal() {
+            document.getElementById('blockModal').classList.remove('active');
+            currentBlockRoom = null;
+        }
+        function selectReason(el) {
+            document.querySelectorAll('.reason-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+            el.querySelector('input[type="radio"]').checked = true;
+        }
+        function confirmBlock() {
+            const selectedReason = document.querySelector('input[name="blockReason"]:checked');
+            if (!selectedReason) {
+                alert('Veuillez sélectionner un motif de blocage — champ obligatoire.');
+                return;
+            }
+            const room = rooms.find(r => r.id === currentBlockRoom);
+            if (!room) return;
+
+            const reasonLabels = { dayuse: 'Day Use', technical: 'Problème technique', late_checkout: 'Départ tardif', renovation: 'Travaux' };
+            const notes = document.getElementById('blockNotes').value;
+            const reason = reasonLabels[selectedReason.value] || selectedReason.value;
+
+            room.status = 'blocked';
+            room.notes = notes ? `${reason} - ${notes}` : reason;
+            room.staff = '-';
+            room.staffInitials = '-';
+            room.priority = 'normal';
+
+            closeBlockModal();
+            updateStats();
+            filterRooms();
+
+            const row = document.querySelector(`tr[data-room="${room.id}"]`);
+            if (row) {
+                row.style.transition = 'background 0.3s';
+                row.style.background = '#fee2e2';
+                setTimeout(() => { row.style.background = ''; }, 500);
+            }
+        }
+
+        // ================================================================
+        // ===== MISE À JOUR DES STATS (calculées à partir des chambres) =====
+        // ================================================================
+        function updateStats() {
+            document.getElementById('statTotal').textContent = rooms.length;
+            document.getElementById('statDirty').textContent = rooms.filter(r => r.status === 'dirty').length;
+            document.getElementById('statCleaning').textContent = rooms.filter(r => r.status === 'cleaning').length;
+            document.getElementById('statClean').textContent = rooms.filter(r => r.status === 'clean' || r.status === 'controlled').length;
+            document.getElementById('statBlocked').textContent = rooms.filter(r => r.status === 'blocked').length;
+        }
+
+        // ================================================================
+        // ===== INITIALISATION =====
+        // ================================================================
+        document.getElementById('blockModal').addEventListener('click', function(e) { if (e.target === this) closeBlockModal(); });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeBlockModal(); });
+
+        renderRooms();
+        updateStats();
+
+        document.querySelectorAll('.nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href') && this.getAttribute('href') !== '#') return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub && sub.classList.contains('sub-menu')) {
+                    sub.classList.toggle('open');
+                    if (arrow) arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            });
+        });
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+    </script>
+
+</body>
+</html>

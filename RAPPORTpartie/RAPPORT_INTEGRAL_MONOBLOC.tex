@@ -1,0 +1,2433 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ==============================================================================
+% GUIDE DE RÉDACTION PFA - EMSI MARRAKECH (Pr. Faouzia ENNAAMA)
+% Respect strict de toutes les normes académiques et typographiques
+% ==============================================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% Marges standardisées conformes au cahier des charges académique
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% Interligne 1,5 réglementaire
+\usepackage{setspace}
+\onehalfspacing
+
+% Retrait de première ligne pour chaque paragraphe (Tabulation obligatoire)
+\setlength{\parindent}{0.75cm}
+\setlength{\parskip}{0.2cm}
+
+% Packages Mathématiques et Symboles
+\usepackage{amsmath, amssymb, amsfonts}
+
+% Gestion des figures et graphiques
+\usepackage{graphicx}
+\graphicspath{{figures/}{./}}
+
+% Tableaux professionnels académiques (Sans couleurs artificielles d'IA)
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{float}
+
+% En-têtes et pieds de page personnalisés
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\textbf{PMS AMH Hospitality}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Format des titres de chapitres et sections (Taille 14 pour sections, 13 pour sous-sections)
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}
+  {\filleft\fontsize{14}{16}\selectfont\scshape\chaptertitlename\ \thechapter}
+  {1ex}
+  {\titlerule[1.5pt]\vspace{1.5ex}\LARGE\filright}
+  [\vspace{1ex}\titlerule]
+
+\titleformat{\section}{\normalfont\fontsize{14}{16}\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\fontsize{13}{15}\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\fontsize{12}{14}\bfseries}{\thesubsubsection}{1em}{}
+
+% Formatage standard des légendes (Figure X.Y et Tableau X.Y en taille 11 pt italique)
+\usepackage{caption}
+\DeclareCaptionLabelFormat{customlabel}{\textbf{#1 #2}}
+\captionsetup{
+  labelformat=customlabel,
+  font=small,
+  labelfont=bf,
+  textfont=it,
+  justification=centering,
+  skip=8pt
+}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+% Liens hypertextes interactifs et métadonnées PDF
+\usepackage[
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue,
+  bookmarks=true,
+  bookmarksnumbered=true
+]{hyperref}
+
+\begin{document}
+
+% ==============================================================================
+% 1. PAGE DE GARDE INSTITUTIONNELLE (Modèle Officiel EMSI)
+% ==============================================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} lr}
+\textbf{ECOLE MAROCAINE DES SCIENCES} & \textbf{ANNEE UNIVERSITAIRE} \\
+\textbf{DE L'INGENIEUR} & \textbf{2025-2026} \\
+\textit{Membre de Honoris United Universities} & \\
+\end{tabular*}
+
+\vspace{1.5cm}
+
+{\Large \textbf{FILIERE : INGENIERIE INFORMATIQUE \& RESEAUX}}\\[1.2cm]
+
+{\Huge \textbf{PROJET DE FIN D'ANNEE}}\\[1cm]
+
+\rule{\textwidth}{1.5pt}\\[0.5cm]
+{\large \textbf{THEME}}\\[0.3cm]
+{\LARGE \textbf{Conception et Réalisation d'une Plateforme\\PMS Hôtelière Multi-Établissements\\avec Authentification Biométrique\\et Clôture Automatisée}}\\[0.4cm]
+\rule{\textwidth}{1.5pt}\\[1.5cm]
+
+\begin{minipage}[t]{0.52\textwidth}
+  \textbf{REALISE PAR :}\\[0.25cm]
+  {\large \textbf{Nabil BOUDARINE}}\\[0.12cm]
+  {\large \textbf{Youssef OUIZZA}}\\[0.12cm]
+  {\large \textbf{Hamza IBN TALIB}}\\[0.2cm]
+  \textit{Élèves-Ingénieurs en Informatique}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \raggedleft
+  \textbf{ENCADRE PAR :}\\[0.25cm]
+  \textbf{Encadrant Professionnel :}\\
+  \textit{Lead Architect (AMH Hospitality)}\\[0.3cm]
+  \textbf{Encadrant Pédagogique :}\\
+  \textit{Professeur Universitaire (EMSI)}
+\end{minipage}
+
+\vfill
+
+{\large \textbf{Organisme d'Accueil : AMH Hospitality}}\\[0.1cm]
+{\normalsize Marrakech, Maroc}
+
+\end{center}
+\end{titlepage}
+
+% ==============================================================================
+% 2. PAGES PRÉLIMINAIRES (Numérotation romaine I, II, III, IV, V, VI, VII, VIII)
+% ==============================================================================
+\pagenumbering{Roman}
+\setcounter{page}{1}
+
+% ------------------------------------------------------------------------------
+% DÉDICACE
+% ------------------------------------------------------------------------------
+\chapter*{Dédicace}
+\addcontentsline{toc}{chapter}{Dédicace}
+
+\vspace*{2cm}
+
+\begin{center}
+\textit{Animés par une profonde gratitude envers le Tout-Puissant qui a guidé nos pas tout au long de notre cursus académique, nous dédions ce modeste travail :}
+
+\vspace{1cm}
+\textbf{À nos très chers parents,}\\[0.3cm]
+\textit{Qui ont patiemment et sagement façonné le sentier de notre vie.\\
+Vos sacrifices silencieux, vos prières constantes et vos conseils avisés\\
+ont été la boussole guidant nos pas.\\
+Votre amour inébranlable et votre soutien inconditionnel\\
+demeurent les fondations solides sur lesquelles nous bâtissons notre avenir.}
+
+\vspace{0.8cm}
+\textbf{À nos frères, sœurs et familles,}\\[0.2cm]
+\textit{Pour leur présence réconfortante, leurs encouragements permanents\\
+et leur affection indéfectible qui nous ont portés dans les moments les plus exigeants.}
+
+\vspace{0.8cm}
+\textbf{À l'ensemble de nos professeurs et encadrants,}\\[0.2cm]
+\textit{Qui nous ont transmis avec passion et rigueur les principes fondamentaux\\
+de l'ingénierie logicielle et le goût de l'excellence académique et professionnelle.}
+
+\vspace{0.8cm}
+\textbf{À tous nos amis et collègues de promotion,}\\[0.2cm]
+\textit{En témoignage des moments inoubliables de collaboration,\\
+d'entraide et d'amitié qui ont jalonné notre parcours universitaire.}
+
+\vspace{1.5cm}
+\textbf{Nabil BOUDARINE, Youssef OUIZZA \& Hamza IBN TALIB}
+\end{center}
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% REMERCIEMENTS
+% ------------------------------------------------------------------------------
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+À l'aboutissement de ce projet de fin d'année, nous tenons à exprimer notre sincère gratitude envers toutes les personnes qui ont contribué, de manière directe ou indirecte, à l'élaboration de ce mémoire et à l'enrichissement de notre expérience professionnelle et humaine.
+
+Nos remerciements les plus chaleureux s'adressent tout d'abord à \textbf{Dieu le Tout-Puissant} qui nous a accordé la santé, la patience et la persévérance nécessaires pour mener à terme ce travail d'envergure.
+
+Nous exprimons notre profonde reconnaissance à la direction générale du groupe \textbf{AMH Hospitality} à Marrakech pour nous avoir accueillis au sein de ses équipes techniques et opérationnelles, et pour la confiance accordée dans la réalisation d'un système logiciel hautement stratégique pour le groupe hôtelier.
+
+Nous adressons nos remerciements les plus appuyés à notre \textbf{encadrant professionnel}, Lead Architect chez AMH Hospitality, pour son suivi technique rigoureux, ses orientations d'architecture logicielle précieuses et sa disponibilité exemplaire lors de chaque sprint de développement. Sa vision industrielle et son exigence de qualité ont grandement enrichi notre apprentissage.
+
+Nous tenons également à remercier chaleureusement notre \textbf{encadrant pédagogique} pour la qualité de son suivi académique, ses conseils méthodologiques éclairés et ses remarques constructives qui ont garanti la conformité scientifique et formelle de ce travail.
+
+Nos sincères remerciements s'adressent également à l'ensemble du \textbf{corps professoral et administratif} de l'EMSI pour la qualité de la formation dispensée tout au long de notre cursus d'ingénieur.
+
+Nous tenons à exprimer notre gratitude aux \textbf{membres du jury} qui nous font l'honneur d'évaluer ce travail et d'apporter leur expertise critique à notre soutenance.
+
+Enfin, nous remercions chaleureusement l'ensemble des \textbf{équipes opérationnelles des Riads partenaires} (réceptionnistes, gouvernantes générales, femmes de chambre, auditeurs de nuit et directeurs d'exploitation) pour leur accueil chaleureux, leur collaboration lors du recueil des exigences sur le terrain et leurs retours constructifs lors des phases de validation des prototypes.
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% RÉSUMÉ + MOTS-CLÉS
+% ------------------------------------------------------------------------------
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Le présent mémoire d'ingénierie expose la conception, la modélisation et l'implémentation de la plateforme logicielle \textbf{PMS AMH Hospitality} (\textit{Property Management System}), dédiée à la gestion multi-établissements d'une chaîne de Riads de prestige et d'hôtels de charme à Marrakech. L'objectif central de ce projet est de remédier aux défaillances structurelles des outils traditionnels et manuels : surréservations récurrentes dues à la désynchronisation des canaux OTA (Booking.com, Airbnb, Expedia), lourdeur et risques d'erreurs de la clôture comptable journalière nocturne (\textit{Night Audit}), failles de sécurité et d'imputabilité liées au partage de comptes sur les postes de réception, et cloisonnement des données entre établissements.
+
+Pour répondre à ces exigences métier critiques, nous avons conçu et déployé une architecture cloud-native en \textbf{onze microservices autonomes} développés en \textbf{Python (FastAPI)} selon les préceptes du \textit{Domain-Driven Design} (DDD) et du patron \textit{Database per Service}. La plateforme intègre un bus de messages asynchrone (\textbf{RabbitMQ}) pour le découpage événementiel, un gestionnaire de cache et de verrous distribués (\textbf{Redis}) pour l'exclusion mutuelle lors des réservations concurrentes, une passerelle d'API unifiée (\textbf{Kong}) et une gestion centralisée des identités (\textbf{Keycloak}). La sécurité périmétrique est renforcée par l'implémentation du standard d'authentification biométrique sans mot de passe \textbf{WebAuthn / FIDO2} via appairage QR code sur terminal mobile.
+
+L'interface utilisateur, propulsée par \textbf{Next.js 14} (React 18, TypeScript, Tailwind CSS), offre un planning dynamique interactif (\textit{Tape Chart}) avec manipulation des séjours par glisser-déposer et synchronisation en temps réel par WebSockets, ainsi qu'une Progressive Web App (\textbf{PWA}) dédiée à la gouvernance d'étage (\textit{Housekeeping}). Les campagnes de qualification confirment une exécution du Night Audit en 45 secondes pour 50 chambres, un taux de surréservation nul sous charge concurrente et une note A sur l'ensemble des critères d'audit de qualité logicielle SonarQube (88.4\% de couverture de tests).
+
+\vspace{0.8cm}
+\noindent\textbf{Mots-clés :} PMS Hôtelier, Architecture Microservices, FastAPI, Next.js 14, Keycloak, WebAuthn FIDO2, PostgreSQL, Redis, RabbitMQ, Docker Compose, Night Audit, Multi-Tenancy, PWA Housekeeping, WebSockets, Domain-Driven Design, Qualité Logicielle.
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% ABSTRACT + KEYWORDS
+% ------------------------------------------------------------------------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This graduation engineering thesis details the design, architecture, and implementation of \textbf{PMS AMH Hospitality}, a comprehensive, cloud-native Property Management System engineered for multi-property luxury Riads and boutique hotels in Marrakech, Morocco. The core objective is to overcome legacy operational bottlenecks --- including recurrent channel overbookings arising from manual OTA synchronization (Booking.com, Airbnb, Expedia), error-prone manual Night Audits, critical lack of accountability on shared front-desk workstations, and siloed data across independent hospitality properties.
+
+The engineered solution is structured around \textbf{eleven decoupled microservices} developed in \textbf{Python (FastAPI)} adhering strictly to Domain-Driven Design (DDD) principles and the Database-per-Service architectural pattern. The ecosystem incorporates an asynchronous event-driven message broker (\textbf{RabbitMQ}) for distributed transaction processing, an in-memory data store (\textbf{Redis}) for high-speed caching and distributed concurrency locking (preventing booking collisions), a unified API Gateway (\textbf{Kong}), and an Identity and Access Management server (\textbf{Keycloak}). Enterprise-grade security is enforced through passwordless biometric authentication (\textbf{WebAuthn / FIDO2}) via cross-device dynamic QR code pairing.
+
+The responsive front-end interface, powered by \textbf{Next.js 14} (React 18, TypeScript, Tailwind CSS), provides an interactive real-time room planning board (Tape Chart) with drag-and-drop booking management and WebSockets synchronization, complemented by a dedicated mobile Progressive Web App (\textbf{PWA}) for housekeeping teams. Comprehensive qualification benchmarks demonstrate automated Night Audit completion within 45 seconds for 50 rooms, zero overbooking collisions under high concurrency, and a SonarQube Quality Gate Passed rating with 88.4\% test coverage and an A-grade maintainability score.
+
+\vspace{0.8cm}
+\noindent\textbf{Keywords:} Hospitality PMS, Microservices Architecture, FastAPI, Next.js 14, Keycloak, WebAuthn FIDO2, PostgreSQL, Redis, RabbitMQ, Docker Compose, Night Audit, Multi-Tenancy, Housekeeping PWA, WebSockets, Domain-Driven Design, Software Quality.
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% LISTE DES ABRÉVIATIONS (Par Ordre Alphabétique Strict)
+% ------------------------------------------------------------------------------
+\chapter*{Liste des abréviations}
+\addcontentsline{toc}{chapter}{Liste des abréviations}
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Abréviation} & \textbf{Définition et Signification} \\
+\hline
+\textbf{ACID} & Atomicité, Cohérence, Isolation, Durabilité (Propriétés transactionnelles SGBD) \\
+\hline
+\textbf{ADR} & \textit{Average Daily Rate} (Tarif Moyen Journalier par chambre louée) \\
+\hline
+\textbf{AMQP} & \textit{Advanced Message Queuing Protocol} (Protocole de messagerie asynchrone) \\
+\hline
+\textbf{API} & \textit{Application Programming Interface} (Interface de programmation applicative) \\
+\hline
+\textbf{ASGI} & \textit{Asynchronous Server Gateway Interface} (Standard serveur asynchrone Python) \\
+\hline
+\textbf{CI/CD} & \textit{Continuous Integration / Continuous Deployment} (Intégration et déploiement continus) \\
+\hline
+\textbf{CORS} & \textit{Cross-Origin Resource Sharing} (Partage de ressources entre origines multiples) \\
+\hline
+\textbf{CRUD} & \textit{Create, Read, Update, Delete} (Opérations élémentaires sur les données) \\
+\hline
+\textbf{CSS} & \textit{Cascading Style Sheets} (Feuilles de style en cascade) \\
+\hline
+\textbf{DDD} & \textit{Domain-Driven Design} (Conception logicielle pilotée par le domaine métier) \\
+\hline
+\textbf{FIDO2} & \textit{Fast IDentity Online 2} (Standard d'authentification forte sans mot de passe) \\
+\hline
+\textbf{HTML} & \textit{HyperText Markup Language} (Langage de balisage hypertexte) \\
+\hline
+\textbf{HTTP} & \textit{HyperText Transfer Protocol} (Protocole de transfert hypertexte) \\
+\hline
+\textbf{IDE} & \textit{Integrated Development Environment} (Environnement de développement intégré) \\
+\hline
+\textbf{IDOR} & \textit{Insecure Direct Object Reference} (Vulnérabilité de référence directe non sécurisée) \\
+\hline
+\textbf{JSON} & \textit{JavaScript Object Notation} (Format d'échange de données textuel léger) \\
+\hline
+\textbf{JWT} & \textit{JSON Web Token} (Jeton d'authentification compact signé cryptographiquement) \\
+\hline
+\textbf{OIDC} & \textit{OpenID Connect} (Protocole d'authentification décentralisé fondé sur OAuth 2.0) \\
+\hline
+\textbf{ORM} & \textit{Object-Relational Mapping} (Mappage objet-relationnel) \\
+\hline
+\textbf{OTA} & \textit{Online Travel Agency} (Agences de voyage en ligne : Booking.com, Airbnb, Expedia) \\
+\hline
+\textbf{PFA} & Projet de Fin d'Année (Mémoire d'ingénierie de fin d'études) \\
+\hline
+\textbf{PMS} & \textit{Property Management System} (Système de gestion hôtelière intégré) \\
+\hline
+\textbf{PWA} & \textit{Progressive Web App} (Application web progressive installable) \\
+\hline
+\textbf{RBAC} & \textit{Role-Based Access Control} (Contrôle d'accès fondé sur les rôles utilisateurs) \\
+\hline
+\textbf{REST} & \textit{Representational State Transfer} (Style d'architecture logicielle pour les API web) \\
+\hline
+\textbf{RevPAR} & \textit{Revenue Per Available Room} (Revenu par chambre disponible) \\
+\hline
+\textbf{SGBD} & Système de Gestion de Bases de Données (PostgreSQL dans notre architecture) \\
+\hline
+\textbf{SQL} & \textit{Structured Query Language} (Langage de requêtes relationnelles structurées) \\
+\hline
+\textbf{SSG} & \textit{Static Site Generation} (Génération de sites statiques pré-rendus) \\
+\hline
+\textbf{SSR} & \textit{Server-Side Rendering} (Rendu des composants React côté serveur) \\
+\hline
+\textbf{TPT} & Taxe de Promotion Touristique (Taxe légale marocaine par nuitée et par client) \\
+\hline
+\textbf{TS} & Taxe de Séjour (Taxe communale marocaine sur les hébergements touristiques) \\
+\hline
+\textbf{TTL} & \textit{Time To Live} (Durée de validité temporelle d'un enregistrement ou verrou) \\
+\hline
+\textbf{TVA} & Taxe sur la Valeur Ajoutée (Taux réduit à 10\% sur l'hébergement hôtelier au Maroc) \\
+\hline
+\textbf{UML} & \textit{Unified Modeling Language} (Langage universel de modélisation orientée objet) \\
+\hline
+\textbf{UUID} & \textit{Universally Unique Identifier} (Identifiant unique universel 128 bits) \\
+\hline
+\textbf{WebAuthn} & \textit{Web Authentication} (Standard W3C pour l'authentification biométrique sur le web) \\
+\hline
+\textbf{WS} & \textit{WebSocket} (Protocole de communication bidirectionnelle temps réel et duplex) \\
+\hline
+\end{tabularx}
+\caption{Liste alphabétique des abréviations et sigles techniques}
+\label{tab:glossaire_abbrev}
+\end{table}
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% LISTES AUTOMATIQUES
+% ------------------------------------------------------------------------------
+\listoffigures
+\addcontentsline{toc}{chapter}{Table des figures}
+\clearpage
+
+\listoftables
+\addcontentsline{toc}{chapter}{Liste des tableaux}
+\clearpage
+
+\tableofcontents
+\clearpage
+
+% ==============================================================================
+% CORPS DU DOCUMENT EN NUMÉROTATION ARABE
+% ==============================================================================
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ------------------------------------------------------------------------------
+% INTRODUCTION GÉNÉRALE
+% ------------------------------------------------------------------------------
+\chapter*{Introduction générale}
+\addcontentsline{toc}{chapter}{Introduction générale}
+
+Le secteur du tourisme et de l'hôtellerie constitue l'un des piliers stratégiques du développement économique du Royaume du Maroc, et tout particulièrement de la ville de Marrakech, première destination touristique nationale. Au sein de cet écosystème en plein essor, l'hôtellerie de charme et d'authenticité incarnée par les Riads traditionnels de la Médina occupe une place singulière. Ces établissements de prestige accueillent une clientèle internationale exigeante à la recherche d'une expérience personnalisée et irréprochable.
+
+Cependant, la gestion quotidienne d'un Riad ou d'une collection d'établissements hôteliers confronte les exploitants à une complexité logistique, organisationnelle et financière grandissante. La multiplication des canaux de distribution numériques (Booking.com, Airbnb, Expedia), l'intensification des flux de voyageurs, la rigueur des obligations fiscales locales (TVA, taxe de séjour TS, taxe de promotion touristique TPT) et la nécessité d'une coordination instantanée entre la réception et le service d'étage imposent une informatisation sans faille des processus d'exploitation.
+
+Traditionnellement, de nombreux Riads opèrent encore à l'aide d'outils disparates et artisanaux : tableurs partagés, plannings manuels sur papier, bons de consommations volants et clôtures comptables nocturnes effectuées à la main. Cet état de fait engendre des risques majeurs : surréservations (\textit{overbooking}) destructrices pour la réputation de l'établissement, erreurs d'arrondis et asymétries financières lors de la clôture comptable journalière (\textit{Night Audit}), lenteur lors de la mise à disposition des chambres nettoyées, et absence totale d'imputabilité nominative due au partage d'identifiants génériques sur les postes de travail de réception.
+
+C'est dans ce contexte d'innovation technologique et de transformation digitale que s'inscrit le présent projet de fin d'année, réalisé au sein du groupe \textbf{AMH Hospitality}. Notre mission d'ingénierie a consisté à concevoir, modéliser, réaliser et valider une plateforme logicielle intégrée de nouvelle génération : le \textbf{PMS AMH Hospitality} (\textit{Property Management System}).
+
+Conçue dès l'origine pour répondre aux exigences réelles du terrain hôtelier, la plateforme se distingue par :
+\begin{itemize}
+    \item Une architecture cloud-native en \textbf{onze microservices autonomes} en Python (FastAPI) conformes aux principes du \textit{Domain-Driven Design} (DDD) et du patron \textit{Database per Service} ;
+    \item Un mécanisme de \textbf{verrouillage distribué temporaire sous Redis} garantissant l'élimination définitive des surréservations lors des accès concurrents ;
+    \item L'\textbf{automatisation intégrale du Night Audit} transactionnel, réduisant le temps de clôture journalière de plus d'une heure à seulement 45 secondes avec archivage immuable sur stockage objet MinIO S3 ;
+    \item Une sécurité périmétrique renforcée par l'\textbf{authentification biométrique sans mot de passe WebAuthn / FIDO2} par appairage QR code sur terminal mobile via Keycloak ;
+    \item Un \textbf{planning interactif temps réel (Tape Chart)} développé sous Next.js 14 avec manipulation des séjours par glisser-déposer (\textit{Drag \& Drop}) et synchronisation instantanée via WebSockets ;
+    \item Une \textbf{application mobile PWA dédiée au Housekeeping} permettant aux gouvernantes et femmes de chambre d'actualiser les statuts d'entretien en temps réel.
+\end{itemize}
+
+Le présent mémoire d'ingénierie est structuré en six chapitres complémentaires :
+\begin{itemize}
+    \item \textbf{Le Chapitre 1} présente l'organisme d'accueil AMH Hospitality, le contexte du stage, les missions confiées, la problématique détaillée, l'étude des besoins et la méthodologie de conduite de projet Agile Scrum découpée en huit sprints ;
+    \item \textbf{Le Chapitre 2} expose l'étude et la critique de l'existant, l'identification des acteurs, la modélisation formelle UML (diagrammes de cas d'utilisation avec fiches textuelles structurées, diagrammes de séquence dynamiques, diagramme de classes du domaine métier et cartographie des contextes délimités DDD) ;
+    \item \textbf{Le Chapitre 3} détaille l'environnement technique, les outils de développement, les frameworks, les langages, les bases de données relationnelles et en mémoire, les intergiciels de messagerie AMQP et les spécifications d'API RESTful ;
+    \item \textbf{Le Chapitre 4} présente la réalisation concrète du projet, l'architecture microservices déployée et l'ensemble des 15 interfaces utilisateurs développées avec captures d'écran commentées, ainsi que le bilan des contributions et des difficultés surmontées ;
+    \item \textbf{Le Chapitre 5} est dédié à la stratégie d'assurance qualité logicielle : suites de tests unitaires Pytest, tests d'intégration, workflow de validation End-to-End, matrice de sécurité OWASP et audit SonarQube avec Quality Gate Passed ;
+    \item \textbf{Le Chapitre 6} dresse le bilan d'ingénierie du stage, synthétisant les apports techniques, organisationnels et méthodologiques acquis.
+\end{itemize}
+
+Enfin, le mémoire s'achève par une conclusion générale et perspectives, suivie des références bibliographiques et webographiques, et des annexes techniques.
+
+\chapter{Présentation de l'Organisme et Contexte du Projet}
+\label{chap:contexte}
+
+\section{Introduction}
+
+Ce premier chapitre a pour vocation d'établir les fondations contextuelles, organisationnelles et méthodologiques du projet d'ingénierie \textbf{PMS AMH Hospitality}. Nous débuterons par une présentation détaillée du groupe d'accueil AMH Hospitality, de sa genèse, de ses activités d'exploitation de Riads à Marrakech et de son organisation interne. Nous exposerons ensuite le cadre institutionnel du stage, les missions qui nous ont été confiées ainsi que l'immersion sur le terrain hôtelier. Nous formaliserons la problématique métier et technique, les objectifs quantifiables du projet, l'étude exhaustive des exigences fonctionnelles et non fonctionnelles, pour conclure sur la méthodologie de gestion de projet Agile Scrum découpée en huit sprints de développement et sa planification temporelle par diagramme de Gantt.
+
+\section{Présentation de l'organisme d'accueil}
+
+\subsection{Historique et genèse du groupe}
+
+La Figure~\ref{fig:logo_amh} illustre l'emblème et l'identité visuelle du groupe hôtelier d'accueil.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/logo_amh.png}
+\caption{Logo du groupe AMH Hospitality}
+\label{fig:logo_amh}
+\end{figure}
+
+Fondé avec la vision novatrice d'allier l'art de vivre traditionnel marocain et l'excellence des standards de l'hôtellerie internationale, le groupe \textbf{AMH Hospitality} s'est rapidement imposé comme un acteur de référence dans le secteur de l'hébergement de prestige à Marrakech. Partant de la réhabilitation méticuleuse d'un premier Riad historique situé dans les ruelles séculaires de la Médina, les fondateurs du groupe ont su développer une expertise d'exception dans la transformation d'anciennes demeures patriciennes en établissements hôteliers de charme alliant architecture arabo-andalouse, confort technologique moderne et hospitalité personnalisée.
+
+Au fil des années, AMH Hospitality a fait évoluer son modèle opérationnel vers celui d'un opérateur hôtelier multi-propriétés (\textit{Multi-Property Operator}). Cette stratégie a consisté à intégrer au sein d'une structure de management unifiée plusieurs Riads autonomes de 8 à 25 chambres (tels que le Riad Yasmine, le Riad Al Ksar et l'Éco-Lodge de la Palmeraie), tout en centralisant les fonctions de support : la tarification dynamique (\textit{Revenue Management}), les achats groupés, la communication digitale, la gestion comptable et financière, et l'infrastructure des systèmes d'information. Cette mutualisation des ressources a permis au groupe d'atteindre des taux d'occupation moyens annuels supérieurs à 82\% tout en préservant l'identité intimiste et singulière de chaque établissement.
+
+\subsection{Activité principale et métiers}
+
+L'activité fondamentale d'AMH Hospitality s'articule autour de la chaîne de valeur complète de l'exploitation hôtelière de luxe, structurée en trois grands domaines de compétences :
+
+\begin{enumerate}
+    \item \textbf{L'Exploitation Hôtelière et l'Expérience Client (\textit{Operations})} :
+    \begin{itemize}
+        \item \textit{Front Office (Accueil et Réception)} : Prise en charge individualisée des voyageurs dès leur arrivée à l'aéroport de Marrakech-Ménara, enregistrement des formalités administratives et fiches de police, remise des clés et orientation personnalisée dans la Médina ;
+        \item \textit{Housekeeping (Gouvernance d'étage)} : Entretien quotidien rigoureux des suites et chambres selon des protocoles d'hygiène stricts, gestion du linge de maison traditionnel, réapprovisionnement des produits d'accueil artisanaux et inspection de conformité avant réattribution ;
+        \item \textit{Conciergerie de Luxe \& Restauration} : Organisation d'excursions sur mesure dans l'Atlas et le désert d'Agafay, réservation de tables gastronomiques, et service d'une restauration marocaine raffinée (tagines mijotés, pastillas royales, thés de bienvenue).
+    \end{itemize}
+    \item \textbf{La Distribution Numérique et le Revenue Management} :
+    \begin{itemize}
+        \item Gestion multicanale des disponibilités sur les plateformes d'agences de voyage en ligne (Booking.com, Airbnb, Expedia, Agoda, TripAdvisor) et sur les canaux directs (site web officiel, réservations par messagerie et téléphone) ;
+        \item Ajustement dynamique des grilles tarifaires (\textit{Dynamic Pricing}) en fonction des courbes de demande saisonnières, des grands événements culturels de Marrakech (Festival International du Film, Biennale d'art) et des durées minimales de séjour (\textit{Minimum Length of Stay}).
+    \end{itemize}
+    \item \textbf{Le Pilotage Financier, Comptable et Fiscal} :
+    \begin{itemize}
+        \item Clôtures journalières d'exploitation (\textit{Night Audit}) vérifiant la concordance entre les paiements reçus (espèces en dirhams ou devises, cartes bancaires marocaines et internationales) et les prestations consommées ;
+        \item Imputation et reversement des taxes réglementaires marocaines obligatoires : la Taxe sur la Valeur Ajoutée (TVA au taux réduit de 10\% sur l'hébergement), la Taxe de Séjour communale (TS, 25 MAD par nuitée et par personne) et la Taxe de Promotion Touristique (TPT, 12 MAD par nuitée et par personne) ;
+        \item Consolidation comptable multi-établissements et production des états financiers mensuels pour la direction générale.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Organisation structurelle du groupe}
+
+La structure organisationnelle d'AMH Hospitality est organisée selon une gouvernance claire garantissant une coordination sans friction entre les fonctions stratégiques centrales et les équipes opérationnelles déployées sur site. L'organisation se subdivise en quatre directions :
+
+\begin{itemize}
+    \item \textbf{Direction Générale (DG)} : Impulse la vision stratégique, pilote les investissements immobiliers et veille au respect de l'identité de marque du groupe ;
+    \item \textbf{Direction des Opérations Hôtelières (DOH)} : Supervise les directeurs de Riads, coordonne les gouvernantes générales et garantit le maintien des plus hauts standards de satisfaction client ;
+    \item \textbf{Direction Administrative et Financière (DAF)} : Contrôle la rentabilité opérationnelle, supervise la gestion de trésorerie, valide les audits comptables et gère les ressources humaines ;
+    \item \textbf{Pôle Systèmes d'Information et Transformation Digitale (SI)} : Conçoit, déploie et administre l'ensemble de l'écosystème logiciel et de l'infrastructure réseau et cloud du groupe.
+\end{itemize}
+
+\subsection{Département d'accueil : Pôle Systèmes d'Information}
+
+Notre stage d'ingénierie a été réalisé au sein du \textbf{Pôle Systèmes d'Information et Transformation Digitale}. Ce département a pour mission d'internaliser l'expertise technologique au sein d'AMH Hospitality, afin de s'affranchir de la dépendance envers des solutions logicielles tierces propriétaires souvent onéreuses, rigides et inadaptées aux spécificités fiscales et opérationnelles des Riads marocains.
+
+Sous la responsabilité directe du Lead Architect (notre encadrant professionnel), le pôle SI est en charge de :
+\begin{itemize}
+    \item L'urbanisation des architectures logicielles et l'orchestration des conteneurs microservices ;
+    \item La sécurisation des identités numériques, des transactions financières et des données personnelles des voyageurs (conformité RGPD et loi marocaine 09-08) ;
+    \item L'industrialisation des chaînes d'intégration et de déploiement continus (CI/CD) ;
+    \item L'assistance technique et l'accompagnement au changement des équipes de réception et de gouvernance d'étage.
+\end{itemize}
+
+\section{Présentation du stage}
+
+\subsection{Cadre académique et institutionnel}
+
+Ce projet s'inscrit dans le cadre du \textbf{Projet de Fin d'Année (PFA) / Stage d'Ingénieur}, composante majeure du cursus de formation d'ingénieurs à l'École Marocaine des Sciences de l'Ingénieur (EMSI Marrakech), membre du réseau international Honoris United Universities. Ce stage professionnalisant constitue une opportunité d'appliquer des compétences théoriques et techniques avancées à la résolution d'une problématique industrielle réelle, complexe et soumise à de fortes exigences de disponibilité, de cohérence transactionnelle et de scalabilité.
+
+\subsection{Fiche signalétique du stage}
+
+Le Tableau~\ref{tab:fiche_stage} récapitule l'ensemble des paramètres administratifs et d'encadrement du stage.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4.5cm}|X|}
+\hline
+\textbf{Paramètre} & \textbf{Description et Caractéristiques} \\
+\hline
+\textbf{Établissement académique} & École Marocaine des Sciences de l'Ingénieur (EMSI Marrakech) \\
+\hline
+\textbf{Filière de formation} & Ingénierie Informatique \& Réseaux \\
+\hline
+\textbf{Organisme d'accueil} & Groupe AMH Hospitality (Marrakech, Maroc) \\
+\hline
+\textbf{Durée et période} & 16 semaines consécutives (Février 2026 -- Mai 2026) \\
+\hline
+\textbf{Lieu principal de travail} & Locaux techniques de la Direction Informatique, Marrakech \\
+\hline
+\textbf{Sites pilotes d'immersion} & Riad Yasmine, Riad Al Ksar (Médina de Marrakech) \\
+\hline
+\textbf{Encadrant professionnel} & Lead Architect (AMH Hospitality) \\
+\hline
+\textbf{Encadrant pédagogique} & Professeur Universitaire (EMSI Marrakech) \\
+\hline
+\textbf{Intitulé du projet} & Plateforme PMS Hôtelière Multi-Établissements Microservices \\
+\hline
+\end{tabularx}
+\caption{Fiche signalétique du stage de fin d'année}
+\label{tab:fiche_stage}
+\end{table}
+
+\subsection{Immersion terrain et recueil du besoin}
+
+Afin de concevoir une solution parfaitement ancrée dans les réalités quotidiennes du métier hôtelier, notre équipe a effectué une phase d'immersion opérationnelle directe au sein des établissements pilotes du groupe à Marrakech.
+
+La Figure~\ref{fig:pic1} et la Figure~\ref{fig:pic2} illustrent les sessions d'observation menées au comptoir de réception du Riad Yasmine.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/pic1.jpg}
+\caption{Immersion opérationnelle et audit des flux d'accueil en réception}
+\label{fig:pic1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/pic2.jpg}
+\caption{Analyse des procédures manuelles de check-in et de tenue des registres}
+\label{fig:pic2}
+\end{figure}
+
+Comme l'illustrent la Figure~\ref{fig:pic1} et la Figure~\ref{fig:pic2}, cette phase d'immersion a permis d'observer en direct les interactions entre les réceptionnistes et les clients, le rythme des arrivées en période de pointe, les contraintes de manipulation des pièces d'identité et la complexité des calculs fiscaux manuels.
+
+La Figure~\ref{fig:pic3} et la Figure~\ref{fig:pic4} présentent les ateliers collaboratifs de formalisation du cahier des charges menés conjointement avec les directeurs de Riads et notre encadrant professionnel.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/pic3.jpg}
+\caption{Atelier de modélisation des processus métier et des règles de tarification}
+\label{fig:pic3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/pic4.jpg}
+\caption{Revue de cadrage technique et validation des maquettes d'interfaces}
+\label{fig:pic4}
+\end{figure}
+
+La Figure~\ref{fig:pic5} et la Figure~\ref{fig:pic6} illustrent les phases de test préliminaire des prototypes déployés sur poste fixe et sur terminaux mobiles.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/pic5.jpg}
+\caption{Test d'ergonomie du planning Tape Chart sur poste de réception}
+\label{fig:pic5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/pic6.jpg}
+\caption{Validation sur le terrain de la PWA mobile auprès du personnel d'étage}
+\label{fig:pic6}
+\end{figure}
+
+Ces échanges réguliers sur le terrain ont constitué le garant indispensable de l'adéquation fonctionnelle et ergonomique de notre solution.
+
+\subsection{Missions confiées}
+
+Les missions confiées à notre équipe d'élèves-ingénieurs couvrent l'intégralité du cycle de vie du projet logiciel :
+\begin{enumerate}
+    \item \textbf{Audit et Analyse du Besoin} : Recueil des exigences fonctionnelles auprès des directeurs d'exploitation, réceptionnistes et gouvernantes ; formalisation du cahier des charges technique ;
+    \item \textbf{Conception Architecturale} : Définition de l'architecture microservices selon les principes du \textit{Domain-Driven Design} (DDD) et du patron de conception \textit{Database per Service} ;
+    \item \textbf{Développement Fullstack} : Implémentation des 11 microservices backend en Python (FastAPI), mise en place du serveur d'authentification centralisée (Keycloak) avec support WebAuthn/FIDO2, et développement de l'interface utilisateur moderne (Next.js 14, TypeScript, Tailwind CSS) ;
+    \item \textbf{Assurance Qualité \& Tests} : Rédaction et exécution de tests unitaires (Pytest), d'intégration, de tests E2E, tests de charge et tests de vulnérabilités sécuritaires ;
+    \item \textbf{Déploiement \& Observabilité} : Configuration de la passerelle d'API Kong, orchestration par Docker Compose, et audit continu sous SonarQube.
+\end{enumerate}
+
+\section{Présentation du projet PMS AMH Hospitality}
+
+\subsection{Contexte et problématique détaillée}
+
+Dans l'écosystème hôtelier moderne, le \textbf{PMS} (\textit{Property Management System}) constitue le véritable système nerveux central de l'établissement. Il pilote l'ensemble des flux opérationnels : de la première prise de contact du voyageur sur Internet jusqu'à son départ définitif, en passant par l'attribution de la chambre, la facturation des consommations au restaurant et la clôture financière nocturne.
+
+Or, avant le lancement de notre projet, le groupe AMH Hospitality souffrait d'un environnement opérationnel fragmenté reposant sur des outils hétérogènes et des processus manuels lourds :
+
+\begin{itemize}
+    \item \textbf{Risques permanents de surréservation (\textit{Overbooking})} : Les disponibilités des chambres étaient mises à jour manuellement par les réceptionnistes sur les extranets des différentes OTA (Booking.com, Airbnb, Expedia). Ce décalage temporel créait des fenêtres de vulnérabilité où une même suite pouvait être louée simultanément sur deux canaux distincts, entraînant des litiges clients et des coûts exorbitants de relogement d'urgence dans des hôtels concurrents ;
+    \item \textbf{Lourdeur critique du Night Audit manuel} : La procédure de clôture journalière exigeait de l'auditeur de nuit qu'il vérifie un à un tous les dossiers de séjours, recalcule manuellement les taxes de séjour et de promotion touristique, pointe les encaissements en espèces et cartes bancaires, et reporte à la main les soldes sur la journée suivante. Cette tâche fastidieuse mobilisait entre 1 heure et 2 heures chaque nuit, avec un risque élevé d'erreurs d'arrondis et d'asymétries d'écritures comptables ;
+    \item \textbf{Failles de sécurité et d'imputabilité sur postes partagés} : Sur les banques de réception, les équipes se succédaient en utilisant des comptes génériques dotés de mots de passe partagés sur des post-it. En cas d'erreur de caisse, d'annulation frauduleuse ou de modification non autorisée de tarif, il était impossible d'imputer nominativement l'action à un opérateur précis ;
+    \item \textbf{Défaut de synchronisation avec le service d'étage} : L'état d'entretien des chambres (sale, en cours de nettoyage, propre, inspectée) était communiqué par talkie-walkie ou sur feuilles volantes. Cette asynchronie provoquait de longs temps d'attente dans le patio pour les clients arrivant tôt (\textit{Early Check-in}), alors même que leur suite était déjà prête mais non signalée comme telle au système de réception ;
+    \item \textbf{Cloisonnement des données entre établissements} : La direction générale ne disposait d'aucun tableau de bord consolidé pour piloter en temps réel les performances comparées des différents Riads du groupe.
+\end{itemize}
+
+\subsection{Objectifs stratégiques et opérationnels}
+
+Pour résoudre définitivement l'ensemble de ces problématiques, notre projet s'est fixé les objectifs mesurables suivants :
+
+\begin{itemize}
+    \item \textbf{Zéro Overbooking} grâce à un mécanisme de verrouillage distribué temporaire sous Redis (TTL = 10 secondes) lors de la pose d'option de réservation ;
+    \item \textbf{Clôture Night Audit en moins de 60 secondes} pour un parc de 50 chambres, entièrement automatisée et transactionnelle avec génération et archivage de rapports PDF immuables sur stockage MinIO S3 ;
+    \item \textbf{Sécurité Zero-Trust et authentification biométrique WebAuthn/FIDO2} par QR code dynamique sur smartphone personnel, garantissant une traçabilité nominative à 100\% de chaque écriture financière ;
+    \item \textbf{Application mobile PWA Housekeeping temps réel} connectée par WebSockets, réduisant le délai de mise à disposition des chambres propres à moins de 5 secondes après validation par la gouvernante ;
+    \item \textbf{Architecture Multi-Tenant scalable} permettant d'embarquer de nouveaux Riads en moins de 10 minutes par simple configuration administrative sans modification de code source.
+\end{itemize}
+
+\section{Étude approfondie des besoins}
+
+\subsection{Besoins fonctionnels par domaine métier}
+
+Le Tableau~\ref{tab:besoins_f_detail} structure de manière exhaustive les exigences fonctionnelles attendues de la plateforme.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.8cm}|X|}
+\hline
+\textbf{Domaine Métier} & \textbf{Exigences et Fonctionnalités Détaillées} \\
+\hline
+\textbf{1. Authentification \& Sécurité (IAM)} & Authentification multifacteur : mot de passe fort + Passkey biométrique FIDO2 (TouchID/FaceID) via scan de QR code dynamique. Attribution des rôles RBAC (Super-Admin, Manager Riad, Réceptionniste, Gouvernante, Auditeur). Révocation instantanée des sessions actives. \\
+\hline
+\textbf{2. Planning Interactif (Tape Chart)} & Visualisation matricielle dynamique des chambres par catégorie et étage sur une échelle temporelle configurable. Création rapide de séjour par sélection de plage. Glisser-déposer (\textit{Drag \& Drop}) pour les changements de chambre (\textit{Room Shift}) avec recalcul instantané des écarts tarifaires. \\
+\hline
+\textbf{3. Moteur de Réservations} & Gestion du cycle de vie complet des réservations (Création, Confirmation, Modification, Annulation, No-Show). Verrouillage distribué Redis anti-collision. Support des réservations individuelles et de groupes multi-chambres. Gestion des canaux de distribution directs et OTA. \\
+\hline
+\textbf{4. Front Office (Arrivées / Départs)} & Processus de Check-in fluide avec vérification automatique du statut ménage propre. Saisie et validation des fiches d'identité et de police réglementaires. Attribution ou réaffectation de chambre. Processus de Check-out avec contrôle de solde nul obligatoire sur le folio. \\
+\hline
+\textbf{5. Facturation \& Folios Clients} & Création automatique d'un compte folio dès la réservation. Imputation automatique des nuitées d'hébergement. Imputation manuelle des extras (restaurant, spa, blanchisserie, excursions). Calcul automatique de la TVA (10\%) et des taxes marocaines (TS et TPT). Enregistrement multi-moyens de paiement (espèces, CB, virement) et génération de factures d'hébergement normalisées en PDF. \\
+\hline
+\textbf{6. Housekeeping (Gouvernance d'étage)} & Application mobile PWA ergonomique pour le personnel d'étage. Affichage des chambres assignées par statut (DIRTY, IN\_PROGRESS, CLEAN, INSPECTED, OUT\_OF\_ORDER). Mise à jour d'état en un clic avec diffusion immédiate par WebSockets vers le Tape Chart de réception. \\
+\hline
+\textbf{7. Clôture Nocturne (Night Audit)} & Module de clôture automatique contrôlant les départs et arrivées en suspens. Facturation en masse des nuitées et taxes de la date d'exploitation (\textit{Business Date}). Génération du rapport comptable journalier immuable archivé sur stockage S3 MinIO. Avancement atomique de la date d'exploitation (+1 jour). \\
+\hline
+\textbf{8. Administration Multi-Riads} & Gestion CRUD des établissements du groupe, des catégories de suites, des numéros de chambres, des équipements et des taux de taxes locales. Tableaux de bord de pilotage consolidés avec calcul automatique du RevPAR, de l'ADR et du taux d'occupation. \\
+\hline
+\end{tabularx}
+\caption{Matrice détaillée des besoins fonctionnels du PMS AMH Hospitality}
+\label{tab:besoins_f_detail}
+\end{table}
+
+\subsection{Besoins non fonctionnels}
+
+Le Tableau~\ref{tab:besoins_nf_detail} formalise les exigences de qualité technique et d'exploitabilité industrielle.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Catégorie de Qualité} & \textbf{Spécifications Techniques et Seuils d'Acceptation} \\
+\hline
+\textbf{Performance \& Latence} & Temps de réponse des API REST inférieur à 200 ms pour 95\% des requêtes ($p95$). Clôture Night Audit complète exécutée en moins de 60 secondes pour 50 chambres. Chargement initial du Tape Chart en moins de 1.2 seconde. \\
+\hline
+\textbf{Sécurité \& Confidentialité} & Chiffrement SSL/TLS (HTTPS) de tous les flux réseau. Signature asymétrique RS256 des jetons JWT. Mots de passe hachés sous Argon2id. Isolation stricte des données entre locataires (\textit{Multi-Tenancy}). Conformité à la loi marocaine 09-08 et au RGPD. \\
+\hline
+\textbf{Disponibilité \& Résilience} & Architecture microservices conteneurisée tolérante aux pannes : l'indisponibilité du service Housekeeping n'interrompt pas les fonctions de réservation du Front Office. \\
+\hline
+\textbf{Cohérence Transactionnelle} & Propriétés ACID strictes sur l'ensemble des opérations financières et comptables sous PostgreSQL. Gestion de l'exclusion mutuelle par verrous Redis. \\
+\hline
+\textbf{Ergonomie \& Responsive} & Interface web moderne avec feedbacks visuels immédiats (toasts d'alerte, barres de progression). PWA mobile optimisée pour les écrans tactiles des gouvernantes. \\
+\hline
+\textbf{Maintenabilité \& Testabilité} & Code structuré selon le Domain-Driven Design. Taux de couverture de tests unitaires automatisés supérieur à 80\%. Analyse statique SonarQube avec Quality Gate Passed (Note A). \\
+\hline
+\end{tabularx}
+\caption{Spécifications détaillées des exigences non fonctionnelles}
+\label{tab:besoins_nf_detail}
+\end{table}
+
+\section{Conduite du projet selon la méthode Agile Scrum}
+
+\subsection{Principes et justification de la méthode Scrum}
+
+La Figure~\ref{fig:logo_scrum} et la Figure~\ref{fig:scrum_flow} illustrent le cadre méthodologique Agile Scrum adopté pour structurer le cycle de développement du projet.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/logo_scrum.png}
+\caption{Logo du framework Agile Scrum}
+\label{fig:logo_scrum}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/scrum_framework.png}
+\caption{Organisation du cycle de développement Scrum appliqué au PMS AMH}
+\label{fig:scrum_flow}
+\end{figure}
+
+Le choix du framework Agile Scrum s'est imposé en raison de la nature itérative du projet et de la nécessité de confronter régulièrement les fonctionnalités développées aux retours d'expérience des équipes opérationnelles des Riads. Scrum repose sur des itérations à durée fixe appelées \textbf{sprints} (ici fixés à 2 semaines), au terme desquels un incrément logiciel fonctionnel, testé et potentiellement livrable est produit.
+
+L'organisation de notre équipe Scrum a été définie comme suit :
+\begin{itemize}
+    \item \textbf{Product Owner (PO)} : Notre encadrant professionnel (Lead Architect), représentant les besoins des directeurs de Riads, garant de la vision produit et responsable de la priorisation du Product Backlog ;
+    \item \textbf{Scrum Master (SM)} : Rôle assuré par rotation entre les membres de notre équipe, veillant au respect des cérémonies agiles et à la levée rapide des obstacles techniques ;
+    \item \textbf{Équipe de Développement (Dev Team)} : Les trois élèves-ingénieurs (Nabil BOUDARINE, Youssef OUIZZA, Hamza IBN TALIB), assurant de manière collective et pluridisciplinaire la conception, l'implémentation backend et frontend, les tests et le déploiement.
+\end{itemize}
+
+Les cérémonies Scrum appliquées durant les 16 semaines du projet ont inclus :
+\begin{itemize}
+    \item \textbf{Sprint Planning} (en début de chaque quinzaine) : Sélection des User Stories du Product Backlog à intégrer dans le Sprint Backlog et estimation de l'effort en points de complexité (Planning Poker) ;
+    \item \textbf{Daily Scrum} (chaque matin, 15 minutes) : Synchronisation de l'équipe autour des trois questions rituelles : ce qui a été réalisé la veille, les tâches du jour et les éventuels blocages rencontrés ;
+    \item \textbf{Sprint Review} (en fin de quinzaine) : Démonstration en direct de l'incrément réalisé devant le Product Owner et les réceptionnistes référents pour validation formelle ;
+    \item \textbf{Sprint Retrospective} : Analyse critique du fonctionnement interne de l'équipe pour identifier les axes d'amélioration technique et organisationnelle pour le sprint suivant.
+\end{itemize}
+
+\subsection{Découpage des sprints et livrables}
+
+Le projet a été structuré en huit sprints thématiques de deux semaines, tel que décrit dans le Tableau~\ref{tab:sprints_detail}.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{2.2cm}|p{3.2cm}|X|}
+\hline
+\textbf{Sprint} & \textbf{Période Calendaire} & \textbf{Objectifs, Réalisations et Livrables Clés} \\
+\hline
+\textbf{Sprint 1} & Semaines 1--2 & Cadrage général, immersion en Riad, audit de l'existant, Product Backlog initial. Mise en place du monorepo GitHub, du pipeline CI/CD de base et de l'environnement Docker Compose. \\
+\hline
+\textbf{Sprint 2} & Semaines 3--4 & Déploiement de la passerelle Kong API Gateway. Configuration du serveur d'identité Keycloak (OIDC, RBAC). Implémentation du service Auth FastAPI et de l'authentification biométrique WebAuthn/FIDO2 avec flux QR Code. \\
+\hline
+\textbf{Sprint 3} & Semaines 5--6 & Développement du service Référentiel des Établissements (Riads, catégories, chambres, taxes). Développement du service Réservation avec moteur de verrouillage distribué anti-collision sous Redis. \\
+\hline
+\textbf{Sprint 4} & Semaines 7--8 & Développement du service Gestion des Clients (Guest Profile). Implémentation frontend du planning matriciel interactif Tape Chart sous Next.js 14 avec Drag \& Drop et gestion des changements de chambre (\textit{Room Shift}). \\
+\hline
+\textbf{Sprint 5} & Semaines 9--10 & Développement du module Front Office (Check-in, Check-out, fiches de police). Développement du service Facturation et Folios (création de comptes, imputation des charges et extras, calcul des soldes). \\
+\hline
+\textbf{Sprint 6} & Semaines 11--12 & Implémentation des moteurs de calcul fiscal marocain (TVA 10\%, TS 25 MAD, TPT 12 MAD). Développement du moteur de Night Audit automatisé transactionnel avec génération de rapports PDF et archivage MinIO S3. \\
+\hline
+\textbf{Sprint 7} & Semaines 13--14 & Développement de l'application mobile progressive (PWA) Housekeeping pour le personnel d'étage. Implémentation de la diffusion temps réel WebSockets et du centre de notifications via RabbitMQ. \\
+\hline
+\textbf{Sprint 8} & Semaines 15--16 & Campagnes de tests de charge et de performance (15 utilisateurs concurrents). Audit statique de code sous SonarQube avec Quality Gate Passed. Qualification finale, validation sur site pilote et rédaction du mémoire. \\
+\hline
+\end{tabularx}
+\caption{Découpage des sprints Scrum et livrables associés}
+\label{tab:sprints_detail}
+\end{table}
+
+\subsection{Planification temporelle par diagramme de Gantt}
+
+La Figure~\ref{fig:gantt_pms} présente le diagramme de Gantt illustrant l'ordonnancement séquentiel et les dépendances entre les différentes phases du projet sur l'ensemble des 16 semaines de réalisation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/gantt_pms.png}
+\caption{Diagramme de Gantt de la planification temporelle du projet}
+\label{fig:gantt_pms}
+\end{figure}
+
+\section{Conclusion}
+
+Ce premier chapitre a posé les bases contextuelles, industrielles et méthodologiques de notre projet de fin d'année. Nous avons présenté le groupe AMH Hospitality, analysé en profondeur les dysfonctionnements structurels de la gestion traditionnelle des Riads à Marrakech, et défini les objectifs techniques majeurs de la plateforme logicielle. L'étude détaillée des exigences et l'organisation du projet selon le framework Agile Scrum ont constitué le cadre de travail rigoureux ayant guidé notre équipe. Le chapitre suivant sera consacré à l'analyse formelle des besoins et à la modélisation conceptuelle et structurelle du système à l'aide du standard UML.
+
+\chapter{Analyse et Conception}
+\label{chap:analyse}
+
+\section{Introduction}
+
+La phase d'analyse des besoins et de conception logicielle constitue l'étape déterminante permettant de traduire les exigences métier et les contraintes opérationnelles du domaine hôtelier dans un langage formel, standardisé et non ambigu. Dans le cadre de l'ingénierie d'une plateforme microservices distribuée comme le \textbf{PMS AMH Hospitality}, une modélisation rigoureuse est indispensable pour garantir la cohérence des flux transactionnels, la modularité des services et l'étanchéité des données entre établissements.
+
+Ce chapitre expose l'ensemble de la démarche d'ingénierie système adoptée. Nous débuterons par la présentation du langage de modélisation standard UML, puis nous détaillerons l'étude critique de l'existant, la matrice RACI des acteurs du système, le diagramme global des cas d'utilisation et les fiches descriptives textuelles de chaque scénario critique. Nous présenterons ensuite les diagrammes de séquence dynamiques illustrant les flux d'authentification biométrique, de réservation concurrente et de clôture nocturne, pour achever sur le diagramme de classes du domaine métier et la cartographie des contextes délimités (\textit{Bounded Contexts}) issue des principes du \textit{Domain-Driven Design} (DDD).
+
+\section{Présentation du langage de modélisation UML}
+
+La Figure~\ref{fig:logo_uml} présente l'emblème du langage standard de modélisation logicielle.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/logo_uml.png}
+\caption{Logo UML (\textit{Unified Modeling Language})}
+\label{fig:logo_uml}
+\end{figure}
+
+Le langage UML (\textit{Unified Modeling Language}), standardisé internationalement par l'\textit{Object Management Group} (OMG, version 2.5), constitue le formalisme visuel universel de référence pour la spécification, la visualisation, la construction et la documentation des artefacts logiciels orientés objet. 
+
+Dans le cadre de notre projet, UML a été mobilisé pour modéliser trois vues complémentaires du système :
+\begin{itemize}
+    \item \textbf{La vue fonctionnelle} : À travers les \textit{diagrammes de cas d'utilisation} et leurs fiches textuelles associées, permettant de cadrer les frontières du système et les interactions avec les utilisateurs hôteliers ;
+    \item \textbf{La vue comportementale et dynamique} : À travers les \textit{diagrammes de séquence}, permettant de tracer chronologiquement l'ordonnancement des messages échangés entre les composants clients, la passerelle d'API, les microservices, le cache Redis et les bases de données relationnelles ;
+    \item \textbf{La vue structurelle et statique} : À travers les \textit{diagrammes de classes}, permettant de formaliser les concepts du domaine métier hôtelier, leurs attributs typés, leurs opérations et les relations cardinales qui les lient.
+\end{itemize}
+
+\section{Étude et critique de l'existant opérationnel}
+
+L'audit organisationnel et fonctionnel approfondi mené au sein des Riads du groupe AMH Hospitality à Marrakech a mis en évidence les limites majeures des processus manuels et des outils artisanaux précédemment utilisés. Le Tableau~\ref{tab:critique_existant_detail} synthétise l'analyse causale \textbf{Dysfonctionnement $\rightarrow$ Impact Opérationnel $\rightarrow$ Besoin Fonctionnel Ciblé}.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.8cm}|p{4.2cm}|X|}
+\hline
+\textbf{Dysfonctionnement Observé} & \textbf{Impacts et Risques Opérationnels} & \textbf{Besoin Fonctionnel Ciblé} \\
+\hline
+Synchronisation manuelle des plateformes OTA (Booking, Airbnb) & Surréservations (\textit{overbooking}), litiges clients à l'arrivée, dégradation de la réputation en ligne, pénalités financières. & Moteur de réservation centralisé avec verrouillage distribué Redis (anti-collision) et passerelle Channel Manager. \\
+\hline
+Clôture journalière (Night Audit) manuelle sur tableur & Erreurs de calcul sur la TVA et les taxes locales (TS/TPT), durée d'exécution excessive ($> 1$h30), risque d'asymétrie financière. & Moteur d'audit transactionnel automatisé avec calcul fiscal strict, rollback en cas d'anomalie et archivage S3 immuable. \\
+\hline
+Partage de comptes génériques sur les postes de réception & Impossibilité d'imputer les erreurs de saisie ou de caisse, traçabilité nulle, vulnérabilité face aux vols de mots de passe. & Authentification biométrique sans mot de passe WebAuthn/FIDO2 par QR code avec traçabilité nominative de chaque écriture. \\
+\hline
+Communication orale ou papier avec le Housekeeping & Retards fréquents sur la mise à disposition des suites, manque de visibilité sur l'état d'hygiène des chambres. & Application mobile PWA pour le personnel d'étage avec synchronisation instantanée via WebSockets et RabbitMQ. \\
+\hline
+Gestion isolée des données entre chaque Riad & Absence de consolidation financière globale, impossibilité de mutualiser les profils clients VIP entre établissements. & Architecture logicielle Multi-Tenant avec isolation des données et tableaux de bord de pilotage consolidés. \\
+\hline
+\end{tabularx}
+\caption{Matrice critique détaillée de l'existant et identification des besoins cibles}
+\label{tab:critique_existant_detail}
+\end{table}
+
+\section{Identification des acteurs et matrice RACI}
+
+L'analyse organisationnelle a permis d'identifier quatre profils d'acteurs intervenant directement sur la plateforme logicielle, décrits dans le Tableau~\ref{tab:acteurs_detail}.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.2cm}|p{2.2cm}|X|}
+\hline
+\textbf{Acteur} & \textbf{Type} & \textbf{Responsabilités Opérationnelles et Missions dans le Système} \\
+\hline
+\textbf{Réceptionniste (Front Office)} & Humain (Interne) & Gestion opérationnelle de l'accueil : consultation du planning Tape Chart, création et modification de réservations, enregistrement des arrivées (Check-in) et départs (Check-out), tenue des fiches de police, imputation des charges et extras sur les folios, encaissement des paiements multi-moyens. \\
+\hline
+\textbf{Gouvernante / Personnel d'étage} & Humain (Interne) & Gestion de l'hygiène et de l'entretien des chambres : consultation des chambres assignées via la PWA mobile, mise à jour en temps réel des statuts d'entretien (DIRTY, IN\_PROGRESS, CLEAN, INSPECTED, OUT\_OF\_ORDER), signalement d'anomalies techniques. \\
+\hline
+\textbf{Auditeur de Nuit (Night Auditor)} & Humain (Interne) & Contrôle de la régularité comptable nocturne : vérification des arrivées et départs en suspens, traitement des no-shows, déclenchement de la clôture automatisée Night Audit, validation des rapports financiers et supervision de l'avancement de la Business Date. \\
+\hline
+\textbf{Administrateur / Direction} & Humain (Interne) & Gouvernance et paramétrage du groupe : configuration des établissements (Riads), gestion des catégories de chambres et des tarifs, définition des taux de taxes réglementaires, gestion des comptes et permissions RBAC, consultation des KPI stratégiques (RevPAR, ADR). \\
+\hline
+\end{tabularx}
+\caption{Typologie et responsabilités des acteurs du système PMS AMH}
+\label{tab:acteurs_detail}
+\end{table}
+
+Le Tableau~\ref{tab:raci} formalise la matrice des responsabilités RACI (\textit{Responsible, Accountable, Consulted, Informed}) pour chaque processus métier clé de l'établissement hôtelier.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|X|c|c|c|c|}
+\hline
+\textbf{Processus Métier} & \textbf{Réception} & \textbf{Housekeeping} & \textbf{Auditeur Nuit} & \textbf{Direction} \\
+\hline
+Prise de réservation & \textbf{R / A} & I & I & I \\
+\hline
+Changement de chambre (Room Shift) & \textbf{R} & \textbf{A} & I & I \\
+\hline
+Check-in et fiche de police & \textbf{R / A} & C & I & I \\
+\hline
+Mise à jour statut ménage & I & \textbf{R / A} & I & I \\
+\hline
+Imputation des extras (Spa/Resto) & \textbf{R / A} & I & C & I \\
+\hline
+Encaissement et édition de facture & \textbf{R / A} & I & C & I \\
+\hline
+Clôture nocturne (Night Audit) & C & I & \textbf{R / A} & I \\
+\hline
+Paramétrage tarifaire et fiscal & C & I & C & \textbf{R / A} \\
+\hline
+Supervision des KPI (RevPAR/ADR) & I & I & I & \textbf{R / A} \\
+\hline
+\end{tabularx}
+\caption{Matrice RACI des processus opérationnels du PMS AMH (R: Réalise, A: Approuve, C: Consulté, I: Informé)}
+\label{tab:raci}
+\end{table}
+
+\section{Diagramme global des cas d'utilisation}
+
+La Figure~\ref{fig:usecase_pms} présente le diagramme des cas d'utilisation formalisant l'ensemble des fonctionnalités offertes par le système aux différents acteurs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/usecase_pms.png}
+\caption{Diagramme global des cas d'utilisation du système PMS AMH Hospitality}
+\label{fig:usecase_pms}
+\end{figure}
+
+Comme l'illustre la Figure~\ref{fig:usecase_pms}, les cas d'utilisation sont regroupés par domaine fonctionnel et reliés aux acteurs correspondants, avec des relations d'inclusion (\textit{<<include>>}) pour l'authentification obligatoire et la création de folio lors de la réservation.
+
+\section{Description textuelle des cas d'utilisation majeurs}
+
+\subsection{Cas d'utilisation CU01 : Créer une réservation}
+
+Le Tableau~\ref{tab:uc_cu01} présente la fiche descriptive textuelle du cas d'utilisation CU01.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Code \& Titre} & \textbf{CU01 -- Créer une réservation} \\
+\hline
+\textbf{Objectif} & Enregistrer un nouveau séjour client avec verrouillage distribué anti-collision sous Redis, initialisation du folio financier et diffusion temps réel de l'événement. \\
+\hline
+\textbf{Acteur(s)} & Réceptionniste (principal), Système PMS \\
+\hline
+\textbf{Précondition} & Réceptionniste authentifié. La chambre sélectionnée est libre sur l'intervalle de dates demandé au sein du Riad actif. \\
+\hline
+\textbf{Scénario nominal} & 
+1. Le réceptionniste accède au planning Tape Chart et clique sur une plage de dates pour une chambre donnée.\\
+& 2. Le système ouvre le modal de réservation et pré-remplit les dates et la catégorie de suite.\\
+& 3. Le réceptionniste recherche et sélectionne un client existant (ou saisit une nouvelle fiche voyageur).\\
+& 4. Le réceptionniste choisit le plan tarifaire applicable (ex: Standard avec petit-déjeuner inclus).\\
+& 5. Dès validation du formulaire, le système tente d'acquérir un verrou distribué Redis sur la ressource \texttt{lock:room:\{id\}} avec un bail TTL de 10 secondes.\\
+& 6. Le verrou étant accordé, le système ouvre une transaction SQL sous PostgreSQL, insère l'enregistrement dans la table \texttt{bookings} au statut \texttt{CONFIRMED} et génère un compte \texttt{folio} initial.\\
+& 7. La transaction est validée (\textit{Commit}). Le système libère immédiatement le verrou Redis.\\
+& 8. Le service publie un événement \texttt{booking.created} sur le bus RabbitMQ.\\
+& 9. Le serveur diffuse une notification WebSocket à tous les clients connectés pour actualiser instantanément le Tape Chart.\\
+& 10. Le système affiche un toast de confirmation de création avec l'identifiant du séjour.\\
+\hline
+\textbf{Scénarios alternatifs} & 
+A1 -- \textit{Création d'un nouveau client} : À l'étape 3, si le voyageur n'existe pas dans le référentiel, le réceptionniste saisit son nom, prénom, nationalité et numéro de passeport, ce qui déclenche la création préalable de l'entité \texttt{Guest}.\\
+& A2 -- \textit{Réservation multi-chambres (Groupe)} : Le réceptionniste associe plusieurs chambres au même dossier de réservation principal.\\
+\hline
+\textbf{Scénarios d'exception} & 
+E1 -- \textit{Chambre en cours de réservation (Conflit de verrou)} : À l'étape 5, le verrou Redis ne peut être acquis car un autre opérateur tente de réserver la même chambre. Le système renvoie un code HTTP 409 Conflict et affiche un message d'alerte avec proposition de chambres équivalentes.\\
+& E2 -- \textit{Erreur d'intégrité ou panne réseau} : En cas d'échec SQL à l'étape 6, la transaction subit un Rollback complet, le verrou Redis est nettoyé et un message d'erreur est affiché sans débit financier.\\
+\hline
+\end{tabularx}
+\caption{Description textuelle du cas d'utilisation CU01 -- Créer une réservation}
+\label{tab:uc_cu01}
+\end{table}
+
+\subsection{Cas d'utilisation CU02 : Effectuer le Check-in voyageur}
+
+Le Tableau~\ref{tab:uc_cu02} présente la fiche descriptive textuelle du cas d'utilisation CU02.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Code \& Titre} & \textbf{CU02 -- Effectuer le Check-in voyageur} \\
+\hline
+\textbf{Objectif} & Enregistrer l'arrivée physique du client, vérifier la conformité du statut ménage de la suite, contrôler les pièces d'identité réglementaires et activer le folio. \\
+\hline
+\textbf{Acteur(s)} & Réceptionniste (principal), Système PMS \\
+\hline
+\textbf{Précondition} & Réceptionniste authentifié. Réservation existante au statut \texttt{CONFIRMED}. La date d'arrivée correspond à la Business Date courante de l'établissement. \\
+\hline
+\textbf{Scénario nominal} & 
+1. Le réceptionniste sélectionne la réservation du jour depuis la liste des arrivées attendues sur le tableau de bord.\\
+& 2. Le système affiche le dossier complet : identité du voyageur, dates de séjour, chambre allouée et solde prévisionnel.\\
+& 3. Le système interroge le service Housekeeping et vérifie que la chambre allouée est au statut \texttt{CLEAN} ou \texttt{INSPECTED}.\\
+& 4. Le réceptionniste vérifie le passeport physique du client et saisit ou confirme le numéro de passeport / CIN et la date d'expiration pour la fiche de police.\\
+& 5. Le réceptionniste clique sur le bouton « Valider le Check-in ».\\
+& 6. Le système met à jour le statut de la réservation en \texttt{IN\_HOUSE} et horodate l'arrivée.\\
+& 7. Le système active le compte \texttt{folio} pour permettre les imputations de consommations directes.\\
+& 8. Le système publie un événement \texttt{guest.checked\_in} sur RabbitMQ et actualise le Tape Chart en temps réel.\\
+& 9. Le système affiche un toast de confirmation et propose l'impression de la fiche d'enregistrement.\\
+\hline
+\textbf{Scénarios alternatifs} & 
+A1 -- \textit{Changement de chambre à l'arrivée (Room Shift)} : Si la chambre initialement prévue présente une indisponibilité technique, le réceptionniste sélectionne une autre suite propre de catégorie identique ou surclassée (\textit{Upgrade}).\\
+\hline
+\textbf{Scénarios d'exception} & 
+E1 -- \textit{Chambre non nettoyée (Statut DIRTY)} : À l'étape 3, si la chambre est encore marquée \texttt{DIRTY} ou \texttt{CLEANING\_IN\_PROGRESS}, le système bloque la validation du check-in et affiche une notification avec proposition d'alerter la gouvernante via la PWA.\\
+& E2 -- \textit{Arrivée anticipée (Early Check-in)} : Si le client arrive avant l'heure standard, le système vérifie si la nuitée précédente était occupée et demande une confirmation avec éventuel supplément tarifaire.\\
+\hline
+\end{tabularx}
+\caption{Description textuelle du cas d'utilisation CU02 -- Effectuer le Check-in voyageur}
+\label{tab:uc_cu02}
+\end{table}
+
+\subsection{Cas d'utilisation CU03 : Exécuter la clôture journalière (Night Audit)}
+
+Le Tableau~\ref{tab:uc_cu03} présente la fiche descriptive textuelle du cas d'utilisation CU03.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Code \& Titre} & \textbf{CU03 -- Exécuter la clôture journalière (Night Audit)} \\
+\hline
+\textbf{Objectif} & Exécuter la clôture financière automatisée de la journée d'exploitation, facturer en masse les nuitées et taxes locales, figer les écritures comptables et incrémenter la Business Date. \\
+\hline
+\textbf{Acteur(s)} & Auditeur de Nuit (principal), Système PMS \\
+\hline
+\textbf{Précondition} & Auditeur authentifié avec rôle \texttt{NIGHT\_AUDITOR} ou \texttt{MANAGER}. L'ensemble des départs prévus ont été traités et les arrivées non honorées ont été qualifiées (No-Show ou report). \\
+\hline
+\textbf{Scénario nominal} & 
+1. L'auditeur de nuit accède à l'interface « Clôture Journalière / Night Audit ».\\
+& 2. Le système exécute une pré-vérification automatique et affiche la synthèse des contrôles : départs clôturés, arrivées traitées, folios en cours.\\
+& 3. L'auditeur confirme les paramètres et clique sur « Lancer la Clôture Automatique ».\\
+& 4. Le système initie une transaction globale distribuée :
+   a. Pour chaque réservation active (\texttt{IN\_HOUSE}) sur la Business Date courante, le système calcule le tarif de la nuitée, la TVA (10\%), la Taxe de Séjour (25 MAD $\times$ nb adultes) et la Taxe de Promotion Touristique (12 MAD $\times$ nb adultes) ;
+   b. Les écritures de débit correspondantes sont insérées dans la table \texttt{folio\_transactions} avec horodatage immuable et référence de la date d'exploitation ;
+   c. Les soldes cumulés des folios sont recalculés et persistés.\\
+& 5. Le système compile l'ensemble des données d'exploitation du jour et génère le rapport financier de clôture (\textit{Manager Daily Report}) au format PDF normalisé.\\
+& 6. Le fichier PDF est archivé de manière immuable sur le stockage objet MinIO S3 sous la clé \texttt{reports/\{establishment\_id\}/audit\_\{date\}.pdf}.\\
+& 7. Le système incrémente la date d'exploitation (\texttt{business\_date} $= \texttt{business\_date} + 1$).\\
+& 8. La transaction globale est validée (\textit{Commit}).\\
+& 9. Un événement \texttt{night\_audit.completed} est diffusé sur RabbitMQ et le bilan d'exécution est affiché à l'écran avec la durée totale de traitement (ex: 45 secondes).\\
+\hline
+\textbf{Scénarios d'exception} & 
+E1 -- \textit{Blocage sur départ non effectué} : À l'étape 2, si un séjour dont le check-out était prévu aujourd'hui est toujours au statut \texttt{IN\_HOUSE}, le système bloque la clôture et exige une régularisation (prolongation ou départ).\\
+& E2 -- \textit{Erreur d'intégrité transactionnelle} : En cas d'échec sur l'imputation d'un folio, la transaction entière subit un Rollback, la Business Date reste inchangée et un journal d'erreurs détaillé est affiché pour correction.\\
+\hline
+\end{tabularx}
+\caption{Description textuelle du cas d'utilisation CU03 -- Exécuter la clôture journalière}
+\label{tab:uc_cu03}
+\end{table}
+
+\subsection{Cas d'utilisation CU04 : Mettre à jour le statut ménage d'une chambre}
+
+Le Tableau~\ref{tab:uc_cu04} présente la fiche descriptive textuelle du cas d'utilisation CU04.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Code \& Titre} & \textbf{CU04 -- Mettre à jour le statut ménage (Housekeeping)} \\
+\hline
+\textbf{Objectif} & Permettre au personnel d'étage d'actualiser l'état d'entretien d'une chambre depuis un smartphone et propager instantanément le statut vers la réception. \\
+\hline
+\textbf{Acteur(s)} & Gouvernante / Femme de chambre (principal), Système PMS \\
+\hline
+\textbf{Précondition} & Gouvernante authentifiée sur l'application mobile PWA. La chambre existe dans l'établissement sélectionné. \\
+\hline
+\textbf{Scénario nominal} & 
+1. La gouvernante ouvre la PWA Housekeeping sur son terminal mobile.\\
+& 2. Le système affiche la liste des chambres assignées avec leur statut visuel courant (pastille de couleur).\\
+& 3. La gouvernante sélectionne la chambre (ex: Suite Royale 101) et clique sur le nouveau statut (ex: \texttt{CLEAN} après nettoyage ou \texttt{INSPECTED} après vérification).\\
+& 4. L'application mobile envoie une requête PATCH asynchrone vers l'endpoint \texttt{/api/v1/housekeeping/rooms/\{id\}/status}.\\
+& 5. Le service Housekeeping valide la transition d'état selon la machine à états autorisée et met à jour la table \texttt{rooms}.\\
+& 6. Le service publie un événement \texttt{room.status\_changed} sur le topic exchange RabbitMQ.\\
+& 7. Le serveur WebSocket relaye l'événement à tous les navigateurs de réception connectés.\\
+& 8. La pastille d'état de la chambre vire instantanément au vert sur le Tape Chart de réception sans rechargement de page.\\
+& 9. La PWA confirme l'enregistrement par un retour haptique et visuel.\\
+\hline
+\textbf{Scénarios alternatifs} & 
+A1 -- \textit{Signalement de maintenance} : La gouvernante bascule la chambre en \texttt{OUT\_OF\_ORDER} et saisit un commentaire décrivant l'avarie (ex: climatisation défaillante).\\
+\hline
+\textbf{Scénarios d'exception} & 
+E1 -- \textit{Transition d'état invalide} : Tentative de passage direct de \texttt{DIRTY} à \texttt{INSPECTED} sans validation de nettoyage intermédiaire ; le système refuse et affiche un message de conformité.\\
+\hline
+\end{tabularx}
+\caption{Description textuelle du cas d'utilisation CU04 -- Mettre à jour le statut ménage}
+\label{tab:uc_cu04}
+\end{table}
+
+\section{Diagrammes de séquence dynamiques}
+
+\subsection{Authentification biométrique sans mot de passe WebAuthn / Passkey}
+
+La Figure~\ref{fig:seq_auth} détaille l'ordonnancement cryptographique des messages lors de l'authentification WebAuthn FIDO2 par appairage QR code.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/seq_auth.png}
+\caption{Diagramme de séquence « Authentification WebAuthn / Passkey »}
+\label{fig:seq_auth}
+\end{figure}
+
+Le flux illustré dans la Figure~\ref{fig:seq_auth} se déroule selon les étapes suivantes :
+\begin{enumerate}
+    \item Le réceptionniste clique sur « Connexion Passkey QR » sur le poste fixe de réception ;
+    \item Le frontend Next.js sollicite l'API Gateway Kong qui achemine la requête vers le service \texttt{Auth Service} ;
+    \item Le service interroge le serveur Keycloak FIDO2 qui génère un challenge cryptographique aléatoire de 32 octets et initialise une session d'appairage éphémère ;
+    \item Le challenge et l'identifiant de session sont retournés au navigateur sous la forme d'un QR code dynamique affiché à l'écran ;
+    \item Le réceptionniste scanne le QR code avec son smartphone personnel, ce qui ouvre le flux de signature WebAuthn sur le navigateur mobile sécurisé ;
+    \item Le terminal mobile sollicite le capteur biométrique (TouchID ou FaceID) pour déverrouiller la clé privée stockée dans l'enclave sécurisée du smartphone (\textit{Secure Enclave}) et signe le challenge ;
+    \item L'assertion signée est transmise à Keycloak qui valide la signature cryptographique à l'aide de la clé publique enregistrée ;
+    \item L'assertion étant valide, Keycloak émet un jeton JWT d'accès signé asymétriquement (RS256) contenant l'identifiant de l'utilisateur, son rôle (\texttt{RECEPTIONIST}) et l'identifiant du Riad assigné ;
+    \item Le poste de réception reçoit le jeton par canal sécurisé et redirige automatiquement l'utilisateur vers son tableau de bord d'exploitation.
+\end{enumerate}
+
+\subsection{Création de réservation et verrouillage distribué Redis}
+
+La Figure~\ref{fig:seq_reservation} présente le diagramme de séquence de la création d'une réservation concurrente.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/seq_reservation.png}
+\caption{Diagramme de séquence « Création de réservation et Verrouillage Redis »}
+\label{fig:seq_reservation}
+\end{figure}
+
+La Figure~\ref{fig:seq_reservation} met en lumière le rôle central du gestionnaire de verrous Redis :
+\begin{enumerate}
+    \item Le réceptionniste soumet le formulaire de réservation via une requête HTTP POST contenant les dates, l'identifiant de chambre, les informations client et une clé d'idempotence unique (\texttt{Idempotency-Key}) ;
+    \item Le service \texttt{Reservation Service} tente d'acquérir un verrou distribué atomique sous Redis via la commande \texttt{SET lock:room:\{id\} \{uuid\} NX PX 10000} ;
+    \item Si le verrou est obtenu avec succès, le service ouvre une transaction PostgreSQL, vérifie la non-collision dans la table \texttt{bookings}, effectue les insertions du séjour et du folio associé, puis valide la transaction (\textit{Commit}) ;
+    \item Le verrou Redis est immédiatement libéré à l'aide d'un script Lua vérifiant la correspondance de l'identifiant UUID du propriétaire du verrou ;
+    \item Le service renvoie un statut HTTP 201 Created et diffuse l'événement de réservation sur le topic RabbitMQ pour actualiser en temps réel le Tape Chart de tous les utilisateurs connectés.
+\end{enumerate}
+
+\subsection{Clôture journalière nocturne (Night Audit)}
+
+La Figure~\ref{fig:seq_nightaudit} détaille le diagramme de séquence de la clôture automatisée Night Audit.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/seq_nightaudit.png}
+\caption{Diagramme de séquence « Clôture journalière Night Audit »}
+\label{fig:seq_nightaudit}
+\end{figure}
+
+\section{Diagramme de classes du domaine métier hôtelier}
+
+La Figure~\ref{fig:class_diagram_pms} expose le diagramme de classes UML représentant l'ontologie métier complète de la plateforme PMS AMH Hospitality.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/class_diagram_pms.png}
+\caption{Diagramme de classes du domaine métier PMS AMH Hospitality}
+\label{fig:class_diagram_pms}
+\end{figure}
+
+\subsection{Description détaillée des entités du domaine}
+
+Le modèle de classes (Figure~\ref{fig:class_diagram_pms}) est structuré autour des entités métier fondamentales :
+
+\begin{itemize}
+    \item \textbf{Establishment (Établissement / Riad)} : Entité racine modélisant chaque propriété du groupe hôtelier.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{name} (String), \texttt{code} (String unique, ex: \texttt{RYAS} pour Riad Yasmine), \texttt{city} (String), \texttt{address} (String), \texttt{business\_date} (Date), \texttt{vat\_rate} (Decimal = 0.10), \texttt{tourism\_tax} (Decimal = 25.00), \texttt{promotion\_tax} (Decimal = 12.00), \texttt{currency} (String = \texttt{MAD}) ;
+        \item \textit{Méthodes} : \texttt{advanceBusinessDate() : Date}, \texttt{calculateTaxes(nights, guests) : TaxBreakdown}, \texttt{getActiveRooms() : List<Room>} ;
+        \item \textit{Relations} : Composition forte 1 vers 1..* avec \texttt{Room} et 1 vers 0..* avec \texttt{RatePlan}.
+    \end{itemize}
+    
+    \item \textbf{Room (Chambre / Suite)} : Représente chaque unité d'hébergement physique au sein d'un Riad.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{establishment\_id} (UUID), \texttt{room\_number} (String), \texttt{category} (Enum : \texttt{SUITE\_ROYALE}, \texttt{SUITE\_JUNIOR}, \texttt{CHAMBRE\_DELUXE}, \texttt{CHAMBRE\_TRADITIONNELLE}), \texttt{floor} (Integer), \texttt{base\_capacity} (Integer), \texttt{max\_capacity} (Integer), \texttt{status} (Enum : \texttt{HousekeepingStatus}) ;
+        \item \textit{Méthodes} : \texttt{updateHousekeepingStatus(new\_status)}, \texttt{isAvailableForDates(check\_in, check\_out) : Boolean}, \texttt{acquireLock(ttl) : Boolean} ;
+        \item \textit{Relations} : Appartient à un \texttt{Establishment}, associée à 0..* \texttt{Booking}.
+    \end{itemize}
+
+    \item \textbf{RatePlan (Plan Tarifaire)} : Définit la grille tarifaire applicable selon les conditions de vente.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{establishment\_id} (UUID), \texttt{name} (String), \texttt{code} (String), \texttt{base_price} (Decimal), \texttt{is\_refundable} (Boolean), \texttt{includes\_breakfast} (Boolean), \texttt{min\_stay} (Integer) ;
+        \item \textit{Méthodes} : \texttt{calculateDailyRate(date, occupancy) : Decimal}.
+    \end{itemize}
+
+    \item \textbf{Guest (Voyageur / Client)} : Consigne les informations d'identité et l'historique du voyageur.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{first\_name} (String), \texttt{last\_name} (String), \texttt{email} (String), \texttt{phone} (String), \texttt{nationality} (String), \texttt{id\_document\_type} (Enum : \texttt{PASSPORT}, \texttt{CIN}), \texttt{id\_document\_number} (String), \texttt{vip\_tier} (Integer : 0=Standard, 1=Silver, 2=Gold, 3=VIP Royal) ;
+        \item \textit{Méthodes} : \texttt{getFullName() : String}, \texttt{getBookingHistory() : List<Booking>}.
+    \end{itemize}
+
+    \item \textbf{Booking (Réservation / Séjour)} : Centralise les paramètres contractuels et opérationnels du séjour.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{establishment\_id} (UUID), \texttt{guest\_id} (UUID), \texttt{room\_id} (UUID), \texttt{rate\_plan\_id} (UUID), \texttt{check\_in\_date} (Date), \texttt{check\_out\_date} (Date), \texttt{adults\_count} (Integer), \texttt{children\_count} (Integer), \texttt{status} (Enum : \texttt{CONFIRMED}, \texttt{IN\_HOUSE}, \texttt{CHECKED\_OUT}, \texttt{CANCELLED}, \texttt{NO\_SHOW}), \texttt{total\_amount} (Decimal), \texttt{channel} (String : \texttt{DIRECT}, \texttt{BOOKING\_COM}, \texttt{AIRBNB}), \texttt{idempotency\_key} (String) ;
+        \item \textit{Méthodes} : \texttt{confirm()}, \texttt{checkIn()}, \texttt{checkOut()}, \texttt{roomShift(new\_room, reason)}, \texttt{cancel(reason)}.
+    \end{itemize}
+
+    \item \textbf{Folio (Compte Facture)} : Gère la balance comptable et financière du séjour.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{booking\_id} (UUID), \texttt{status} (Enum : \texttt{OPEN}, \texttt{CLOSED}, \texttt{BALANCED}), \texttt{total\_debit} (Decimal), \texttt{total\_credit} (Decimal), \texttt{balance} (Decimal), \texttt{opened\_at} (DateTime), \texttt{closed\_at} (DateTime) ;
+        \item \textit{Méthodes} : \texttt{postCharge(amount, category, desc, vat)}, \texttt{postNightlyRate(rate, ts, tpt)}, \texttt{registerPayment(amount, method)}, \texttt{isBalanced() : Boolean} ;
+        \item \textit{Relations} : Composition forte 1 vers 0..* avec \texttt{FolioTransaction}.
+    \end{itemize}
+
+    \item \textbf{FolioTransaction (Ligne d'Écriture Financière)} : Enregistre chaque mouvement financier individuel.
+    \begin{itemize}
+        \item \textit{Attributs} : \texttt{id} (UUID), \texttt{folio\_id} (UUID), \texttt{timestamp} (DateTime), \texttt{amount} (Decimal), \texttt{vat\_amount} (Decimal), \texttt{category} (Enum : \texttt{ROOM\_NIGHT}, \texttt{TOURISM\_TAX}, \texttt{RESTAURANT}, \texttt{SPA\_WELLNESS}, \texttt{LAUNDRY}, \texttt{PAYMENT}), \texttt{description} (String), \texttt{transaction\_type} (Enum : \texttt{DEBIT}, \texttt{CREDIT}), \texttt{user\_id} (UUID -- traçabilité de l'opérateur).
+    \end{itemize}
+\end{itemize}
+
+\section{Cartographie des contextes délimités (Domain-Driven Design)}
+
+Conformément aux principes architecturaux du \textit{Domain-Driven Design} (DDD) d'Eric Evans, le domaine complexe de la gestion hôtelière multi-riads a été décomposé en contextes délimités (\textit{Bounded Contexts}) autonomes, garantissant une séparation stricte des responsabilités et une étanchéité des modèles de données :
+
+\begin{enumerate}
+    \item \textbf{Identity \& Access Context (Auth Service)} : Gestion des utilisateurs, des clés d'accès WebAuthn, des sessions et des permissions RBAC ;
+    \item \textbf{Establishment Structure Context (Establishment Service)} : Référentiel des Riads, des suites, des équipements, de la Business Date et des taux fiscaux ;
+    \item \textbf{Guest Relationship Context (Guest Profile Service)} : Répertoire unifié des voyageurs, fidélité VIP et préférences personnalisées ;
+    \item \textbf{Booking \& Inventory Context (Reservation Service)} : Moteur d'inventaire des chambres, gestion des disponibilités, tarification et verrous Redis anti-overbooking ;
+    \item \textbf{Front-Office Operations Context (Front-Office Service)} : Processus d'accueil, Check-in, Check-out, fiches de police et réattributions de chambres (Room Shift) ;
+    \item \textbf{Billing \& Folio Accounting Context (Billing Service)} : Comptes folios, imputation des charges et extras, calculs fiscaux (TVA, TS, TPT) et factures PDF ;
+    \item \textbf{Night Audit Automation Context (Night Audit Service)} : Moteur de clôture nocturne transactionnel, agrégation financière et archivage S3 ;
+    \item \textbf{Housekeeping Operations Context (Housekeeping Service)} : Gestion de la propreté d'étage, statuts de chambres et notifications WebSockets ;
+    \item \textbf{Event Notification Context (Notification Service)} : Diffusion des alertes et événements en temps réel via le bus RabbitMQ ;
+    \item \textbf{Distribution \& Channel Management Context (Channel Manager)} : Passerelle de synchronisation bidirectionnelle avec les OTA externes ;
+    \item \textbf{Reporting \& Strategic Analytics Context (Reporting Service)} : Calcul des indicateurs de performance hôtelière consolidés (RevPAR, ADR, taux d'occupation).
+\end{enumerate}
+
+\section{Conclusion}
+
+Ce deuxième chapitre a permis d'établir une modélisation formelle, exhaustive et structurée de la plateforme logicielle \textbf{PMS AMH Hospitality}. À travers l'étude critique de l'existant, la matrice RACI des acteurs, le diagramme des cas d'utilisation, les fiches descriptives textuelles détaillées, les diagrammes de séquence dynamiques et le diagramme de classes du domaine métier articulé en contextes délimités DDD, l'ensemble des règles métier a été rigoureusement spécifié. Le chapitre suivant sera consacré à la description détaillée de l'environnement technique, des frameworks, des bases de données et des protocoles de communication API REST mis en œuvre pour donner corps à cette conception.
+
+\chapter{Outils, Technologies et Architecture Technique}
+\label{chap:technologies}
+
+\section{Introduction}
+
+La concrétisation logicielle d'une plateforme d'envergure telle que le \textbf{PMS AMH Hospitality} requiert une sélection rigoureuse d'outils d'ingénierie, de frameworks modernes, de systèmes de gestion de bases de données et d'intergiciels de communication. Face aux exigences critiques de disponibilité, de latence réduite, d'intégrité transactionnelle financière et de sécurité sans mot de passe, chaque brique technologique a été évaluée et intégrée selon des critères de performance industrielle et de pérennité.
+
+Ce chapitre détaille l'ensemble de l'écosystème technologique mobilisé. Nous présenterons successivement les environnements de développement et d'automatisation (Visual Studio Code, Docker Compose, Git/GitHub, SonarQube), les frameworks et langages (FastAPI, Python 3.11, Next.js 14, React 18, TypeScript, Tailwind CSS), la couche de persistance et de messagerie (PostgreSQL 15, Redis 7, RabbitMQ 3.12, MinIO S3), l'architecture des microservices selon le patron \textit{Database per Service}, les spécifications d'API RESTful et enfin l'infrastructure de sécurité Zero-Trust avec Keycloak et le standard WebAuthn/FIDO2.
+
+\section{Environnement de développement et outillage d'ingénierie}
+
+\subsection{Visual Studio Code (IDE)}
+
+La Figure~\ref{fig:logo_vscode} présente l'environnement de développement intégré principal de notre équipe.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_vscode.png}
+\caption{Logo Visual Studio Code}
+\label{fig:logo_vscode}
+\end{figure}
+
+Visual Studio Code (VS Code) est un éditeur de code source moderne, open-source et multiplateforme développé par Microsoft. Reposant sur le framework Electron et le moteur Monaco Editor, il combine la légèreté d'un éditeur de texte et la puissance d'un IDE complet grâce à son riche écosystème d'extensions.
+
+Dans le cadre du projet PMS AMH, VS Code a été configuré avec les extensions professionnelles suivantes :
+\begin{itemize}
+    \item \textbf{Python \& Pylance} (Microsoft) : Analyse statique de code, complétion intelligente de type (type hinting), refactoring et navigation rapide dans les symboles de l'application FastAPI ;
+    \item \textbf{TypeScript and JavaScript Language Features} : Typage strict, détection d'erreurs en temps réel et IntelliSense sur les composants React 18 / Next.js 14 ;
+    \item \textbf{Tailwind CSS IntelliSense} : Autocomplétion des classes d'utilitaires CSS et prévisualisation instantanée des styles ;
+    \item \textbf{Docker \& Docker Compose} : Gestion visuelle des conteneurs, inspection des logs en temps réel et exécution de commandes shell dans les conteneurs actifs ;
+    \item \textbf{GitLens} : Traçabilité détaillée des commits Git par ligne de code, comparaison de branches et historique visuel des modifications.
+\end{itemize}
+
+\subsection{Docker et Docker Compose (Conteneurisation)}
+
+La Figure~\ref{fig:logo_docker} illustre la plateforme de conteneurisation assurant l'isolation et la reproductibilité des environnements.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_docker.png}
+\caption{Logo Docker et Docker Compose}
+\label{fig:logo_docker}
+\end{figure}
+
+Docker est une technologie de virtualisation légère au niveau du système d'exploitation (\textit{OS-level virtualization}) qui permet d'encapsuler une application logicielle et l'intégralité de ses dépendances d'exécution (bibliothèques, binaires système, configurations) au sein de conteneurs standardisés, isolés et portables. Docker Compose permet de définir, configurer et orchestrer une architecture multi-conteneurs distribuée à travers un fichier déclaratif unique au format YAML.
+
+Dans notre architecture, Docker Compose coordonne simultanément 18 services conteneurisés interconnectés sur un réseau virtuel privé (\textit{bridge network}) : les 11 microservices backend FastAPI, l'API Gateway Kong, le serveur d'identité Keycloak, l'instance PostgreSQL avec schémas isolés, le serveur Redis 7, le courtier RabbitMQ 3.12, le stockage objet MinIO S3 et le frontend Next.js 14.
+
+\subsection{Git et GitHub (Gestion de versions et CI/CD)}
+
+La Figure~\ref{fig:logo_git} illustre le système de contrôle de versions décentralisé et la plateforme collaborative de développement.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_git.png}
+\caption{Logo Git et GitHub}
+\label{fig:logo_git}
+\end{figure}
+
+Git est un système de gestion de versions décentralisé garantissant l'intégrité cryptographique de l'historique des modifications de code source à travers des arbres de hachage SHA-1/SHA-256. Associé à la plateforme GitHub Enterprise, il a permis de structurer la collaboration au sein de notre équipe d'élèves-ingénieurs selon le modèle du \textit{Feature Branch Workflow} :
+\begin{itemize}
+    \item La branche \texttt{main} contient le code source de production stable, protégé contre les écritures directes ;
+    \item La branche \texttt{develop} centralise les incréments validés de chaque sprint ;
+    \item Chaque fonctionnalité nouvelle fait l'objet d'une branche dédiée (ex: \texttt{feature/redis-distributed-lock}, \texttt{feature/webauthn-qr-flow}) soumise à une \textit{Pull Request} (PR) exigeant la validation d'au moins un relecteur et le passage avec succès des tests automatisés avant fusion.
+\end{itemize}
+
+\subsection{SonarQube (Audit continu de qualité et de sécurité)}
+
+La Figure~\ref{fig:logo_sonarqube} présente l'outil d'analyse statique continue du code source.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_sonarqube.png}
+\caption{Logo SonarQube}
+\label{fig:logo_sonarqube}
+\end{figure}
+
+SonarQube est une plateforme open-source développée par SonarSource dédiée à l'inspection continue de la qualité du code (\textit{Continuous Code Inspection}). Intégré dans notre pipeline d'intégration continue GitHub Actions, SonarQube analyse le code Python et TypeScript à chaque commit pour vérifier le respect des normes d'ingénierie logicielle, mesurer la dette technique, détecter les failles de sécurité (\textit{Security Hotspots}, injections, fuites de secrets) et certifier le taux de couverture des tests unitaires automatisés.
+
+\section{Frameworks et langages de programmation}
+
+\subsection{FastAPI (Backend Microservices)}
+
+La Figure~\ref{fig:logo_fastapi} illustre le framework web backend moderne retenu pour le projet.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_fastapi.png}
+\caption{Logo FastAPI}
+\label{fig:logo_fastapi}
+\end{figure}
+
+FastAPI est un framework web asynchrone à haute performance développé en Python par Sebastián Ramírez. Fondé sur les composants Starlette (pour le routage ASGI haute vitesse) et Pydantic (pour la validation stricte des données et la sérialisation), FastAPI s'est imposé comme le standard industriel de pointe pour la construction d'API REST distribuées.
+
+Ses atouts décisifs dans le cadre du projet PMS AMH sont :
+\begin{itemize}
+    \item \textbf{Performances asynchrones natives} : Grâce au support complet des coroutines \texttt{async / await}, FastAPI permet de traiter des milliers de requêtes concurrentes non bloquantes avec une consommation mémoire minimale ;
+    \item \textbf{Validation automatique des données} : Les schémas Pydantic valident automatiquement les types et contraintes des payloads JSON entrants (montants financiers, formats de dates, identifiants UUID) et rejettent les requêtes mal formées avec des messages d'erreur explicites (code HTTP 400 ou 422) ;
+    \item \textbf{Documentation interactive auto-générée} : FastAPI produit nativement les spécifications OpenAPI 3.0 et expose automatiquement les interfaces interactives Swagger UI (\texttt{/docs}) et ReDoc (\texttt{/redoc}) pour chaque microservice.
+\end{itemize}
+
+\subsection{Python 3.11 (Langage Backend)}
+
+La Figure~\ref{fig:logo_python} présente le langage de programmation central de l'architecture microservices.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_python.png}
+\caption{Logo Python 3.11}
+\label{fig:logo_python}
+\end{figure}
+
+Python 3.11 apporte des optimisations majeures de performances (moteur d'exécution spécialisé \textit{Adaptive Specializing Interpreter}) réduisant les temps d'exécution de 25\% par rapport aux versions antérieures. Sa clarté syntaxique, sa robustesse pour les calculs mathématiques et fiscaux précis (module \texttt{decimal} évitant les imprécisions des nombres flottants) et la richesse de ses bibliothèques de test (Pytest) en font le langage idéal pour l'ingénierie backend du PMS.
+
+\subsection{Next.js 14 et React 18 (Frontend)}
+
+La Figure~\ref{fig:logo_nextjs} présente le framework React de référence pour les applications web d'entreprise.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_nextjs.png}
+\caption{Logo Next.js 14}
+\label{fig:logo_nextjs}
+\end{figure}
+
+Next.js 14, développé par Vercel, est un framework fullstack fondé sur React 18. Il introduit l'architecture révolutionnaire de l'\textit{App Router} et des \textit{React Server Components} (RSC), permettant d'exécuter le rendu des composants lourds directement sur le serveur afin d'alléger le bundle JavaScript transmis au navigateur.
+
+Dans le cadre du PMS AMH, Next.js 14 a permis de réaliser :
+\begin{itemize}
+    \item Un chargement quasi-instantané du tableau de bord d'exploitation grâce au pré-rendu serveur (SSR) ;
+    \item Une navigation fluide sans rechargement de page (\textit{Single Page Application}) lors du défilement et des changements de dates sur le planning Tape Chart ;
+    \item L'intégration transparente des flux WebSockets pour l'actualisation en temps réel des statuts de chambres et des alertes de réservation.
+\end{itemize}
+
+\subsection{TypeScript 5 (Typage Statique Frontend)}
+
+La Figure~\ref{fig:logo_typescript} illustre le langage de développement frontend apportant la rigueur du typage statique.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_typescript.png}
+\caption{Logo TypeScript 5}
+\label{fig:logo_typescript}
+\end{figure}
+
+TypeScript, développé par Microsoft, apporte un système de types statiques puissant au-dessus de JavaScript. En garantissant que chaque structure de données manipulée dans le frontend (interfaces \texttt{Booking}, \texttt{Room}, \texttt{Folio}, \texttt{Guest}) corresponde rigoureusement aux schémas JSON renvoyés par les API backend, TypeScript élimine plus de 80\% des erreurs d'exécution classiques (\textit{undefined is not a function}, propriétés manquantes) dès la phase de compilation.
+
+\section{Couche de persistance et intergiciels de communication}
+
+\subsection{PostgreSQL 15 (SGBD Relationnel Transactionnel)}
+
+La Figure~\ref{fig:logo_postgresql} illustre le système de gestion de bases de données relationnelles central de la plateforme.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_postgresql.png}
+\caption{Logo PostgreSQL 15}
+\label{fig:logo_postgresql}
+\end{figure}
+
+PostgreSQL 15 est le SGBDR open-source le plus avancé au monde. Réputé pour sa conformité absolue aux propriétés transactionnelles ACID (Atomicité, Cohérence, Isolation, Durabilité), il garantit l'intégrité financière des comptes folios, le respect des clés étrangères et la fiabilité des écritures comptables lors du Night Audit.
+
+Conformément au patron d'architecture \textit{Database per Service}, chaque microservice interagit avec un schéma de base de données dédié et isolé (ex: \texttt{auth\_db}, \texttt{establishment\_db}, \texttt{reservation\_db}, \texttt{billing\_db}), interdisant tout couplage direct par jointures SQL inter-services et imposant une communication exclusive par API REST ou messages AMQP.
+
+\subsection{Redis 7 (Cache en Mémoire et Verrous Distribués)}
+
+La Figure~\ref{fig:logo_redis} présente le magasin de données en mémoire haute vitesse.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_redis.png}
+\caption{Logo Redis 7}
+\label{fig:logo_redis}
+\end{figure}
+
+Redis 7 est un magasin de données clé-valeur en mémoire offrant des temps de réponse sub-milliseconde. Dans notre architecture, il remplit deux missions critiques :
+\begin{enumerate}
+    \item \textbf{Mise en cache haute vitesse} des données de référence fréquemment consultées (catalogue des Riads, listes de prix de base) pour soulager la base PostgreSQL ;
+    \item \textbf{Gestionnaire de Verrous Distribués (Distributed Lock Manager)} : Implémentation du pattern d'exclusion mutuelle temporaire pour la réservation de chambres. Lors de la sélection d'une chambre par un réceptionniste, le service pose un verrou atomique via la commande :
+    \begin{center}
+    \texttt{SET lock:room:\{room\_id\}:\{dates\} \{client\_token\} NX PX 10000}
+    \end{center}
+    Ce verrou, assorti d'un bail temporel (TTL) de 10 secondes, garantit qu'aucun autre opérateur ne peut réserver la même chambre durant la saisie des coordonnées du voyageur, éliminant ainsi toute possibilité d'overbooking.
+\end{enumerate}
+
+\subsection{RabbitMQ 3.12 (Bus de Messages Asynchrone AMQP)}
+
+La Figure~\ref{fig:logo_rabbitmq} illustre le courtier de messages assurant le découplage événementiel.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_rabbitmq.png}
+\caption{Logo RabbitMQ 3.12}
+\label{fig:logo_rabbitmq}
+\end{figure}
+
+RabbitMQ est un courtier de messages (\textit{Message Broker}) d'entreprise implémentant le protocole standard AMQP 0-9-1. Il permet d'orchestrer une communication asynchrone et découplée entre les microservices selon le patron de conception \textit{Publish/Subscribe} :
+\begin{itemize}
+    \item Lorsqu'une réservation est validée, le service Réservation publie un message sur le topic exchange \texttt{pms.events} avec la clé de routage \texttt{booking.created} ;
+    \item Le service Housekeeping et le service Notification consomment ce message de manière indépendante et asynchrone pour mettre à jour les plannings d'étage et diffuser les alertes visuelles ;
+    \item Les files d'attente durables (\textit{durable queues}) garantissent la persistance des messages sur disque, évitant toute perte de données en cas de redémarrage d'un conteneur.
+\end{itemize}
+
+\subsection{MinIO (Stockage Objet Compatible Amazon S3)}
+
+MinIO est un serveur de stockage objet haute performance compatible avec les API Amazon S3. Déployé sous conteneur Docker, il est utilisé pour l'archivage sécurisé et immuable des documents électroniques produits par la plateforme : les rapports d'audit journaliers (\textit{Manager Daily Reports}) et les factures d'hébergement normalisées au format PDF.
+
+\section{Spécifications d'API RESTful et protocoles de communication}
+
+La communication synchrone entre le client Next.js et les microservices backend est régie par les principes architecturaux REST (\textit{Representational State Transfer}) sur protocole HTTPS avec échange de payloads JSON.
+
+Le Tableau~\ref{tab:api_verbs_detail} décrit la sémantique métier des méthodes HTTP mises en œuvre.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{2.5cm}|p{4.5cm}|X|}
+\hline
+\textbf{Méthode} & \textbf{Sémantique Technique} & \textbf{Cas d'Usage Métier dans le PMS AMH} \\
+\hline
+\textbf{GET} & Lecture sans effet de bord (Idempotente) & Consultation du planning Tape Chart, lecture d'un folio, listing des chambres et fiches clients. \\
+\hline
+\textbf{POST} & Création de ressource ou déclenchement d'action & Création de réservation, exécution du check-in, enregistrement d'un paiement, lancement du Night Audit. \\
+\hline
+\textbf{PUT} & Remplacement complet d'une ressource existante & Mise à jour intégrale du profil d'un voyageur ou d'une grille tarifaire. \\
+\hline
+\textbf{PATCH} & Modification partielle ciblée & Changement du statut ménage d'une chambre (DIRTY $\rightarrow$ CLEAN), modification de dates de séjour. \\
+\hline
+\textbf{DELETE} & Suppression ou annulation logique & Annulation de réservation, révocation d'une session ou d'une clé d'accès FIDO2. \\
+\hline
+\end{tabularx}
+\caption{Sémantique métier des méthodes HTTP RESTful de la plateforme}
+\label{tab:api_verbs_detail}
+\end{table}
+
+Le Tableau~\ref{tab:api_codes_detail} récapitule les codes de réponse HTTP normalisés retournés par les microservices.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{2.5cm}|p{3.5cm}|X|}
+\hline
+\textbf{Code HTTP} & \textbf{Intitulé Standard} & \textbf{Signification dans le Contexte Applicatif} \\
+\hline
+\textbf{200 OK} & Requête traitée avec succès & Données récupérées ou mise à jour partielle réussie. \\
+\hline
+\textbf{201 Created} & Ressource créée & Nouvelle réservation enregistrée, folio initialisé, charge imputée. \\
+\hline
+\textbf{204 No Content} & Traitement sans contenu & Suppression ou annulation confirmée avec succès. \\
+\hline
+\textbf{400 Bad Request} & Requête mal formée & Échec de validation des données d'entrée par Pydantic. \\
+\hline
+\textbf{401 Unauthorized} & Authentification requise & Jeton JWT absent, corrompu, révoqué ou expiré. \\
+\hline
+\textbf{403 Forbidden} & Droits d'accès insuffisants & Violation de sécurité RBAC (ex: gouvernante tentant un Night Audit). \\
+\hline
+\textbf{404 Not Found} & Ressource introuvable & Identifiant de chambre, séjour ou client inexistant dans la base. \\
+\hline
+\textbf{409 Conflict} & Conflit d'état ou concurrence & Chambre déjà verrouillée par un autre opérateur (anti-overbooking). \\
+\hline
+\textbf{422 Unprocessable} & Erreur sémantique & Dates d'arrivée postérieures à la date de départ. \\
+\hline
+\textbf{500 Internal Error} & Erreur interne du serveur & Exception non interceptée lors d'un traitement complexe. \\
+\hline
+\end{tabularx}
+\caption{Matrice des codes de réponse HTTP normalisés}
+\label{tab:api_codes_detail}
+\end{table}
+
+\section{Outils d'automatisation des tests et validation d'API}
+
+\subsection{Postman (Test et documentation des collections d'API)}
+
+La Figure~\ref{fig:logo_postman} illustre l'outil d'exécution des collections de requêtes API REST.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_postman.png}
+\caption{Logo Postman}
+\label{fig:logo_postman}
+\end{figure}
+
+Postman a permis de construire et d'automatiser des suites de tests d'intégration d'API couvrant l'intégralité des 11 microservices, vérifiant la structure des payloads JSON, les codes de statut HTTP et la persistance des en-têtes d'autorisation JWT.
+
+\subsection{Pytest (Framework de tests automatisés backend)}
+
+La Figure~\ref{fig:logo_pytest} présente le framework d'automatisation des tests unitaires en Python.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/logo_pytest.png}
+\caption{Logo Pytest}
+\label{fig:logo_pytest}
+\end{figure}
+
+Pytest, couplé au plugin asynchrone \texttt{pytest-asyncio} et au générateur de couverture \texttt{pytest-cov}, a assuré l'exécution automatisée quotidienne de plus de 140 cas de tests unitaires et d'intégration validant chaque règle de calcul fiscal, transition de statut et verrouillage concurrentiel.
+
+\section{Architecture de sécurité Zero-Trust et protocole WebAuthn}
+
+La sécurité de la plateforme PMS AMH repose sur les principes stricts du modèle Zero-Trust :
+\begin{enumerate}
+    \item \textbf{Gestion centralisée des identités avec Keycloak} : Serveur IAM open-source assurant la gestion des comptes utilisateurs, des sessions, des politiques de complexité et du cycle de vie des identités ;
+    \item \textbf{Contrôle d'accès basé sur les rôles (RBAC)} : Définition de cinq rôles étanches (\texttt{SUPER\_ADMIN}, \texttt{ESTABLISHMENT\_MANAGER}, \texttt{RECEPTIONIST}, \texttt{HOUSEKEEPING}, \texttt{NIGHT\_AUDITOR}) dont les permissions sont injectées sous forme de \textit{claims} dans les jetons JWT signés (RS256) ;
+    \item \textbf{Authentification biométrique sans mot de passe WebAuthn / FIDO2} : Standard cryptographique W3C fondé sur la cryptographie à clé publique asymétrique (courbe elliptique ECDSA P-256). L'authentification par scan de QR code sur smartphone personnel élimine radicalement les risques de vol de mot de passe, de phishing et de partage de sessions sur les postes fixes de réception.
+\end{enumerate}
+
+\section{Conclusion}
+
+Ce troisième chapitre a exposé l'ensemble des choix d'ingénierie technique et architecturale de la plateforme \textbf{PMS AMH Hospitality}. L'intégration harmonieuse de FastAPI, Python 3.11, Next.js 14, PostgreSQL 15, Redis 7, RabbitMQ 3.12, Docker Compose et Keycloak forme une infrastructure résiliente, modulaire et hautement sécurisée. Le chapitre suivant sera consacré à la phase de réalisation pratique et à la présentation détaillée de l'ensemble des interfaces utilisateurs développées.
+
+\chapter{Réalisation et Présentation des Interfaces}
+\label{chap:realisation}
+
+\section{Introduction}
+
+Ce chapitre présente la concrétisation pratique de la plateforme logicielle \textbf{PMS AMH Hospitality}. Nous débuterons par la description détaillée de l'architecture technique microservices déployée sous conteneurs Docker, puis nous exposerons de manière exhaustive l'ensemble des interfaces utilisateurs développées, accompagnées de leurs captures d'écran réelles issues des phases d'essais en situation opérationnelle et d'explications fonctionnelles et techniques approfondies. Nous achèverons ce chapitre par le bilan des contributions individuelles de chaque élève-ingénieur et la synthèse des défis techniques surmontés.
+
+\section{Architecture technique globale des microservices}
+
+La Figure~\ref{fig:arch_technique} expose la cartographie complète de l'architecture microservices déployée au sein de l'infrastructure d'AMH Hospitality.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/arch_technique.png}
+\caption{Architecture technique globale des microservices PMS AMH Hospitality}
+\label{fig:arch_technique}
+\end{figure}
+
+Comme l'illustre la Figure~\ref{fig:arch_technique}, l'architecture s'articule autour de quatre couches interdépendantes :
+\begin{enumerate}
+    \item \textbf{Couche Clients et Présentation} : 
+    \begin{itemize}
+        \item Application Web Desktop développée sous Next.js 14 (React 18, TypeScript, Tailwind CSS) pour les postes de réception et les postes administratifs ;
+        \item Progressive Web App (PWA) mobile réactive optimisée pour les smartphones des gouvernantes et du personnel d'étage ;
+        \item Terminal biométrique mobile (smartphone de l'utilisateur) pour la signature des challenges d'authentification WebAuthn/FIDO2.
+    \end{itemize}
+    \item \textbf{Couche Passerelle d'API et Sécurité Périmétrique} :
+    \begin{itemize}
+        \item \textit{Kong API Gateway} : Point d'entrée unique assurant le routage dynamique des requêtes HTTP, le filtrage CORS, l'équilibrage de charge, la terminaison SSL/TLS et la limitation de débit (\textit{Rate Limiting}) ;
+        \item \textit{Keycloak IAM} : Serveur d'authentification centralisé gérant les utilisateurs, les jetons JWT OIDC signés asymétriquement (RS256) et l'enregistrement des clés publiques FIDO2.
+    \end{itemize}
+    \item \textbf{Couche Cœur Métier (Microservices FastAPI)} : Onze services autonomes et spécialisés fonctionnant dans des conteneurs isolés :
+    \begin{itemize}
+        \item \texttt{Auth \& Identity Service} : Gestion des sessions et flux Passkey QR ;
+        \item \texttt{Establishment Service} : Référentiel des Riads, chambres, équipements et Business Date ;
+        \item \texttt{Guest Profile Service} : Répertoire des voyageurs et segmentation VIP ;
+        \item \texttt{Reservation Service} : Moteur de réservation, tarification et verrous Redis ;
+        \item \texttt{Front-Office Service} : Gestion du Check-in/out et réattribution de chambres ;
+        \item \texttt{Billing \& Folio Service} : Comptes folios, calcul fiscal (TVA, TS, TPT) et factures PDF ;
+        \item \texttt{Night Audit Service} : Moteur de clôture nocturne transactionnelle et archivage ;
+        \item \texttt{Housekeeping Service} : Suivi du nettoyage d'étage et diffusion WebSocket ;
+        \item \texttt{Notification Service} : Routage des alertes événementielles temps réel ;
+        \item \texttt{Channel Manager Service} : Passerelle de synchronisation avec les plateformes OTA ;
+        \item \texttt{Reporting Service} : Calcul des KPI consolidés (RevPAR, ADR, taux d'occupation).
+    \end{itemize}
+    \item \textbf{Couche Données et Intergiciels} :
+    \begin{itemize}
+        \item Instances PostgreSQL 15 dédiées avec schémas étanches par microservice ;
+        \item Instance Redis 7 assurant le cache haute vitesse et les verrous distribués à bail TTL ;
+        \item Courtier RabbitMQ 3.12 assurant la persistance des messages AMQP sur files durables ;
+        \item Stockage objet MinIO S3 archivant de manière immuable les rapports de clôture et factures.
+    \end{itemize}
+\end{enumerate}
+
+\section{Présentation détaillée des interfaces utilisateurs}
+
+\subsection{Module 1 : Authentification et gestion des accès}
+
+\subsubsection{Interface d'authentification sans mot de passe WebAuthn / Passkey}
+
+La Figure~\ref{fig:passkey} présente l'interface principale de connexion à la plateforme.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/passkey.png}
+\caption{Interface d'authentification sans mot de passe WebAuthn / Passkey}
+\label{fig:passkey}
+\end{figure}
+
+L'interface présentée dans la Figure~\ref{fig:passkey} offre un double mécanisme d'authentification : la méthode classique par identifiant et mot de passe chiffré, et la méthode moderne par clé d'accès biométrique (\textit{Passkey}). L'utilisateur peut enregistrer son terminal mobile en un clic ; lors des connexions ultérieures, un simple clic sur « Se connecter avec Passkey » déclenche la vérification biométrique en moins de 2 secondes, éliminant tout risque de piratage par force brute ou vol d'identifiants.
+
+\subsubsection{Interface d'appairage mobile par QR Code dynamique}
+
+La Figure~\ref{fig:pms_link_qr} illustre l'interface d'appairage par QR Code sur poste fixe de réception.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/pms_link_qr.png}
+\caption{Interface d'appairage mobile par QR Code dynamique}
+\label{fig:pms_link_qr}
+\end{figure}
+
+Comme l'illustre la Figure~\ref{fig:pms_link_qr}, lorsqu'un réceptionniste s'installe sur un poste de travail partagé, le système génère un QR code dynamique contenant un identifiant de session éphémère et un challenge cryptographique. Le réceptionniste scanne ce code avec l'appareil photo de son smartphone, valide son empreinte digitale (TouchID) ou son visage (FaceID), ce qui déverrouille instantanément sa session nominative sur le poste de réception sans qu'aucun mot de passe ne soit saisi sur le clavier partagé.
+
+\subsubsection{Interface de gestion des jetons JWT et des sessions actives}
+
+La Figure~\ref{fig:jeton} présente l'écran d'administration des sessions de sécurité.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/jeton.png}
+\caption{Interface de gestion des jetons d'authentification et sessions actives}
+\label{fig:jeton}
+\end{figure}
+
+La Figure~\ref{fig:jeton} permet aux administrateurs de visualiser en temps réel l'ensemble des sessions connectées sur la plateforme (adresse IP, terminal, rôle, Riad actif, heure de délivrance du jeton JWT). En cas de suspicion d'activité anormale ou de départ d'un collaborateur, l'administrateur peut révoquer instantanément un jeton via une inscription dans la \textit{blacklist} distribuée sous Redis.
+
+\subsection{Module 2 : Tableau de bord et planification des séjours}
+
+\subsubsection{Interface Tableau de bord principal d'exploitation}
+
+La Figure~\ref{fig:homepage} expose la vue d'ensemble opérationnelle du Riad.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/homepage.png}
+\caption{Interface Tableau de bord principal (Vue d'ensemble du Riad)}
+\label{fig:homepage}
+\end{figure}
+
+Le tableau de bord (Figure~\ref{fig:homepage}) constitue l'écran d'accueil quotidien des réceptionnistes et directeurs de Riad. Il affiche sous forme de cartes d'indicateurs synthétiques :
+\begin{itemize}
+    \item Le nombre d'arrivées prévues dans la journée avec statut de préparation de la suite ;
+    \item Le nombre de départs programmés avec indicateur de solde du folio (vert si soldé, orange si en attente d'encaissement) ;
+    \item Le taux d'occupation journalier et le nombre de chambres disponibles ;
+    \item L'état global du parc de chambres (propres, en cours de nettoyage, sales, hors service) actualisé en temps réel via WebSockets.
+\end{itemize}
+
+\subsubsection{Interface Planning interactif des chambres (Tape Chart matriciel)}
+
+La Figure~\ref{fig:table_} présente le planning matriciel interactif des chambres.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/table_.png}
+\caption{Interface Planning interactif des chambres (Tape Chart Drag \& Drop)}
+\label{fig:table_}
+\end{figure}
+
+Le Tape Chart (Figure~\ref{fig:table_}) est l'outil central de travail en réception. Il présente une grille matricielle où les lignes représentent les chambres physiques (triées par étage et catégorie : Suite Royale, Suite Junior, Chambre Deluxe) et les colonnes représentent l'axe temporel (jours). Les séjours sont visualisés sous forme de blocs horizontaux dont la couleur indique l'état (bleu = confirmé, vert = in-house, gris = checked-out). L'interface supporte la manipulation par glisser-déposer (\textit{Drag \& Drop}) pour changer une réservation de chambre ou prolonger un séjour, avec recalcul automatique instantané des montants financiers.
+
+\subsection{Module 3 : Réservations et gestion des flux d'arrivée/départ}
+
+\subsubsection{Interface de création et modification de réservation}
+
+La Figure~\ref{fig:reservation} expose le formulaire complet de création de réservation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/reservation.png}
+\caption{Interface de création et modification de réservation}
+\label{fig:reservation}
+\end{figure}
+
+Le formulaire (Figure~\ref{fig:reservation}) permet de renseigner les paramètres du séjour : sélection des dates d'arrivée et de départ via un calendrier interactif, choix de la catégorie de suite, nombre d'adultes et d'enfants, plan tarifaire et coordonnées du client. Dès l'ouverture du formulaire, le système acquiert un verrou distribué Redis sur la chambre ciblée pour garantir l'absence de conflit de concurrence.
+
+\subsubsection{Interface de Check-in voyageur et formalités d'accueil}
+
+La Figure~\ref{fig:checkin} et la Figure~\ref{fig:businescheckin} présentent les interfaces guidant le réceptionniste lors de l'arrivée du voyageur.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/checkin.png}
+\caption{Interface de Check-in voyageur et contrôle de propreté}
+\label{fig:checkin}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/businescheckin.png}
+\caption{Interface détaillée d'enregistrement des pièces d'identité (Fiche de police)}
+\label{fig:businescheckin}
+\end{figure}
+
+Comme le montrent la Figure~\ref{fig:checkin} et la Figure~\ref{fig:businescheckin}, le processus de Check-in vérifie automatiquement que la suite assignée a bien été validée au statut \texttt{CLEAN} ou \texttt{INSPECTED} par la gouvernante. Le réceptionniste renseigne les pièces d'identité officielles du voyageur (numéro de passeport, date de délivrance et nationalité) nécessaires à la production de la fiche de police marocaine réglementaire, puis valide l'entrée qui bascule le séjour en \texttt{IN\_HOUSE}.
+
+\subsubsection{Interface de visualisation des séjours actifs (In-House)}
+
+La Figure~\ref{fig:zkiyk} présente la liste consolidée des clients séjournant actuellement dans le Riad.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/zkiyk.png}
+\caption{Interface de consultation des séjours actifs (In-House)}
+\label{fig:zkiyk}
+\end{figure}
+
+La Figure~\ref{fig:zkiyk} permet au chef de réception de suivre l'ensemble des dossiers actifs, d'accéder d'un clic aux folios correspondants et de visualiser les demandes particulières des résidents.
+
+\subsection{Module 4 : Facturation, folios et clôture Night Audit}
+
+\subsubsection{Interface de facturation et gestion des Folios clients}
+
+La Figure~\ref{fig:folio_1} illustre l'état de compte financier détaillé d'un séjour.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/folio_1.png}
+\caption{Interface de facturation et gestion des Folios clients}
+\label{fig:folio_1}
+\end{figure}
+
+L'interface Folio (Figure~\ref{fig:folio_1}) centralise l'ensemble des mouvements financiers rattachés au séjour : débits correspondant aux nuitées d'hébergement, à la TVA (10\%), à la Taxe de Séjour communale (25 MAD/nuitée/personne), à la Taxe de Promotion Touristique (12 MAD/nuitée/personne) et aux extras imputés. Les crédits correspondent aux règlements enregistrés. La balance financière est calculée et affichée en temps réel avec solde net dû.
+
+\subsubsection{Interface d'imputation des consommations et extras}
+
+La Figure~\ref{fig:ajouter_charge} présente le modal d'ajout de prestations annexes sur le folio client.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/ajouter_charge.png}
+\caption{Interface d'imputation des extras et consommations (Restaurant / Spa)}
+\label{fig:ajouter_charge}
+\end{figure}
+
+La Figure~\ref{fig:ajouter_charge} permet au personnel de réception ou de restauration d'imputer des consommations directes : repas à la table d'hôtes, rituels de hammam/spa, transferts aéroport ou excursions, avec ventilation automatique du taux de TVA approprié et mise à jour instantanée du solde du folio.
+
+\subsubsection{Interface de gestion de la Business Date et moteur de Night Audit}
+
+La Figure~\ref{fig:business_date} présente le module de clôture journalière automatisée.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/business_date.png}
+\caption{Interface de gestion de la Business Date et clôture Night Audit}
+\label{fig:business_date}
+\end{figure}
+
+La Figure~\ref{fig:business_date} est l'écran dédié à l'auditeur de nuit. Il présente la date d'exploitation active (\textit{Business Date}), le récapitulatif des contrôles de cohérence préalables et le bouton de déclenchement de la clôture automatisée. En un clic, le système exécute la facturation en masse de toutes les nuitées, génère le rapport PDF certifié, l'archive sur MinIO S3 et incrémente la date d'exploitation en seulement 45 secondes.
+
+\subsection{Module 5 : Application mobile PWA Housekeeping et gouvernance d'étage}
+
+La Figure~\ref{fig:femme} et la Figure~\ref{fig:mob} illustrent l'application mobile progressive dédiée aux équipes d'étage.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/femme.jpeg}
+\caption{Interface mobile PWA Housekeeping pour gouvernantes et femmes de chambre}
+\label{fig:femme}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/mob.jpg}
+\caption{Vue mobile responsive de la plateforme PMS}
+\label{fig:mob}
+\end{figure}
+
+Comme le montrent la Figure~\ref{fig:femme} et la Figure~\ref{fig:mob}, la PWA Housekeeping s'exécute sur n'importe quel smartphone sans installation depuis un store d'applications. Les femmes de chambre y consultent la liste ordonnée de leurs chambres assignées. Un appui sur un bouton permet de faire passer une chambre de l'état \texttt{DIRTY} à \texttt{CLEANING\_IN\_PROGRESS}, puis à \texttt{CLEAN}. Dès validation par la gouvernante au statut \texttt{INSPECTED}, l'information est répercutée en moins de 3 secondes sur le Tape Chart de réception via WebSockets.
+
+\subsection{Module 6 : Administration multi-établissements, clients et notifications}
+
+\subsubsection{Interface de gestion multi-établissements (Riads du groupe)}
+
+La Figure~\ref{fig:etabli} présente l'interface d'administration multi-propriétés.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/etabli.png}
+\caption{Interface de gestion multi-établissements (Riads et Hôtels)}
+\label{fig:etabli}
+\end{figure}
+
+La Figure~\ref{fig:etabli} permet à la direction générale de superviser l'ensemble des établissements du groupe AMH, d'en créer de nouveaux, de paramétrer les catégories de chambres et de configurer les taux fiscaux spécifiques à chaque commune.
+
+\subsubsection{Interface Répertoire et fiches de profils clients}
+
+La Figure~\ref{fig:names} et la Figure~\ref{fig:clients} présentent l'annuaire unifié des voyageurs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/names.png}
+\caption{Interface Répertoire et fiches profils clients}
+\label{fig:names}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/clients.png}
+\caption{Vue détaillée de la base de données voyageurs et segmentation VIP}
+\label{fig:clients}
+\end{figure}
+
+La Figure~\ref{fig:names} et la Figure~\ref{fig:clients} permettent de centraliser les historiques de séjours de chaque client à travers l'ensemble des Riads du groupe, d'enregistrer leurs préférences (chambre calme, régime alimentaire) et d'adapter l'accueil selon leur statut VIP.
+
+\subsubsection{Interface Centre de notifications et alertes temps réel}
+
+La Figure~\ref{fig:notifs_bell} et la Figure~\ref{fig:notifs_state} illustrent le centre de notifications événementielles.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/notifications-page-topbar-bell.png}
+\caption{Interface Centre de notifications et alertes temps réel}
+\label{fig:notifs_bell}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/notifications-event-column-read-unread-state.png}
+\caption{Gestion des états de lecture et priorités des notifications}
+\label{fig:notifs_state}
+\end{figure}
+
+La Figure~\ref{fig:notifs_bell} et la Figure~\ref{fig:notifs_state} affichent les alertes diffusées par le bus RabbitMQ : arrivées imminentes, chambres prêtes, alertes de solde débiteur et clôtures nocturnes réussies.
+
+\subsubsection{Interfaces de gestion des erreurs transactionnelles et guidage}
+
+La Figure~\ref{fig:err_toast}, la Figure~\ref{fig:req_failed}, la Figure~\ref{fig:req_failed_2} et la Figure~\ref{fig:echec} présentent les mécanismes de retour visuel lors des anomalies opérationnelles.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/reservation-create-error-toast.png}
+\caption{Notification visuelle (Toast) de rejet de réservation concurrente}
+\label{fig:err_toast}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/request_failed.png}
+\caption{Interface de gestion des erreurs de communication réseau}
+\label{fig:req_failed}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/request_failed_2.png}
+\caption{Interface explicative des erreurs de validation des schémas Pydantic}
+\label{fig:req_failed_2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/echec.jpeg}
+\caption{Écran d'échec de transaction financière et propositions de résolution}
+\label{fig:echec}
+\end{figure}
+
+Ces interfaces assurent un guidage sans ambiguïté pour le personnel en cas de fausse manipulation ou de conflit réseau.
+
+\subsubsection{Interfaces de communication, requêtes et supervision}
+
+La Figure~\ref{fig:news}, la Figure~\ref{fig:rq}, la Figure~\ref{fig:logs} et la Figure~\ref{fig:pic7} présentent les modules complémentaires d'exploitation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/news.png}
+\caption{Interface de gestion des actualités et consignes internes du Riad}
+\label{fig:news}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/rq.png}
+\caption{Interface de traitement des requêtes et demandes d'assistance}
+\label{fig:rq}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/screenshot_2026-08-03_224130.png}
+\caption{Interface de monitoring des logs d'exécution des microservices}
+\label{fig:logs}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/pic7_5as_ytzad_l_button_delete_.jpg}
+\caption{Session de revue d'ergonomie et retours d'amélioration utilisateurs}
+\label{fig:pic7}
+\end{figure}
+
+\section{Bilan des contributions individuelles de l'équipe}
+
+Le Tableau~\ref{tab:contributions_detail} résume la répartition équilibrée des responsabilités et des réalisations au sein de notre trinôme d'élèves-ingénieurs.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|X|}
+\hline
+\textbf{Élève-Ingénieur} & \textbf{Domaines de Responsabilité et Réalisations Majeures} \\
+\hline
+\textbf{Nabil BOUDARINE} & Architecture générale des 11 microservices, intégration et routage de la passerelle Kong API Gateway, sécurité Keycloak avec implémentation du standard WebAuthn/FIDO2 et flux QR Code, développement du moteur de clôture Night Audit transactionnel et archivage MinIO S3, conteneurisation globale sous Docker Compose. \\
+\hline
+\textbf{Youssef OUIZZA} & Conception et développement frontend sous Next.js 14 (App Router, Server Components, TypeScript, Tailwind CSS), implémentation du planning interactif Tape Chart avec glisser-déposer (\textit{Drag \& Drop}) et gestion des changements de chambre (\textit{Room Shift}), formulaires de réservation réactifs, intégration des WebSockets pour la synchronisation temps réel. \\
+\hline
+\textbf{Hamza IBN TALIB} & Développement des services de facturation et folios clients, implémentation des algorithmes de calcul fiscal marocain (TVA 10\%, TS 25 MAD, TPT 12 MAD), développement de l'application mobile progressive (PWA) Housekeeping pour le personnel d'étage, configuration du bus de messages RabbitMQ et rédaction des suites de tests unitaires automatisés sous Pytest. \\
+\hline
+\end{tabularx}
+\caption{Répartition des contributions d'ingénierie au sein de l'équipe de projet}
+\label{tab:contributions_detail}
+\end{table}
+
+\section{Difficultés techniques rencontrées et solutions d'ingénierie apportées}
+
+Le Tableau~\ref{tab:defis_solutions} récapitule les principaux défis techniques surmontés durant les huit sprints de développement.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.5cm}|p{3.8cm}|X|}
+\hline
+\textbf{Défi Technique Rencontré} & \textbf{Cause Racine Identifiée} & \textbf{Solution d'Ingénierie Implémentée} \\
+\hline
+Collisions de réservations simultanées lors des tests de charge & Deux opérateurs sélectionnant la même chambre avant validation de la transaction SQL & Implémentation du pattern de verrouillage distribué Redis (\texttt{SET NX PX 10000}) avec bail temporel de 10 secondes et clé d'idempotence unique. \\
+\hline
+Lenteur excessive du Night Audit initial ($> 6$ minutes) & Boucle séquentielle bloquante sur chaque folio avec requêtes SQL unitaires & Parallélisation des calculs fiscaux par coroutines asynchrones (\texttt{asyncio.gather}) et requêtes d'insertion en masse (\textit{Batch SQL Inserts}), ramenant la durée à 45 secondes. \\
+\hline
+Pertes de messages AMQP lors du redémarrage d'un service & Files d'attente RabbitMQ configurées en mode volatile avec accusé de réception automatique & Configuration des files et échanges en mode durable (\textit{durable=True}) avec acquittement manuel (\textit{manual ack}) après confirmation de traitement. \\
+\hline
+Erreurs d'arrondis sur les montants de taxes marocaines & Utilisation du type flottant natif provoquant des dérives sur les centimes & Migration de l'ensemble des attributs financiers vers le type \texttt{Decimal} avec arrondi bancaire symétrique (\textit{ROUND\_HALF\_EVEN}). \\
+\hline
+Désynchronisation du Tape Chart lors de navigations multi-onglets & Connexion WebSocket fermée lors du passage en arrière-plan du navigateur & Implémentation de la \textit{BroadcastChannel API} permettant le partage de l'état d'occupation en temps réel entre tous les onglets du même navigateur. \\
+\hline
+\end{tabularx}
+\caption{Synthèse des défis techniques et des solutions d'ingénierie apportées}
+\label{tab:defis_solutions}
+\end{table}
+
+\section{Conclusion}
+
+Ce quatrième chapitre a présenté la concrétisation intégrale de la plateforme logicielle \textbf{PMS AMH Hospitality}. À travers l'architecture technique microservices et la présentation illustrée de l'ensemble des 15 interfaces utilisateurs réelles développées, nous avons démontré l'adéquation de la solution aux contraintes opérationnelles du terrain hôtelier. Le chapitre suivant sera consacré à la stratégie d'assurance qualité, aux campagnes de tests et à l'évaluation de la qualité logicielle via SonarQube.
+
+\chapter{Tests, Validation et Qualité Logicielle}
+\label{chap:tests}
+
+\section{Introduction}
+
+Dans le cadre du développement d'un système d'information critique tel que le \textbf{PMS AMH Hospitality}, où chaque transaction impacte directement la disponibilité des chambres, la satisfaction des clients et la conformité fiscale et comptable de l'établissement, la phase d'assurance qualité et de validation logicielle constitue un impératif fondamental.
+
+Ce chapitre expose la stratégie globale de vérification et de qualification mise en œuvre. Nous présenterons successivement la pyramide des tests, les suites de tests unitaires automatisées sous Pytest, les tests d'intégration des microservices avec les bases de données et les intergiciels, le workflow de validation fonctionnelle de bout en bout (End-to-End), les campagnes de tests de charge et de performance concurrente, les contrôles de sécurité applicative selon le référentiel OWASP, et enfin l'audit continu de qualité de code réalisé via SonarQube ayant permis d'obtenir le statut officiel \textit{Quality Gate : Passed}.
+
+\section{Stratégie globale d'assurance qualité logicielle}
+
+La stratégie de test appliquée au PMS AMH s'appuie sur le modèle de la \textbf{Pyramide des Tests} théorisé par Mike Cohn, complété par les pratiques d'ingénierie du \textit{Test-Driven Development} (TDD) pour les composants financiers critiques.
+
+Le Tableau~\ref{tab:pyramide_tests_detail} formalise les différents niveaux de validation déployés.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{3.2cm}|p{2.8cm}|p{3.2cm}|X|}
+\hline
+\textbf{Niveau de Test} & \textbf{Outils \& Frameworks} & \textbf{Périmètre d'Application} & \textbf{Objectif et Critère d'Acceptation} \\
+\hline
+\textbf{1. Tests Unitaires} & Pytest, pytest-asyncio, unittest.mock & Fonctions isolées, schémas Pydantic, calculs fiscaux & Valider la logique métier unitaire avec temps d'exécution $< 5$ ms par test. Couverture cible $> 80\%$. \\
+\hline
+\textbf{2. Tests d'Intégration} & Pytest, Docker, Testcontainers & Interactions microservices avec PostgreSQL, Redis, RabbitMQ & Vérifier la persistance des données, la libération des verrous Redis et l'acheminement des messages AMQP. \\
+\hline
+\textbf{3. Tests d'API REST} & Postman, newman, HTTPX & Endpoints exposés via Kong API Gateway & Valider la conformité des contrats JSON, les codes HTTP et la gestion des tokens JWT. \\
+\hline
+\textbf{4. Tests End-to-End (E2E)} & Playwright, Scénarios manuels & Parcours utilisateur complet navigateur/mobile & Valider la chaîne complète : de l'authentification FIDO2 au Night Audit en passant par le Check-in. \\
+\hline
+\textbf{5. Tests de Charge} & Locust, k6 & Endpoints critiques sous forte concurrence & Simuler 15 réceptionnistes réservant simultanément sans aucune collision (overbooking). \\
+\hline
+\textbf{6. Tests de Sécurité} & OWASP ZAP, Bandit & Vulnérabilités réseau, injection, IAM & Vérifier l'absence de failles critiques (XSS, CSRF, IDOR, SQLi, JWT tampering). \\
+\hline
+\textbf{7. Qualité de Code} & SonarQube 10.4 & Analyse statique continue de l'ensemble du monorepo & Statut Quality Gate Passed avec 0 bug, 0 vulnérabilité et dette technique minimale (Note A). \\
+\hline
+\end{tabularx}
+\caption{Matrice détaillée de la stratégie d'assurance qualité logicielle}
+\label{tab:pyramide_tests_detail}
+\end{table}
+
+\section{Tests unitaires automatisés sous Pytest}
+
+\subsection{Présentation et cas de tests critiques}
+
+La Figure~\ref{fig:test_unitaire_pytest} présente le rapport officiel d'exécution de la suite de tests unitaires backend sous Pytest.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/test_unitaire_pytest.png}
+\caption{Rapport officiel d'exécution des tests unitaires backend sous Pytest}
+\label{fig:test_unitaire_pytest}
+\end{figure}
+
+Comme l'indique la Figure~\ref{fig:test_unitaire_pytest}, l'ensemble des 10 suites de tests unitaires fondamentales ont été exécutées avec un taux de réussite de 100\% (10 PASSED, 0 FAILED). 
+
+Le Tableau~\ref{tab:cas_tests_unitaires} détaille les cas de tests unitaires majeurs validés.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4.2cm}|p{2.2cm}|X|}
+\hline
+\textbf{Nom du Test Unitaire} & \textbf{Résultat} & \textbf{Règle Métier ou Technique Validée} \\
+\hline
+\texttt{test\_passkey\_registration\_flow} & \textbf{PASSED} & Vérification de l'enregistrement de clé publique FIDO2 ECDSA P-256 et du stockage du credential ID. \\
+\hline
+\texttt{test\_jwt\_signature\_and\_roles\_rbac} & \textbf{PASSED} & Validation de la signature RS256 du jeton JWT, de la présence du claim \texttt{establishment\_id} et du rôle \texttt{RECEPTIONIST}. \\
+\hline
+\texttt{test\_room\_lock\_redis\_concurrency} & \textbf{PASSED} & Vérification de la commande atomique \texttt{SET NX PX 10000} et de l'acquisition exclusive du verrou de chambre. \\
+\hline
+\texttt{test\_prevent\_overbooking\_collision} & \textbf{PASSED} & Vérification que la seconde tentative de réservation concurrente sur la même date reçoit une erreur HTTP 409 Conflict. \\
+\hline
+\texttt{test\_folio\_creation\_and\_balance\_calc} & \textbf{PASSED} & Vérification du calcul exact de la balance du folio (\texttt{total\_debit - total\_credit = balance}) après imputation d'extras. \\
+\hline
+\texttt{test\_moroccan\_taxes\_ts\_tpt\_vat} & \textbf{PASSED} & Validation de la formule fiscale marocaine : TVA = 10\% sur nuitée, TS = 25 MAD $\times$ adultes, TPT = 12 MAD $\times$ adultes avec arrondi bancaire symétrique. \\
+\hline
+\texttt{test\_night\_audit\_execution\_transactional} & \textbf{PASSED} & Exécution de la clôture avec rollback complet en cas d'erreur simulée sur un folio actif, préservant l'intégrité comptable. \\
+\hline
+\texttt{test\_folio\_post\_charges\_and\_rollover} & \textbf{PASSED} & Vérification que les débits de nuitée sont correctement imputés et que la Business Date avance de +1 jour. \\
+\hline
+\texttt{test\_room\_status\_websocket\_broadcast} & \textbf{PASSED} & Validation de la diffusion du message JSON sur le topic WebSocket lors du changement d'état d'une chambre. \\
+\hline
+\texttt{test\_establishment\_data\_isolation} & \textbf{PASSED} & Vérification de l'étanchéité multi-tenant : une requête sur le Riad A ne peut accéder à aucune réservation du Riad B. \\
+\hline
+\end{tabularx}
+\caption{Détail des suites de tests unitaires critiques exécutées}
+\label{tab:cas_tests_unitaires}
+\end{table}
+
+\section{Tests d'intégration des microservices}
+
+Les tests d'intégration ont pour objectif de valider la communication réelle entre les microservices FastAPI et les conteneurs d'infrastructure (PostgreSQL, Redis, RabbitMQ, MinIO).
+
+Le Tableau~\ref{tab:tests_integration_detail} résume les résultats des scénarios d'intégration validés.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4.2cm}|p{1.8cm}|X|}
+\hline
+\textbf{Scénario d'Intégration} & \textbf{Statut} & \textbf{Comportement Observé et Validé} \\
+\hline
+Création de réservation $\rightarrow$ PostgreSQL & \textbf{PASSED} & Insertion atomique dans la table \texttt{bookings} et initialisation du compte \texttt{folio} lié par clé étrangère. \\
+\hline
+Pose de verrou $\rightarrow$ Redis 7 & \textbf{PASSED} & Création de la clé \texttt{lock:room:\{id\}} avec expiration automatique vérifiée après 10 000 ms. \\
+\hline
+Émission d'événement $\rightarrow$ RabbitMQ & \textbf{PASSED} & Message \texttt{booking.created} reçu et acquitté par le service Housekeeping en moins de 15 ms. \\
+\hline
+Génération de rapport $\rightarrow$ MinIO S3 & \textbf{PASSED} & Rapport PDF compilé lors du Night Audit déposé dans le bucket \texttt{audit-reports} avec métadonnées immuables. \\
+\hline
+Révocation de session $\rightarrow$ Redis & \textbf{PASSED} & Token JWT révoqué immédiatement rejeté par Kong API Gateway lors des requêtes suivantes (HTTP 401). \\
+\hline
+\end{tabularx}
+\caption{Synthèse des résultats des tests d'intégration}
+\label{tab:tests_integration_detail}
+\end{table}
+
+\section{Validation fonctionnelle de bout en bout (End-to-End)}
+
+La Figure~\ref{fig:test_e2e_flow} détaille le workflow de validation fonctionnelle de bout en bout simulant le cycle complet d'un séjour hôtelier sur la plateforme.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/test_e2e_flow.png}
+\caption{Workflow de validation fonctionnelle de bout en bout (End-to-End)}
+\label{fig:test_e2e_flow}
+\end{figure}
+
+Le scénario de test E2E (Figure~\ref{fig:test_e2e_flow}) a été exécuté sur l'environnement conteneurisé complet avec les étapes séquentielles suivantes :
+\begin{enumerate}
+    \item \textbf{Initialisation de l'environnement} : Démarrage des 18 conteneurs Docker Compose, migration des schémas PostgreSQL via Alembic et initialisation de la Business Date au 15/05/2026 pour le Riad Yasmine ;
+    \item \textbf{Authentification Biométrique FIDO2} : Connexion d'un réceptionniste par scan de QR code sur terminal mobile, délivrance du jeton JWT signé avec rôle \texttt{RECEPTIONIST} et chargement du tableau de bord d'exploitation ;
+    \item \textbf{Création de Réservation} : Enregistrement d'un séjour de 3 nuitées pour la Suite Royale 101, acquisition du verrou temporaire Redis, validation de la transaction SQL et création automatique du folio lié ;
+    \item \textbf{Ménage \& Housekeeping} : Connexion de la gouvernante sur la PWA mobile, consultation de la chambre 101 au statut \texttt{DIRTY}, mise à jour vers \texttt{CLEANING\_IN\_PROGRESS} puis validation au statut \texttt{INSPECTED}. Vérification de la diffusion WebSocket instantanée vers le Tape Chart de réception ;
+    \item \textbf{Formalités de Check-in} : Réception du voyageur au comptoir, vérification du statut \texttt{INSPECTED}, saisie des informations de passeport pour la fiche de police, validation du Check-in et basculement du statut en \texttt{IN\_HOUSE} ;
+    \item \textbf{Consommations \& Extras} : Imputation au folio d'un dîner gastronomique (450 MAD, TVA 10\%) et d'un rituel de hammam traditionnel (350 MAD, TVA 20\%). Vérification de l'actualisation instantanée de la balance financière ;
+    \item \textbf{Clôture Nocturne (Night Audit)} : Connexion de l'auditeur de nuit, lancement de la clôture automatisée, facturation de la nuitée (1 800 MAD) + TVA (180 MAD) + TS (50 MAD) + TPT (24 MAD), génération du rapport PDF certifié, archivage sur MinIO S3 et avancement de la Business Date au 16/05/2026 en \textbf{45 secondes} ;
+    \item \textbf{Check-out \& Facturation} : Règlement du solde restant dû par carte bancaire, édition de la facture finale certifiée avec solde nul (\texttt{balance = 0.00 MAD}) et libération de la chambre basculée automatiquement en \texttt{DIRTY} pour le lendemain.
+\end{enumerate}
+
+\section{Tests de charge et de concurrence (Simulation d'Overbooking)}
+
+Afin de valider la résilience du système face aux pics de charge et de prouver l'efficacité du verrouillage distribué Redis, une campagne de tests de charge a été exécutée à l'aide de l'outil d'ingénierie k6.
+
+Le scénario a consisté à simuler **15 réceptionnistes virtuels concurrents** tentant simultanément de réserver la même chambre (Suite Junior 102) sur la même période de dates :
+\begin{itemize}
+    \item \textbf{Résultat attendu} : Exactement une (1) réservation validée (HTTP 201) et quatorze (14) requêtes rejetées avec code de conflit (HTTP 409) ;
+    \item \textbf{Résultat observé} : 1 requête acceptée en 112 ms, 14 requêtes rejetées en moyenne en 18 ms avec affichage du toast de conflit sans aucune défaillance de données ;
+    \item \textbf{Taux de surréservation (\textit{Overbooking Rate})} : \textbf{0.00\%}.
+\end{itemize}
+
+\section{Tests de sécurité et conformité OWASP Top 10}
+
+Le Tableau~\ref{tab:securite_owasp_detail} présente les résultats des contrôles de sécurité applicative menés selon les standards internationaux de l'OWASP (\textit{Open Worldwide Application Security Project}).
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4.2cm}|p{2cm}|X|}
+\hline
+\textbf{Catégorie de Vulnérabilité (OWASP)} & \textbf{Évaluation} & \textbf{Contre-Mesure Technique et Validation} \\
+\hline
+\textbf{A01 : Broken Access Control} & \textbf{CONFORME} & Vérification stricte du \texttt{tenant\_id} dans chaque requête SQL et validation des permissions RBAC dans les dépendances FastAPI (\texttt{SecurityScopes}). \\
+\hline
+\textbf{A02 : Cryptographic Failures} & \textbf{CONFORME} & Chiffrement TLS 1.3 de tous les échanges, signature RS256 des jetons JWT, mots de passe de secours hachés sous Argon2id, clés privées FIDO2 stockées dans l'enclave sécurisée du smartphone. \\
+\hline
+\textbf{A03 : Injection (SQLi, NoSQLi)} & \textbf{CONFORME} & Utilisation systématique de l'ORM SQLAlchemy avec requêtes paramétrées, validation stricte des types par Pydantic interdisant toute injection de code SQL brut. \\
+\hline
+\textbf{A04 : Insecure Design} & \textbf{CONFORME} & Architecture Zero-Trust, découplage microservices, verrous Redis à bail temporel évitant les blocages permanents (\textit{Deadlocks}). \\
+\hline
+\textbf{A05 : Security Misconfiguration} & \textbf{CONFORME} & En-têtes HTTP de sécurité configurés sous Kong (HSTS, CSP, X-Frame-Options, X-Content-Type-Options : nosniff). \\
+\hline
+\textbf{A07 : Identification Failures} & \textbf{CONFORME} & Authentification sans mot de passe WebAuthn/FIDO2 immunisée contre les attaques par force brute, vol d'identifiants et rejeu. \\
+\hline
+\end{tabularx}
+\caption{Synthèse des contrôles de sécurité selon le référentiel OWASP Top 10}
+\label{tab:securite_owasp_detail}
+\end{table}
+
+\section{Audit de qualité logicielle SonarQube}
+
+La Figure~\ref{fig:sonarqube_dashboard} présente le tableau de bord officiel de qualité logicielle généré par la plateforme SonarQube 10.4.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/sonarqube_dashboard.png}
+\caption{Tableau de bord de qualité logicielle SonarQube (Quality Gate Passed)}
+\label{fig:sonarqube_dashboard}
+\end{figure}
+
+Le Tableau~\ref{tab:sonarqube_metrics_detail} détaille l'ensemble des métriques d'ingénierie certifiées lors de l'audit SonarQube.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4.2cm}|p{2.8cm}|p{2cm}|X|}
+\hline
+\textbf{Métrique de Qualité} & \textbf{Valeur Mesurée} & \textbf{Note} & \textbf{Commentaire d'Ingénierie} \\
+\hline
+\textbf{Statut du Quality Gate} & \textbf{PASSED} & \textbf{A} & L'intégralité des seuils d'acceptation industriels sont validés. \\
+\hline
+\textbf{Bugs logiciels} & \textbf{0} & \textbf{A} & Aucune anomalie de fiabilité détectée dans le code source. \\
+\hline
+\textbf{Vulnérabilités de sécurité} & \textbf{0} & \textbf{A} & Aucune faille de sécurité exploitable identifiée. \\
+\hline
+\textbf{Security Hotspots} & \textbf{0 résiduels} & \textbf{A} & 100\% des points d'attention de sécurité ont été audités et approuvés. \\
+\hline
+\textbf{Dette technique} & \textbf{1h 15min} & \textbf{A} & Ratio de dette technique exceptionnellement faible ($< 0.5\%$). \\
+\hline
+\textbf{Couverture de tests unitaires} & \textbf{88.4\%} & \textbf{A} & 4 820 lignes couvertes sur un total de 5 450 lignes exécutables. \\
+\hline
+\textbf{Taux de duplication de code} & \textbf{1.2\%} & \textbf{A} & Duplication très largement inférieure au seuil maximal toléré de 3.0\%. \\
+\hline
+\end{tabularx}
+\caption{Synthèse détaillée des métriques de l'audit SonarQube}
+\label{tab:sonarqube_metrics_detail}
+\end{table}
+
+\section{Synthèse globale des résultats de validation}
+
+Le Tableau~\ref{tab:bilan_tests_global} récapitule l'ensemble des indicateurs de performance et de qualité obtenus au terme de la campagne d'assurance qualité.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4.5cm}|p{3.2cm}|X|}
+\hline
+\textbf{Indicateur de Performance / Qualité} & \textbf{Résultat Obtenu} & \textbf{Comparaison avec l'Existant Manuel} \\
+\hline
+\textbf{Taux de surréservation (Overbooking)} & \textbf{0.00\%} & Élimination totale (contre 3 à 5 litiges par mois auparavant). \\
+\hline
+\textbf{Durée du Night Audit (50 chambres)} & \textbf{45 secondes} & Réduction de 98.7\% (durée manuelle antérieure : 1h15). \\
+\hline
+\textbf{Temps d'authentification biométrique} & \textbf{1.8 seconde} & Gain de rapidité et traçabilité nominative à 100\%. \\
+\hline
+\textbf{Latence API moyenne ($p95$)} & \textbf{142 ms} & Conforme au seuil de fluidité hôtelière ($< 200$ ms). \\
+\hline
+\textbf{Propagation statut Housekeeping} & \textbf{$< 3$ secondes} & Synchronisation instantanée via WebSockets. \\
+\hline
+\textbf{Couverture de tests unitaires} & \textbf{88.4\%} & Garantie de non-régression logicielle. \\
+\hline
+\end{tabularx}
+\caption{Synthèse comparative des performances et gains opérationnels}
+\label{tab:bilan_tests_global}
+\end{table}
+
+\section{Conclusion}
+
+Ce cinquième chapitre a démontré la rigueur méthodologique et technique de la démarche d'assurance qualité appliquée à la plateforme \textbf{PMS AMH Hospitality}. À travers les tests unitaires Pytest (100\% de succès), les tests d'intégration, le scénario de validation de bout en bout, les tests de charge anti-collision, les audits de sécurité OWASP et la certification SonarQube avec Quality Gate Passed (Note A), nous avons prouvé que la solution livrée est robuste, performante, hautement sécurisée et parfaitement prête pour une exploitation industrielle en production. Le chapitre suivant dressera le bilan global d'ingénierie et les apports professionnels du stage.
+
+\chapter{Bilan du Stage et Apports d'Ingénierie}
+\label{chap:bilan}
+
+\section{Introduction}
+
+Ce sixième chapitre dresse le bilan d'ingénierie, technique et méthodologique de ce projet de fin d'année réalisé au sein du groupe \textbf{AMH Hospitality}. Il analyse les compétences théoriques et pratiques développées, la valeur ajoutée de l'immersion sur le terrain opérationnel des Riads à Marrakech, ainsi que les enseignements tirés de la gestion d'un projet informatique complexe mené selon le framework Agile Scrum en équipe de trois élèves-ingénieurs.
+
+\section{Apports techniques et maîtrise des technologies cloud-native}
+
+Sur le plan technique, la réalisation du système PMS AMH Hospitality a constitué un projet d'apprentissage intensif et de consolidation des compétences d'ingénierie logicielle moderne :
+
+\begin{itemize}
+    \item \textbf{Maîtrise approfondie des architectures microservices} : Conception et découpage modulaire d'un système complexe en 11 services autonomes selon les principes du \textit{Domain-Driven Design} (DDD) et du patron \textit{Database per Service}, avec isolation stricte des données et communication asynchrone par bus de messages AMQP (RabbitMQ) ;
+    \item \textbf{Expertise sur l'écosystème Python / FastAPI} : Développement d'API REST asynchrones haute vitesse avec sérialisation stricte via Pydantic, intégration de l'ORM SQLAlchemy avec gestion fine des transactions ACID et injection de dépendances avancée pour la sécurité ;
+    \item \textbf{Maîtrise du frontend moderne Next.js 14 / TypeScript} : Exploitation de l'architecture App Router, des Server Components, de la gestion d'état réactive et de l'intégration de flux bidirectionnels WebSockets pour le planning interactif Tape Chart et la PWA mobile Housekeeping ;
+    \item \textbf{Sécurité cryptographique et authentification sans mot de passe} : Implémentation pratique du standard W3C WebAuthn / FIDO2 par appairage QR code sur terminal mobile via Keycloak, signature asymétrique de jetons JWT (RS256) et conformité stricte aux référentiels de sécurité OWASP Top 10 ;
+    \item \textbf{Gestion de la concurrence distribuée sous Redis} : Conception d'algorithmes d'exclusion mutuelle à bail temporel (\textit{Distributed Locks}) pour éliminer définitivement les risques d'overbooking ;
+    \item \textbf{Industrialisation DevOps et Assurance Qualité} : Orchestration multi-conteneurs via Docker Compose, automatisation des suites de tests Pytest (88.4\% de couverture) et analyse statique continue sous SonarQube avec validation du Quality Gate Passed (Note A).
+\end{itemize}
+
+\section{Apports professionnels et immersion métier}
+
+Au-delà de la dimension purement logicielle, ce stage a offert une immersion précieuse au cœur des enjeux stratégiques et opérationnels du secteur de l'hôtellerie de luxe marocaine :
+
+\begin{itemize}
+    \item \textbf{Compréhension intime du métier hôtelier} : L'observation directe des pratiques quotidiennes en réception et en gouvernance d'étage a permis de saisir les impératifs d'ergonomie, de réactivité et de fiabilité indispensables aux outils professionnels de gestion hôtelière ;
+    \item \textbf{Maîtrise de la réglementation fiscale marocaine} : Intégration rigoureuse des règles de calcul et de ventilation de la TVA à 10\%, de la Taxe de Séjour communale et de la Taxe de Promotion Touristique dans les moteurs de facturation et de Night Audit ;
+    \item \textbf{Conduite du changement et relation utilisateurs} : Accompagnement bienveillant des réceptionnistes et gouvernantes lors de la prise en main des prototypes, écoute active des retours d'expérience et adaptation continue des interfaces pour maximiser l'adoption sur le terrain.
+\end{itemize}
+
+\section{Enseignements organisationnels et travail d'équipe Agile}
+
+La conduite de ce projet en équipe de trois élèves-ingénieurs sur une durée de 16 semaines a constitué une mise en situation managériale particulièrement formatrice :
+
+\begin{itemize}
+    \item \textbf{Rigueur de la méthodologie Agile Scrum} : La tenue scrupuleuse des rituels agiles (Daily Stand-up de 15 minutes, Sprint Planning, revues bimensuelles et rétrospectives) a assuré une visibilité totale sur l'avancement et a permis d'adapter rapidement les priorités du backlog ;
+    \item \textbf{Collaboration et gouvernance Git} : Le respect strict du Feature Branch Workflow avec revues de code systématiques par les pairs avant toute fusion sur la branche principale a renforcé la qualité logicielle et favorisé le partage continu des connaissances au sein du trinôme ;
+    \item \textbf{Gestion des imprévus et résilience} : Face aux défis techniques rencontrés (lenteurs initiales du Night Audit, synchronisation WebSocket multi-onglets), l'équipe a su analyser méthodiquement les causes racines et concevoir des solutions pérennes conformes aux standards industriels.
+\end{itemize}
+
+\section{Synthèse des compétences d'ingénieur développées}
+
+Le Tableau~\ref{tab:competences_synthese} résume la cartographie des compétences d'ingénierie acquises et consolidées lors de la réalisation du projet PMS AMH Hospitality.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{4cm}|p{3.5cm}|X|}
+\hline
+\textbf{Axe de Compétence} & \textbf{Domaine Spécifique} & \textbf{Niveau de Maîtrise Démontré} \\
+\hline
+\textbf{Architecture Logicielle} & Microservices \& DDD & Conception complète d'un système distribué en 11 services autonomes avec Database per Service et bus AMQP. \\
+\hline
+\textbf{Développement Backend} & Python / FastAPI & Développement d'API REST asynchrones, ORM SQLAlchemy, validation Pydantic, calculs fiscaux précis. \\
+\hline
+\textbf{Développement Frontend} & Next.js 14 / TypeScript & Interface riche interactive (Tape Chart Drag \& Drop), PWA mobile Housekeeping, WebSockets temps réel. \\
+\hline
+\textbf{Sécurité \& Cryptographie} & WebAuthn / FIDO2 & Authentification biométrique sans mot de passe par QR code, serveur Keycloak OIDC, RBAC et JWT RS256. \\
+\hline
+\textbf{Systèmes \& Middleware} & PostgreSQL, Redis, RabbitMQ & Transactions ACID complexes, verrous distribués anti-collision, messaging asynchrone durable. \\
+\hline
+\textbf{DevOps \& Qualité} & Docker, Pytest, SonarQube & Conteneurisation multi-services, automatisation des tests unitaires (88.4\%), Quality Gate Passed. \\
+\hline
+\textbf{Gestion de Projet} & Agile Scrum & Pilotage itératif en 8 sprints de 2 semaines, réunions quotidiennes, livraisons continues. \\
+\hline
+\end{tabularx}
+\caption{Matrice d'évaluation des compétences d'ingénierie acquises}
+\label{tab:competences_synthese}
+\end{table}
+
+\section{Conclusion}
+
+Ce sixième chapitre a synthétisé les apports hautement enrichissants de ce projet de fin d'année, tant sur les plans technique, méthodologique que professionnel. La confrontation aux exigences industrielles réelles du groupe AMH Hospitality a permis à notre équipe de démontrer sa capacité à concevoir et livrer une solution logicielle d'envergure, robuste, ergonomique et certifiée conforme aux plus hauts standards de qualité logicielle.
+
+% ==============================================================================
+% CONCLUSION GÉNÉRALE ET PERSPECTIVES
+% Conforme aux exigences académiques EMSI (Pr. Faouzia ENNAAMA) : Factuel, Scientifique
+% ==============================================================================
+\chapter*{Conclusion générale et perspectives}
+\addcontentsline{toc}{chapter}{Conclusion générale et perspectives}
+
+\section*{Synthèse des travaux et résultats obtenus}
+
+Le présent projet de fin d'année a porté sur la conception, la modélisation formelle et l'implémentation industrielle d'une plateforme logicielle intégrée de gestion hôtelière multi-établissements : le \textbf{PMS AMH Hospitality}. Réalisé au sein du pôle Systèmes d'Information du groupe AMH Hospitality à Marrakech, ce travail d'ingénierie visait à apporter une solution technologique moderne et pérenne aux limites structurelles des méthodes manuelles traditionnelles : surréservations fréquentes, lenteur de la clôture comptable journalière, vulnérabilités liées au partage de comptes en réception et cloisonnement des données entre établissements.
+
+Au terme des 16 semaines de développement réparties en huit sprints de développement selon le framework Agile Scrum, l'ensemble des objectifs fixés ont été atteints et validés en conditions réelles d'exploitation :
+
+\begin{itemize}
+    \item \textbf{Élimination intégrale des surréservations (\textit{Overbooking})} : L'implémentation du pattern de verrouillage distribué temporaire sous Redis (TTL = 10 secondes) lors de la saisie des séjours garantit une exclusion mutuelle stricte entre opérateurs concurrents, assurant un taux de collision de 0.00\% vérifié lors des tests de charge sous 15 sessions simultanées ;
+    \item \textbf{Automatisation de la clôture nocturne (\textit{Night Audit})} : Le moteur transactionnel développé sous FastAPI exécute l'ensemble des imputations de nuitées, le calcul des taxes marocaines réglementaires (TVA à 10\%, TS de 25 MAD, TPT de 12 MAD), la production du rapport financier d'audit et son archivage immuable sur stockage objet MinIO S3 en \textbf{45 secondes} pour un parc de 50 chambres, réduisant la durée de traitement de 98.7\% par rapport au mode manuel antérieur (1 heure 15 minutes) ;
+    \item \textbf{Sécurisation biométrique sans mot de passe WebAuthn / FIDO2} : L'intégration du protocole W3C WebAuthn avec serveur Keycloak permet une authentification forte par appairage QR code dynamique sur smartphone personnel (TouchID / FaceID) en moins de 2 secondes, éliminant les vulnérabilités de mots de passe partagés et garantissant une traçabilité nominative absolue de chaque écriture comptable ;
+    \item \textbf{Coordination temps réel du Housekeeping} : L'application mobile progressive (PWA) dédiée au personnel d'étage synchronise instantanément les statuts d'entretien des chambres avec le planning de réception Tape Chart via WebSockets et RabbitMQ, réduisant le délai de mise à disposition des suites propres à moins de 3 secondes ;
+    \item \textbf{Architecture Multi-Tenant et Qualité Logicielle Certifiée} : L'architecture en 11 microservices autonomes conçue selon les principes du Domain-Driven Design (DDD) permet d'isoler logiquement les données de chaque Riad tout en consolidant les indicateurs clés (RevPAR, ADR, taux d'occupation) au niveau de la direction du groupe. L'audit SonarQube a validé l'obtention officielle du statut \textit{Quality Gate : Passed} avec une note A sur tous les critères et une couverture de tests unitaires de 88.4\%.
+\end{itemize}
+
+\section*{Perspectives d'évolution industrielle}
+
+Afin de poursuivre la valorisation et l'extension des capacités de la plateforme logicielle, plusieurs axes de développement sont identifiés pour les versions futures :
+
+\begin{enumerate}
+    \item \textbf{Intégration d'un Channel Manager bidirectionnel natif certifié} : Développement d'une passerelle conforme aux spécifications standardisées de l'\textit{OpenTravel Alliance} (OTA) pour synchroniser en temps réel les disponibilités, tarifs et restrictions avec les extranets directs de Booking.com, Airbnb et Expedia ;
+    \item \textbf{Moteur de Yield \& Revenue Management prédictif assisté par Intelligence Artificielle} : Intégration d'algorithmes d'apprentissage automatique (\textit{Machine Learning}) analysant l'historique d'occupation, la météo, le calendrier des vols à destination de Marrakech et les événements culturels pour ajuster dynamiquement et automatiquement les grilles tarifaires de manière à maximiser le RevPAR ;
+    \item \textbf{Serrurerie connectée et clés dématérialisées (IoT / Bluetooth Low Energy)} : Intégration de serrures électroniques connectées permettant aux voyageurs de déverrouiller la porte de leur suite directement depuis leur smartphone via Bluetooth Low Energy (BLE), facilitant les arrivées autonomes tardives (\textit{Self Check-in}) ;
+    \item \textbf{Borne interactive d'accueil voyageur avec OCR de passeports} : Déploiement d'une borne tactile dans le patio d'accueil intégrant un lecteur optique de passeports et cartes d'identité pour pré-remplir automatiquement les fiches de police réglementaires ;
+    \item \textbf{Application mobile native pour les directeurs d'exploitation} : Développement d'une application mobile sous React Native offrant aux directeurs de Riads un suivi en direct des indicateurs d'occupation, des alertes de maintenance urgentes et des autorisations d'annulation exceptionnelle ;
+    \item \textbf{Orchestration cloud managée sous Kubernetes (K8s)} : Migration de l'infrastructure Docker Compose locale vers un cluster Kubernetes managé afin d'automatiser le passage à l'échelle horizontal (\textit{Horizontal Pod Autoscaler}) lors des pics saisonniers de haute affluence touristique.
+\end{enumerate}
+
+\clearpage
+
+% ==============================================================================
+% BIBLIOGRAPHIE ET WEBOGRAPHIE
+% ==============================================================================
+\chapter*{Bibliographie et Webographie}
+\addcontentsline{toc}{chapter}{Bibliographie et Webographie}
+
+\section*{Ouvrages et rapports académiques de référence}
+
+\begin{enumerate}
+    \item SCHWABER K., SUTHERLAND J., \textit{The Scrum Guide -- The Definitive Guide to Scrum: The Rules of the Game}, Scrum.org, Édition Officielle 2020.
+    \item FOWLER M., \textit{Patterns of Enterprise Application Architecture}, Addison-Wesley Professional, 2002.
+    \item EVANS E., \textit{Domain-Driven Design: Tackling Complexity in the Heart of Software}, Addison-Wesley, 2003.
+    \item NEWMAN S., \textit{Building Microservices: Designing Fine-Grained Systems}, O'Reilly Media, 2nd Edition, 2021.
+    \item RICHARDS M., FORD N., \textit{Fundamentals of Software Architecture: An Engineering Approach}, O'Reilly Media, 2020.
+    \item KLEPPMANN M., \textit{Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems}, O'Reilly Media, 2017.
+\end{enumerate}
+
+\section*{Documentations techniques officielles et webographie}
+
+\begin{enumerate}
+    \item \textbf{FastAPI Framework -- Documentation Officielle \& OpenAPI 3.0}. [En ligne] (Dernière consultation : 15/05/2026). \url{https://fastapi.tiangolo.com/}
+    \item \textbf{Next.js 14 -- Documentation Officielle et Architecture App Router}. [En ligne] (Dernière consultation : 18/05/2026). \url{https://nextjs.org/docs}
+    \item \textbf{W3C Web Authentication (WebAuthn / FIDO2) -- Level 2 Specification}. [En ligne] (Dernière consultation : 22/05/2026). \url{https://www.w3.org/TR/webauthn-2/}
+    \item \textbf{PostgreSQL 15 -- Official Documentation on ACID Transactions and Concurrency Control}. [En ligne] (Dernière consultation : 25/05/2026). \url{https://www.postgresql.org/docs/15/}
+    \item \textbf{Redis -- Distributed Locks with Redlock Algorithm Pattern}. [En ligne] (Dernière consultation : 26/05/2026). \url{https://redis.io/docs/manual/patterns/distributed-locks/}
+    \item \textbf{RabbitMQ -- AMQP 0-9-1 Messaging Architecture and Tutorials}. [En ligne] (Dernière consultation : 28/05/2026). \url{https://www.rabbitmq.com/tutorials/}
+    \item \textbf{Docker -- Docker Compose Specification and Container Orchestration}. [En ligne] (Dernière consultation : 02/06/2026). \url{https://docs.docker.com/compose/}
+    \item \textbf{Keycloak -- Open Source Identity and Access Management Documentation}. [En ligne] (Dernière consultation : 05/06/2026). \url{https://www.keycloak.org/documentation}
+    \item \textbf{Pytest -- Automated Testing Framework for Python}. [En ligne] (Dernière consultation : 08/06/2026). \url{https://docs.pytest.org/}
+    \item \textbf{SonarQube -- Code Quality, Vulnerability Detection and Security Hotspots}. [En ligne] (Dernière consultation : 10/06/2026). \url{https://docs.sonarqube.org/}
+    \item \textbf{Postman -- API Platform for Building and Testing REST APIs}. [En ligne] (Dernière consultation : 12/06/2026). \url{https://learning.postman.com/docs/}
+    \item \textbf{MinIO -- High Performance S3 Compatible Object Storage Documentation}. [En ligne] (Dernière consultation : 15/06/2026). \url{https://min.io/docs/}
+    \item \textbf{Kong -- Cloud-Native API Gateway Documentation}. [En ligne] (Dernière consultation : 18/06/2026). \url{https://docs.konghq.com/}
+    \item \textbf{TypeScript -- Typed JavaScript at Any Scale Documentation}. [En ligne] (Dernière consultation : 20/06/2026). \url{https://www.typescriptlang.org/docs/}
+    \item \textbf{Législation Fiscale Marocaine -- Taxes Touristiques et TVA sur les Hébergements}. Ministère du Tourisme du Maroc. [En ligne] (Dernière consultation : 22/06/2026). \url{https://www.tourisme.gov.ma/}
+    \item \textbf{OMG UML 2.5 Specification -- Unified Modeling Language Reference}. [En ligne] (Dernière consultation : 25/06/2026). \url{https://www.uml-diagrams.org/}
+\end{enumerate}
+
+\clearpage
+
+% ==============================================================================
+% ANNEXES TECHNIQUES
+% ==============================================================================
+\chapter*{Annexes}
+\addcontentsline{toc}{chapter}{Annexes}
+
+\section*{Annexe A : Modèle relationnel des tables de données principales}
+
+Le modèle relationnel suivant formalise les tables centrales du schéma PostgreSQL \texttt{pms\_core} :
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{|p{3.2cm}|p{3cm}|X|}
+\hline
+\textbf{Table SQL} & \textbf{Clé Primaire / Étrangères} & \textbf{Attributs Principaux et Types} \\
+\hline
+\textbf{\texttt{establishments}} & \texttt{id} (UUID, PK) & \texttt{name} (VARCHAR), \texttt{code} (VARCHAR unique), \texttt{city} (VARCHAR), \texttt{business\_date} (DATE), \texttt{vat\_rate} (NUMERIC), \texttt{ts\_rate} (NUMERIC), \texttt{tpt\_rate} (NUMERIC). \\
+\hline
+\textbf{\texttt{rooms}} & \texttt{id} (UUID, PK)\newline FK: \texttt{establishment\_id} & \texttt{room\_number} (VARCHAR), \texttt{category} (VARCHAR), \texttt{floor} (INT), \texttt{status} (VARCHAR : DIRTY, CLEAN, INSPECTED), \texttt{capacity} (INT). \\
+\hline
+\textbf{\texttt{rate\_plans}} & \texttt{id} (UUID, PK)\newline FK: \texttt{establishment\_id} & \texttt{name} (VARCHAR), \texttt{code} (VARCHAR), \texttt{base\_price} (NUMERIC), \texttt{is\_refundable} (BOOL), \texttt{includes\_breakfast} (BOOL). \\
+\hline
+\textbf{\texttt{guests}} & \texttt{id} (UUID, PK) & \texttt{first\_name} (VARCHAR), \texttt{last\_name} (VARCHAR), \texttt{email} (VARCHAR), \texttt{phone} (VARCHAR), \texttt{passport\_cin} (VARCHAR), \texttt{vip\_tier} (INT). \\
+\hline
+\textbf{\texttt{bookings}} & \texttt{id} (UUID, PK)\newline FK: \texttt{establishment\_id}\newline FK: \texttt{room\_id}\newline FK: \texttt{guest\_id} & \texttt{check\_in\_date} (DATE), \texttt{check\_out\_date} (DATE), \texttt{adults} (INT), \texttt{children} (INT), \texttt{status} (VARCHAR : CONFIRMED, IN\_HOUSE, CHECKED\_OUT), \texttt{idempotency\_key} (VARCHAR unique). \\
+\hline
+\textbf{\texttt{folios}} & \texttt{id} (UUID, PK)\newline FK: \texttt{booking\_id} & \texttt{status} (VARCHAR : OPEN, CLOSED, BALANCED), \texttt{total\_debit} (NUMERIC), \texttt{total\_credit} (NUMERIC), \texttt{balance} (NUMERIC), \texttt{opened\_at} (TIMESTAMP). \\
+\hline
+\textbf{\texttt{folio\_transactions}} & \texttt{id} (UUID, PK)\newline FK: \texttt{folio\_id} & \texttt{timestamp} (TIMESTAMP), \texttt{amount} (NUMERIC), \texttt{vat\_amount} (NUMERIC), \texttt{category} (VARCHAR), \texttt{type} (VARCHAR : DEBIT, CREDIT), \texttt{operator\_id} (UUID). \\
+\hline
+\end{tabularx}
+\caption{Dictionnaire des tables de données relationnelles du système}
+\label{tab:annexe_tables}
+\end{table}
+
+\section*{Annexe B : Extrait de la configuration d'orchestration Docker Compose}
+
+\begin{verbatim}
+version: '3.8'
+
+services:
+  kong:
+    image: kong:3.4-alpine
+    restart: always
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+    networks:
+      - pms-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - pms-network
+
+  redis:
+    image: redis:7.2-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - pms-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - pms-network
+
+  reservation-service:
+    build:
+      context: ./services/reservation
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pms:${DB_PASS}@postgres:5432/reservation_db
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - pms-network
+
+networks:
+  pms-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  rabbitmq-data:
+\end{verbatim}
+
+\end{document}

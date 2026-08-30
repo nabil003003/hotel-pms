@@ -1,0 +1,45 @@
+# Sprint 8 (D15) : scrape réel des 11 microservices, chacun exposant
+# /metrics via prometheus-fastapi-instrumentator (voir app/main.py de
+# chaque service). Pas de config vide — vérifié via `up{job=...} == 1`
+# une fois le profil `observability` démarré.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  - job_name: auth-gateway-service
+    static_configs:
+      - targets: ["auth-gateway-service:8000"]
+  - job_name: establishment-service
+    static_configs:
+      - targets: ["establishment-service:8000"]
+  - job_name: housekeeping-service
+    static_configs:
+      - targets: ["housekeeping-service:8000"]
+  - job_name: pricing-service
+    static_configs:
+      - targets: ["pricing-service:8000"]
+  - job_name: partner-service
+    static_configs:
+      - targets: ["partner-service:8000"]
+  - job_name: channel-manager-service
+    static_configs:
+      - targets: ["channel-manager-service:8000"]
+  - job_name: reservation-service
+    static_configs:
+      - targets: ["reservation-service:8000"]
+  - job_name: front-office-service
+    static_configs:
+      - targets: ["front-office-service:8000"]
+  - job_name: analytics-service
+    static_configs:
+      - targets: ["analytics-service:8000"]
+  - job_name: night-audit-service
+    static_configs:
+      - targets: ["night-audit-service:8000"]
+  - job_name: notification-service
+    static_configs:
+      - targets: ["notification-service:8000"]

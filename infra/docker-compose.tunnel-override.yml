@@ -1,0 +1,47 @@
+# TEMPORARY — for testing WebAuthn cross-device against a real phone over a
+# cloudflared HTTPS tunnel. Not committed to git long-term; delete this file
+# and restart the stack with just docker-compose.yml + docker-compose.override.yml
+# to revert to normal localhost dev.
+services:
+  keycloak:
+    environment:
+      # KC_HOSTNAME avec schéma ("https://...") produit un issuer corrompu
+      # ("http://https//...") sur cette version de Keycloak (24.0) — constaté
+      # empiriquement. Hostname nu + confiance dans X-Forwarded-Proto (que
+      # cloudflared ajoute) pour le schéma à la place.
+      KC_HOSTNAME: princess-power-investors-organization.trycloudflare.com
+      KC_PROXY_HEADERS: xforwarded
+
+  auth-gateway-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  establishment-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  housekeeping-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  pricing-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  partner-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  channel-manager-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  reservation-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  front-office-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  analytics-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  night-audit-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com
+  notification-service:
+    environment:
+      KEYCLOAK_ISSUER_URL: https://princess-power-investors-organization.trycloudflare.com

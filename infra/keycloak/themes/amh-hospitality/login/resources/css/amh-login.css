@@ -1,0 +1,70 @@
+/* Palette extraite de Design/PMS 1/login.html — mêmes tokens que le
+   frontend Next.js (frontend/tailwind.config.ts) pour rester visuellement
+   cohérent entre la page Keycloak hébergée et le reste de l'app. */
+:root {
+  --amh-primary: #4a6cf7;
+  --amh-primary-dark: #3a56d4;
+  --amh-text: #1a1a2e;
+  --amh-muted: #7a8aa0;
+  --amh-bg: #f4f6fa;
+  --amh-card-bg: #ffffff;
+  --amh-border: #e5e7eb;
+}
+
+body {
+  background: var(--amh-bg) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+#kc-header-wrapper,
+#kc-form-wrapper .title {
+  color: var(--amh-text) !important;
+}
+
+.login-pf-page .card-pf,
+#kc-form {
+  background: var(--amh-card-bg) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid var(--amh-border) !important;
+}
+
+.btn-primary,
+input[type='submit'] {
+  background-color: var(--amh-primary) !important;
+  border-color: var(--amh-primary) !important;
+}
+
+.btn-primary:hover,
+input[type='submit']:hover {
+  background-color: var(--amh-primary-dark) !important;
+}
+
+a {
+  color: var(--amh-primary) !important;
+}
+
+/* Bouton "Scanner le QR code" (login/webauthn-authenticate.ftl, thème
+   parent classic) — mis en avant au-dessus du formulaire email/mot de passe
+   puisque le flow browser-webauthn (scripts/keycloak_setup.py) le place en
+   ALTERNATIVE en premier. La liste d'authentificateurs vient du policy
+   resident-key : vide côté serveur, remplie par le navigateur lui-même
+   (QR cross-device natif) au clic. */
+#kc-webauthn-authenticate-form .webauthn-title,
+#kc-webauthn-authenticate-form #authenticateWebAuthnButton {
+  background-color: var(--amh-primary) !important;
+  border-color: var(--amh-primary) !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+}
+
+#kc-webauthn-authenticate-form #authenticateWebAuthnButton:hover {
+  background-color: var(--amh-primary-dark) !important;
+}
+
+.webauthn-authenticator-list .webauthn-authenticator-item {
+  border: 1px solid var(--amh-border) !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+}

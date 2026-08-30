@@ -1,0 +1,536 @@
+# Un seul fichier pour TOUTE l'architecture cible (11 microservices + infra),
+# composé via des profils Docker Compose : le profil `core` grandit à chaque
+# sprint (Sprint 1 : auth-gateway/establishment/housekeeping ; Sprint 2 :
+# +pricing/partner/channel-manager) plutôt que d'introduire un profil par
+# sprint — `core` = "toute la stack fonctionnelle à ce jour". Voir plan §3
+# pour le détail des autres profils (gateway/storage/observability).
+#
+# Usage dev : docker compose --profile core up -d
+# (docker-compose.override.yml, à côté, ajoute bind mounts + hot reload)
+
+networks:
+  amh-backend:
+    driver: bridge
+
+volumes:
+  pgdata:
+  rabbitmq-data:
+  minio-data:
+  prometheus-data:
+  grafana-data:
+
+services:
+  # ---------------------------------------------------------------- core ---
+  postgres:
+    image: postgres:15-alpine
+    profiles: ["core"]
+    environment:
+      POSTGRES_USER: amh
+      POSTGRES_PASSWORD: amh_dev_password
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amh"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [amh-backend]
+
+  redis:
+    image: redis:7-alpine
+    profiles: ["core"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [amh-backend]
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    profiles: ["core"]
+    environment:
+      RABBITMQ_DEFAULT_USER: amh
+      RABBITMQ_DEFAULT_PASS: amh_dev_password
+    volumes:
+      # RABBITMQ_LOAD_DEFINITIONS n'est PAS une variable reconnue par l'image
+      # officielle (constaté en vérification Sprint 1 — messages publiés
+      # atteignaient l'exchange sans jamais être routés, aucun binding
+      # chargé) : le chargement réel passe par rabbitmq.conf ci-dessous.
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/conf.d/10-definitions.conf:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [amh-backend]
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    profiles: ["core"]
+    command: ["start-dev"]
+    # Le realm amh-hospitality n'est PAS importé depuis un JSON statique :
+    # un realm écrit à la main s'est révélé lui manquer des scopes/flows
+    # implicites (web-origins, microprofile-jwt, acr...) qu'un realm créé via
+    # `POST /admin/realms` obtient automatiquement, ce qui cassait le Direct
+    # Grant ("resolve_required_actions"). Provisioning réel : scripts/keycloak_setup.py
+    # (API Admin), lancé une fois Keycloak démarré — voir README.md.
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin_dev_password
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: amh
+      KC_DB_PASSWORD: amh_dev_password
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      # KC_HOSTNAME fixe l'`iss` des JWT à http://localhost:8080/realms/...
+      # quel que soit le nom d'hôte réellement utilisé pour joindre Keycloak
+      # (les services internes le joignent via http://keycloak:8080). Sans
+      # ça, un token obtenu depuis l'hôte (localhost:8080) et vérifié par un
+      # service qui attend l'issuer interne (keycloak:8080) échoue avec
+      # "Invalid issuer" — vu en vérification Sprint 1, voir KEYCLOAK_ISSUER_URL
+      # ci-dessous dans chaque service.
+    volumes:
+      - ./keycloak/themes/amh-hospitality:/opt/keycloak/themes/amh-hospitality:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [amh-backend]
+
+  auth-gateway-service:
+    build: ../services/auth-gateway-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/auth_db
+      REDIS_URL: redis://redis:6379/0
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-auth-gateway
+      KEYCLOAK_CLIENT_SECRET: dev-secret-auth-gateway
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks: [amh-backend]
+
+  establishment-service:
+    build: ../services/establishment-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/establishment_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-establishment
+      KEYCLOAK_CLIENT_SECRET: dev-secret-establishment
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks: [amh-backend]
+
+  housekeeping-service:
+    build: ../services/housekeeping-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/hk_db
+      REDIS_URL: redis://redis:6379/1
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-housekeeping
+      KEYCLOAK_CLIENT_SECRET: dev-secret-housekeeping
+      ESTABLISHMENT_SERVICE_URL: http://establishment-service:8000
+      RESERVATION_SERVICE_URL: http://reservation-service:8000
+    ports:
+      - "8003:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks: [amh-backend]
+
+  pricing-service:
+    build: ../services/pricing-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/pricing_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-pricing
+      KEYCLOAK_CLIENT_SECRET: dev-secret-pricing
+    ports:
+      - "8004:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks: [amh-backend]
+
+  partner-service:
+    build: ../services/partner-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/partner_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-partner
+      KEYCLOAK_CLIENT_SECRET: dev-secret-partner
+      # Clé Fernet dev pour ota_credentials_encrypted — même valeur partout,
+      # ne PAS réutiliser en prod (cf. app/config.py de ce service).
+      ENCRYPTION_KEY: "7IpIh0To2OH4J_p692DHNPLM4p7QHDh2SU8TGqd0riM="
+    ports:
+      - "8005:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks: [amh-backend]
+
+  channel-manager-service:
+    build: ../services/channel-manager-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/channel_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-channel-manager
+      KEYCLOAK_CLIENT_SECRET: dev-secret-channel-manager
+      ENCRYPTION_KEY: "7IpIh0To2OH4J_p692DHNPLM4p7QHDh2SU8TGqd0riM="
+      ESTABLISHMENT_SERVICE_URL: http://establishment-service:8000
+      WEBHOOK_HMAC_SECRET: dev-webhook-hmac-secret
+      # Sprint 3 (D6) : le webhook appelle reservation-service en synchrone.
+      RESERVATION_SERVICE_URL: http://reservation-service:8000
+    ports:
+      - "8006:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      establishment-service:
+        condition: service_started
+      reservation-service:
+        condition: service_started
+    networks: [amh-backend]
+
+  reservation-service:
+    build: ../services/reservation-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/reserv_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/2
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-reservation
+      KEYCLOAK_CLIENT_SECRET: dev-secret-reservation
+      PRICING_SERVICE_URL: http://pricing-service:8000
+      ESTABLISHMENT_SERVICE_URL: http://establishment-service:8000
+      AUTH_GATEWAY_SERVICE_URL: http://auth-gateway-service:8000
+    ports:
+      - "8007:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      pricing-service:
+        condition: service_started
+      establishment-service:
+        condition: service_started
+      auth-gateway-service:
+        condition: service_started
+    networks: [amh-backend]
+
+  front-office-service:
+    build: ../services/front-office-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/fo_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/3
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-frontoffice
+      KEYCLOAK_CLIENT_SECRET: dev-secret-frontoffice
+      PRICING_SERVICE_URL: http://pricing-service:8000
+      HOUSEKEEPING_SERVICE_URL: http://housekeeping-service:8000
+      RESERVATION_SERVICE_URL: http://reservation-service:8000
+      # Pas de depends_on vers night-audit-service pour cet appel (check-in ->
+      # lecture de la date métier) : night-audit-service dépend déjà de
+      # front-office-service plus bas dans ce fichier, un depends_on dans
+      # l'autre sens créerait un cycle refusé par docker compose.
+      NIGHT_AUDIT_SERVICE_URL: http://night-audit-service:8000
+    ports:
+      - "8008:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      pricing-service:
+        condition: service_started
+      housekeeping-service:
+        condition: service_started
+      reservation-service:
+        condition: service_started
+    networks: [amh-backend]
+
+  analytics-service:
+    build: ../services/analytics-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/analytics_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/4
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-analytics
+      KEYCLOAK_CLIENT_SECRET: dev-secret-analytics
+      RESERVATION_SERVICE_URL: http://reservation-service:8000
+      ESTABLISHMENT_SERVICE_URL: http://establishment-service:8000
+      # Pas de depends_on vers night-audit-service (kpi/today -> lecture de la
+      # date métier) : night-audit-service dépend déjà d'analytics-service
+      # plus bas dans ce fichier, l'inverse créerait un cycle.
+      NIGHT_AUDIT_SERVICE_URL: http://night-audit-service:8000
+    ports:
+      - "8009:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      reservation-service:
+        condition: service_started
+      establishment-service:
+        condition: service_started
+    networks: [amh-backend]
+
+  night-audit-service:
+    build: ../services/night-audit-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/audit_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/5
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-nightaudit
+      KEYCLOAK_CLIENT_SECRET: dev-secret-nightaudit
+      FRONT_OFFICE_SERVICE_URL: http://front-office-service:8000
+      RESERVATION_SERVICE_URL: http://reservation-service:8000
+      ANALYTICS_SERVICE_URL: http://analytics-service:8000
+      NOTIFICATION_SERVICE_URL: http://notification-service:8000
+      MINIO_ENDPOINT_URL: http://minio:9000
+      MINIO_ACCESS_KEY: amh
+      MINIO_SECRET_KEY: amh_dev_password
+      MINIO_BUCKET: audit-reports
+    ports:
+      - "8010:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      minio:
+        condition: service_healthy
+      front-office-service:
+        condition: service_started
+      reservation-service:
+        condition: service_started
+      analytics-service:
+        condition: service_started
+    networks: [amh-backend]
+
+  notification-service:
+    build: ../services/notification-service
+    profiles: ["core"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amh:amh_dev_password@postgres:5432/notif_db
+      RABBITMQ_URL: amqp://amh:amh_dev_password@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/6
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URL: http://localhost:8080
+      KEYCLOAK_REALM: amh-hospitality
+      KEYCLOAK_CLIENT_ID: svc-notification
+      KEYCLOAK_CLIENT_SECRET: dev-secret-notification
+    ports:
+      - "8011:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks: [amh-backend]
+
+  # ------------------------------------------------------------- gateway ---
+  kong:
+    # Sprint 8 (D15) : `kong:3.5-alpine` référencé depuis Sprint 1 n'existe
+    # plus sur Docker Hub (Kong Inc. a arrêté de publier des tags -alpine) —
+    # `kong:3.5` (image Ubuntu) est la version équivalente qui existe encore.
+    image: kong:3.5
+    profiles: ["gateway"]
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+    volumes:
+      - ./kong/kong.yml:/etc/kong/kong.yml:ro
+    ports:
+      - "8000:8000"
+      - "8444:8444"
+    networks: [amh-backend]
+
+  # Sprint 8 (D15) : agrège les /openapi.json des 11 services dans un seul
+  # sélecteur (§8.3 point 1). Exposé sur son propre port hôte plutôt que
+  # sous le chemin Kong /docs : l'image `swaggerapi/swagger-ui` sert ses
+  # assets depuis une racine nginx figée et son mécanisme `BASE_URL` produit
+  # une config nginx cassée avec cette version de l'image (root pointe vers
+  # /etc/nginx/html au lieu du vrai dossier de contenu) — plutôt que de
+  # démêler ce bug d'image tiers, la page est servie à sa racine `/` sur son
+  # propre port. Kong reste le point d'entrée qui agrège réellement les 11
+  # schémas OpenAPI (`/openapi/{service}.json`) ; swagger-ui n'est que la
+  # présentation qui les consomme.
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    profiles: ["gateway"]
+    environment:
+      URLS: >-
+        [
+          {"url": "http://localhost:8000/openapi/auth-gateway-service.json", "name": "auth-gateway-service"},
+          {"url": "http://localhost:8000/openapi/establishment-service.json", "name": "establishment-service"},
+          {"url": "http://localhost:8000/openapi/housekeeping-service.json", "name": "housekeeping-service"},
+          {"url": "http://localhost:8000/openapi/pricing-service.json", "name": "pricing-service"},
+          {"url": "http://localhost:8000/openapi/partner-service.json", "name": "partner-service"},
+          {"url": "http://localhost:8000/openapi/channel-manager-service.json", "name": "channel-manager-service"},
+          {"url": "http://localhost:8000/openapi/reservation-service.json", "name": "reservation-service"},
+          {"url": "http://localhost:8000/openapi/front-office-service.json", "name": "front-office-service"},
+          {"url": "http://localhost:8000/openapi/analytics-service.json", "name": "analytics-service"},
+          {"url": "http://localhost:8000/openapi/night-audit-service.json", "name": "night-audit-service"},
+          {"url": "http://localhost:8000/openapi/notification-service.json", "name": "notification-service"}
+        ]
+    ports:
+      - "8090:8080"
+    networks: [amh-backend]
+
+  # ------------------------------------------------------------- storage ---
+  minio:
+    image: minio/minio:latest
+    profiles: ["core", "storage"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: amh
+      MINIO_ROOT_PASSWORD: amh_dev_password
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [amh-backend]
+
+  # -------------------------------------------------------- observability --
+  # Sprint 8 (D15) : Prometheus + Grafana réellement câblés, scrapant les
+  # /metrics réels des 11 services (prometheus-fastapi-instrumentator,
+  # voir app/main.py de chaque service). ELK et OpenTelemetry restent hors
+  # périmètre — voir D15 pour le raisonnement (contrainte mémoire de cette
+  # machine, pas de logs structurés en place comme prérequis, pas de volume
+  # de logs de production à observer).
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    profiles: ["observability"]
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks: [amh-backend]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    profiles: ["observability"]
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: amh_dev_password
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3300:3000"
+    depends_on:
+      - prometheus
+    networks: [amh-backend]

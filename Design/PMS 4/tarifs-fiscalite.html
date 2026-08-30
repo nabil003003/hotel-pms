@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Tarifs & Fiscalité</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle { font-size: 10px; font-weight: 600; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0; padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px; color: #6b7a8e; font-size: 13px; font-weight: 400;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: ''; position: absolute; left: 26px;
+            width: 4px; height: 4px; border-radius: 50%; background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block { margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+        .sidebar .logout-block a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 14px; border-radius: 10px;
+            color: #ef4444; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: #1a1a2e; cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main { margin-left: 270px; flex: 1; padding: 24px 32px; min-height: 100vh; }
+
+        /* ===== TOP BAR ===== */
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .topbar .greeting h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .topbar .greeting h1 i { color: #4a6cf7; font-size: 22px; }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .actions .notification {
+            background: #fff; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+        }
+
+        /* ============================================================ */
+        /* ===== TARIFS & FISCALITÉ ===== */
+        /* ============================================================ */
+
+        /* --- TABS --- */
+        .tabs-container {
+            display: flex; gap: 4px; background: #fff; padding: 4px; border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); margin-bottom: 24px; flex-wrap: wrap;
+        }
+        .tabs-container button {
+            padding: 10px 20px; border: none; background: transparent; border-radius: 10px;
+            font-weight: 600; font-size: 13px; color: #5a6a7e; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 8px;
+        }
+        .tabs-container button:hover { color: #1a1a2e; background: #f4f6fa; }
+        .tabs-container button.active { background: #4a6cf7; color: #fff; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .tabs-container button i { font-size: 16px; }
+
+        /* --- TAB CONTENT --- */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* --- CARDS --- */
+        .card { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); margin-bottom: 24px; }
+        .card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .card .card-header h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .card .card-header h3 i { color: #4a6cf7; font-size: 18px; }
+        .card .card-header .actions { display: flex; gap: 8px; }
+        .card .card-header .actions button {
+            padding: 6px 14px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; font-weight: 500; color: #5a6a7e; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px;
+        }
+        .card .card-header .actions button:hover { border-color: #4a6cf7; color: #4a6cf7; }
+        .card .card-header .actions button.primary { background: #4a6cf7; color: #fff; border: none; }
+        .card .card-header .actions button.primary:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+
+        /* --- GRILLE TARIFAIRE --- */
+        .tarif-grid { overflow-x: auto; }
+        .tarif-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .tarif-table thead th {
+            padding: 12px 16px; text-align: left; font-weight: 600; color: #5a6a7e; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px; background: #f8f9fc; border-bottom: 2px solid #eef2f6;
+        }
+        .tarif-table thead th:first-child { min-width: 120px; }
+        .tarif-table tbody td { padding: 10px 16px; border-bottom: 1px solid #f5f6fa; vertical-align: middle; }
+        .tarif-table tbody tr:hover { background: #fafbff; }
+        .tarif-table tbody tr:last-child td { border-bottom: none; }
+        .tarif-table tbody .category-label { font-weight: 600; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+        .tarif-table tbody .category-label i { color: #4a6cf7; font-size: 16px; }
+        .tarif-table .price-cell { min-width: 80px; }
+        .tarif-table .price-cell input {
+            width: 100%; padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px;
+            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; text-align: center;
+            background: #fff; transition: 0.2s; color: #1a1a2e;
+        }
+        .tarif-table .price-cell input:focus { border-color: #4a6cf7; outline: none; box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1); }
+        .tarif-table .price-cell input:hover { border-color: #4a6cf7; }
+
+        /* --- TVA CONFIG --- */
+        .tva-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .tva-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+            background: #f8f9fc; border-radius: 10px; border: 1px solid #f0f2f6;
+        }
+        .tva-item .label { font-size: 13px; font-weight: 500; color: #374151; display: flex; align-items: center; gap: 8px; }
+        .tva-item .label i { color: #4a6cf7; font-size: 16px; }
+        .tva-item .value { display: flex; align-items: center; gap: 8px; }
+        .tva-item .value input {
+            width: 70px; padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px;
+            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; text-align: right;
+            background: #fff; transition: 0.2s;
+        }
+        .tva-item .value input:focus { border-color: #4a6cf7; outline: none; box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1); }
+        .tva-item .value span { font-size: 13px; font-weight: 600; color: #5a6a7e; }
+
+        /* --- TAXES LOCALES --- */
+        .taxes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .tax-item { padding: 12px 16px; background: #f8f9fc; border-radius: 10px; border: 1px solid #f0f2f6; }
+        .tax-item .label { font-size: 12px; color: #7a8aa0; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .tax-item .value { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+        .tax-item .value input {
+            width: 80px; padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 6px;
+            font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; text-align: right;
+            background: #fff; transition: 0.2s;
+        }
+        .tax-item .value input:focus { border-color: #4a6cf7; outline: none; box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1); }
+        .tax-item .value span { font-size: 14px; font-weight: 600; color: #5a6a7e; }
+        .tax-item .sub { font-size: 12px; color: #8a9bb5; margin-top: 2px; }
+
+        /* --- RÉGIME DE FACTURATION TAXES --- */
+        .regime-toggle {
+            display: flex; gap: 12px; margin-top: 16px; padding: 14px 16px;
+            background: #f8f9fc; border-radius: 10px; border: 1px solid #f0f2f6; flex-wrap: wrap; align-items: center;
+        }
+        .regime-toggle .label { font-size: 13px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 8px; }
+        .regime-toggle .label i { color: #4a6cf7; font-size: 16px; }
+        .regime-options { display: flex; gap: 8px; margin-left: auto; }
+        .regime-options button {
+            padding: 8px 16px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; font-weight: 600; color: #5a6a7e; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .regime-options button.active { background: #4a6cf7; color: #fff; border-color: #4a6cf7; }
+
+        /* --- RÉGIMES DE PENSION --- */
+        .pension-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .pension-item {
+            padding: 16px 18px; background: #f8f9fc; border-radius: 10px; border: 1px solid #f0f2f6; transition: 0.2s;
+        }
+        .pension-item:hover { border-color: #eef2ff; background: #fafbff; }
+        .pension-item .pension-code {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 8px; background: #eef2ff; color: #4a6cf7;
+            font-weight: 700; font-size: 13px; margin-bottom: 8px;
+        }
+        .pension-item .pension-name { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+        .pension-item .pension-desc { font-size: 12px; color: #7a8aa0; margin-top: 4px; }
+        .pension-item .pension-supp { font-size: 13px; font-weight: 600; color: #4a6cf7; margin-top: 8px; }
+
+        /* --- AGENCES --- */
+        .agency-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .agency-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+            background: #f8f9fc; border-radius: 10px; border: 1px solid #f0f2f6; transition: 0.2s;
+        }
+        .agency-item:hover { border-color: #eef2ff; background: #fafbff; }
+        .agency-item .info .name { font-weight: 600; font-size: 14px; color: #1a1a2e; }
+        .agency-item .info .details { font-size: 12px; color: #7a8aa0; }
+        .agency-item .actions { display: flex; gap: 6px; }
+        .agency-item .actions button {
+            background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+            color: #8a9bb5; transition: 0.2s; font-size: 14px;
+        }
+        .agency-item .actions button:hover { background: #eef2ff; color: #4a6cf7; }
+        .agency-item .actions button.delete:hover { color: #ef4444; }
+
+        /* --- EXTRAS --- */
+        .extras-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+        .extra-category { background: #f8f9fc; border-radius: 10px; padding: 14px 16px; border: 1px solid #f0f2f6; }
+        .extra-category .cat-title {
+            font-size: 12px; font-weight: 600; color: #4a6cf7; text-transform: uppercase; letter-spacing: 0.3px;
+            display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+        }
+        .extra-category .cat-title i { font-size: 14px; }
+        .extra-category .extra-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 4px 0;
+            font-size: 13px; border-bottom: 1px solid #f0f2f6;
+        }
+        .extra-category .extra-item:last-child { border-bottom: none; }
+        .extra-category .extra-item .name { color: #374151; }
+        .extra-category .extra-item .price { font-weight: 600; color: #1a1a2e; }
+        .extra-category .extra-item .actions { display: flex; gap: 4px; }
+        .extra-category .extra-item .actions button { background: none; border: none; cursor: pointer; color: #8a9bb5; font-size: 12px; transition: 0.2s; }
+        .extra-category .extra-item .actions button:hover { color: #4a6cf7; }
+
+        /* --- PACKAGES --- */
+        .packages-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .package-item { background: #f8f9fc; border-radius: 10px; padding: 16px 18px; border: 1px solid #f0f2f6; transition: 0.2s; }
+        .package-item:hover { border-color: #eef2ff; background: #fafbff; }
+        .package-item .package-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 12px; font-size: 20px; margin-bottom: 10px;
+        }
+        .package-item .package-icon.romance { background: #fdf2f8; color: #db2777; }
+        .package-item .package-icon.wellness { background: #f0fdf4; color: #16a34a; }
+        .package-item .package-icon.desert { background: #fff7ed; color: #ea580c; }
+        .package-item .package-name { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+        .package-item .package-price { font-size: 20px; font-weight: 700; color: #4a6cf7; margin: 6px 0; }
+        .package-item .package-details { font-size: 12px; color: #7a8aa0; }
+        .package-item .package-details span {
+            display: inline-block; margin-right: 8px; margin-top: 4px; padding: 2px 8px;
+            background: #eef2ff; border-radius: 4px; font-weight: 500; color: #4a6cf7;
+        }
+        .package-item .package-split {
+            font-size: 11px; color: #8a9bb5; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb;
+        }
+        .package-item .actions { display: flex; gap: 6px; margin-top: 10px; }
+        .package-item .actions button {
+            padding: 4px 12px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 11px; font-weight: 500; color: #5a6a7e; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .package-item .actions button:hover { border-color: #4a6cf7; color: #4a6cf7; }
+
+        /* --- REMISE SIMULATOR --- */
+        .discount-sim {
+            display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;
+            padding: 16px; background: #f8f9fc; border-radius: 10px; border: 1px solid #f0f2f6;
+        }
+        .discount-sim .field { display: flex; flex-direction: column; gap: 6px; }
+        .discount-sim .field label { font-size: 11px; font-weight: 600; color: #7a8aa0; text-transform: uppercase; letter-spacing: 0.3px; }
+        .discount-sim .field select,
+        .discount-sim .field input {
+            padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px;
+            font-family: 'Inter', sans-serif; background: #fff; color: #1a1a2e;
+        }
+        .discount-sim .field select:focus,
+        .discount-sim .field input:focus { border-color: #4a6cf7; outline: none; box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1); }
+        .discount-sim button {
+            padding: 9px 18px; border-radius: 8px; border: none; background: #4a6cf7; color: #fff;
+            font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .discount-sim button:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .discount-result {
+            margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: #f0fdf4;
+            border: 1px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 600;
+            display: none; align-items: center; gap: 10px;
+        }
+        .discount-result.active { display: flex; }
+        .discount-result i { font-size: 18px; }
+
+        /* ============================================================ */
+        /* ===== RESPONSIVE ===== */
+        /* ============================================================ */
+        @media (max-width: 1200px) {
+            .tva-grid { grid-template-columns: 1fr; }
+            .taxes-grid { grid-template-columns: 1fr; }
+            .pension-grid { grid-template-columns: 1fr; }
+            .extras-grid { grid-template-columns: 1fr 1fr; }
+            .packages-grid { grid-template-columns: 1fr 1fr; }
+            .agency-list { grid-template-columns: 1fr; }
+            .discount-sim { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .hamburger { display: block !important; }
+            .tabs-container { flex-direction: column; }
+            .tabs-container button { justify-content: center; }
+            .extras-grid { grid-template-columns: 1fr; }
+            .packages-grid { grid-template-columns: 1fr; }
+            .regime-options { margin-left: 0; }
+        }
+        @media (max-width: 600px) {
+            .tarif-table { font-size: 11px; }
+            .tarif-table thead th,
+            .tarif-table tbody td { padding: 6px 8px; }
+            .tarif-table .price-cell input { font-size: 11px; padding: 4px 6px; width: 60px; }
+            .agency-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .package-item .actions { flex-direction: column; }
+            .discount-sim { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="../PMS 1/dashboard.html"><i class="ph ph-gauge"></i> Dashboard <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/reservations.html"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/front-office.html"><i class="ph ph-door"></i> Front Office <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/housekeeping.html"><i class="ph ph-broom"></i> Housekeeping <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu open">
+                    <a href="#"><i class="ph ph-table"></i> Grille Tarifaire</a>
+                    <a href="#"><i class="ph ph-receipt"></i> TVA & Taxes</a>
+                    <a href="#"><i class="ph ph-building"></i> Agences</a>
+                    <a href="#"><i class="ph ph-shopping-cart"></i> Catalogue Extras</a>
+                    <a href="#"><i class="ph ph-gift"></i> Packages</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 3/night-audit.html"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/analytics.html"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="../PMS 1/login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité</h1>
+                    <p>Configuration des tarifs, taxes et extras · <strong>Hôtel Marrakech Palace</strong></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification"><i class="ph ph-bell"></i><span class="badge">3</span></div>
+                <div class="avatar">YE</div>
+            </div>
+        </header>
+
+        <!-- ============================================================ -->
+        <!-- ===== TABS ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tabs-container">
+            <button class="active" onclick="switchTab(this, 'grille')"><i class="ph ph-table"></i> Grille Tarifaire</button>
+            <button onclick="switchTab(this, 'tva')"><i class="ph ph-receipt"></i> TVA & Taxes</button>
+            <button onclick="switchTab(this, 'regimes')"><i class="ph ph-fork-knife"></i> Régimes (Pensions)</button>
+            <button onclick="switchTab(this, 'agences')"><i class="ph ph-building"></i> Agences</button>
+            <button onclick="switchTab(this, 'extras')"><i class="ph ph-shopping-cart"></i> Catalogue Extras</button>
+            <button onclick="switchTab(this, 'packages')"><i class="ph ph-gift"></i> Packages</button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 1: GRILLE TARIFAIRE ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tab-content active" id="tab-grille">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-table"></i> Grille Tarifaire · Catégories × Saisons</h3>
+                    <div class="actions">
+                        <button><i class="ph ph-download-simple"></i> Exporter</button>
+                        <button><i class="ph ph-upload"></i> Importer</button>
+                        <button class="primary" onclick="saveGrille()"><i class="ph ph-floppy-disk"></i> Enregistrer</button>
+                    </div>
+                </div>
+                <div class="tarif-grid">
+                    <table class="tarif-table">
+                        <thead>
+                            <tr>
+                                <th>Catégorie</th>
+                                <th>Basse Saison</th>
+                                <th>Moyenne Saison</th>
+                                <th>Haute Saison</th>
+                                <th>Pics (Fin d'année)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="category-label"><i class="ph ph-buildings"></i> Standard</td>
+                                <td class="price-cell"><input type="number" value="450" /> DH</td>
+                                <td class="price-cell"><input type="number" value="600" /> DH</td>
+                                <td class="price-cell"><input type="number" value="850" /> DH</td>
+                                <td class="price-cell"><input type="number" value="1100" /> DH</td>
+                            </tr>
+                            <tr>
+                                <td class="category-label"><i class="ph ph-armchair"></i> Suite</td>
+                                <td class="price-cell"><input type="number" value="750" /> DH</td>
+                                <td class="price-cell"><input type="number" value="920" /> DH</td>
+                                <td class="price-cell"><input type="number" value="1250" /> DH</td>
+                                <td class="price-cell"><input type="number" value="1600" /> DH</td>
+                            </tr>
+                            <tr>
+                                <td class="category-label"><i class="ph ph-tree"></i> Lodge</td>
+                                <td class="price-cell"><input type="number" value="950" /> DH</td>
+                                <td class="price-cell"><input type="number" value="1200" /> DH</td>
+                                <td class="price-cell"><input type="number" value="1650" /> DH</td>
+                                <td class="price-cell"><input type="number" value="2100" /> DH</td>
+                            </tr>
+                            <tr>
+                                <td class="category-label"><i class="ph ph-crown"></i> Premium</td>
+                                <td class="price-cell"><input type="number" value="1200" /> DH</td>
+                                <td class="price-cell"><input type="number" value="1500" /> DH</td>
+                                <td class="price-cell"><input type="number" value="2000" /> DH</td>
+                                <td class="price-cell"><input type="number" value="2500" /> DH</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:8px;">
+                    <i class="ph ph-info"></i> Tarifs en TTC · Incluent hébergement + petit-déjeuner (BB) + TVA hôtelière
+                </div>
+            </div>
+
+            <!-- Simulateur de remise -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-percent"></i> Simulateur de Remise</h3>
+                </div>
+                <div class="discount-sim">
+                    <div class="field">
+                        <label>Tarif public</label>
+                        <input type="number" id="simBase" value="1500" />
+                    </div>
+                    <div class="field">
+                        <label>Type de remise</label>
+                        <select id="simType">
+                            <option value="percent">Pourcentage (%)</option>
+                            <option value="fixed">Tarif spécifique (DH)</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label id="simValueLabel">Valeur (%)</label>
+                        <input type="number" id="simValue" value="15" />
+                    </div>
+                    <button onclick="simulateDiscount()"><i class="ph ph-calculator"></i> Calculer</button>
+                </div>
+                <div class="discount-result" id="discountResult">
+                    <i class="ph ph-check-circle"></i>
+                    <span id="discountResultText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 2: TVA & TAXES ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tab-content" id="tab-tva">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-receipt"></i> Configuration TVA</h3>
+                    <div class="actions">
+                        <button class="primary" onclick="saveNotice(this)"><i class="ph ph-floppy-disk"></i> Enregistrer</button>
+                    </div>
+                </div>
+                <div class="tva-grid">
+                    <div class="tva-item">
+                        <span class="label"><i class="ph ph-buildings"></i> Hébergement</span>
+                        <div class="value"><input type="number" value="10" min="0" max="100" /><span>%</span></div>
+                    </div>
+                    <div class="tva-item">
+                        <span class="label"><i class="ph ph-fork-knife"></i> Nourriture (Restaurant)</span>
+                        <div class="value"><input type="number" value="10" min="0" max="100" /><span>%</span></div>
+                    </div>
+                    <div class="tva-item">
+                        <span class="label"><i class="ph ph-wine"></i> Boissons / Bar</span>
+                        <div class="value"><input type="number" value="20" min="0" max="100" /><span>%</span></div>
+                    </div>
+                    <div class="tva-item">
+                        <span class="label"><i class="ph ph-flower"></i> SPA & Autres services</span>
+                        <div class="value"><input type="number" value="20" min="0" max="100" /><span>%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-coin"></i> Taxes Locales (TS & TPT)</h3>
+                    <div class="actions">
+                        <button class="primary" onclick="saveNotice(this)"><i class="ph ph-floppy-disk"></i> Enregistrer</button>
+                    </div>
+                </div>
+                <div class="taxes-grid">
+                    <div class="tax-item">
+                        <div class="label">Taxe de Séjour (TS)</div>
+                        <div class="value"><input type="number" value="15" min="0" /><span>DH / Pax / Nuit</span></div>
+                        <div class="sub">Calculée par personne et par nuit</div>
+                    </div>
+                    <div class="tax-item">
+                        <div class="label">Taxe de Promotion Touristique (TPT)</div>
+                        <div class="value"><input type="number" value="5" min="0" /><span>DH / Pax / Nuit</span></div>
+                        <div class="sub">Calculée par personne et par nuit</div>
+                    </div>
+                </div>
+
+                <div class="regime-toggle">
+                    <span class="label"><i class="ph ph-toggle-left"></i> Règlement des taxes (TS/TPT) à la réservation</span>
+                    <div class="regime-options">
+                        <button class="active" id="btnPayeeReservation" onclick="setTaxRegime('reservation')">Payable à la réservation</button>
+                        <button id="btnPayeePlace" onclick="setTaxRegime('place')">Payable sur place</button>
+                    </div>
+                </div>
+                <div style="margin-top:10px;font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:8px;" id="taxRegimeNote">
+                    <i class="ph ph-info"></i> Les taxes sont intégrées et réglées dans la facture globale de la réservation.
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 3: RÉGIMES (PENSIONS) ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tab-content" id="tab-regimes">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-fork-knife"></i> Régimes de Pension</h3>
+                    <div class="actions">
+                        <button class="primary" onclick="saveNotice(this)"><i class="ph ph-floppy-disk"></i> Enregistrer</button>
+                    </div>
+                </div>
+                <div class="pension-grid">
+                    <div class="pension-item">
+                        <div class="pension-code">BB</div>
+                        <div class="pension-name">Bed & Breakfast</div>
+                        <div class="pension-desc">Tarif de base : Hébergement + Petit-déjeuner</div>
+                        <div class="pension-supp">Inclus dans le tarif de base</div>
+                    </div>
+                    <div class="pension-item">
+                        <div class="pension-code">DP</div>
+                        <div class="pension-name">Demi-Pension</div>
+                        <div class="pension-desc">Tarif de base + un repas (Déjeuner ou Dîner)</div>
+                        <div class="pension-supp">+ 200 DH / Pax / Nuit</div>
+                    </div>
+                    <div class="pension-item">
+                        <div class="pension-code">PC</div>
+                        <div class="pension-name">Pension Complète</div>
+                        <div class="pension-desc">Tarif de base + deux repas (Déjeuner + Dîner)</div>
+                        <div class="pension-supp">+ 380 DH / Pax / Nuit</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:8px;">
+                    <i class="ph ph-info"></i> Le supplément est appliqué automatiquement dès sélection du régime sur la réservation
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 4: AGENCES ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tab-content" id="tab-agences">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-building"></i> Fiches Agences / Corporate / Tour-Opérateurs</h3>
+                    <div class="actions">
+                        <button class="primary" onclick="alert('➕ Nouvelle fiche agence / corporate à créer')"><i class="ph ph-plus-circle"></i> Nouvelle Agence</button>
+                    </div>
+                </div>
+                <div class="agency-list">
+                    <div class="agency-item">
+                        <div class="info">
+                            <div class="name">Voyages Maroc</div>
+                            <div class="details">Tour-Opérateur · Tarif net · Commission 15% · Contrat saisonnier actif</div>
+                        </div>
+                        <div class="actions">
+                            <button title="Modifier"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="delete" title="Supprimer"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="agency-item">
+                        <div class="info">
+                            <div class="name">Agence Atlas</div>
+                            <div class="details">Agence de voyages · Tarif net · Commission 12% · Contrat saisonnier actif</div>
+                        </div>
+                        <div class="actions">
+                            <button title="Modifier"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="delete" title="Supprimer"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="agency-item">
+                        <div class="info">
+                            <div class="name">TechVision Corp</div>
+                            <div class="details">Corporate · Tarif entreprise · Séminaires · Facturation mensuelle</div>
+                        </div>
+                        <div class="actions">
+                            <button title="Modifier"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="delete" title="Supprimer"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="agency-item">
+                        <div class="info">
+                            <div class="name">Green Travel</div>
+                            <div class="details">Tour-Opérateur · Tarif net · Commission 10% · Contrat saisonnier actif</div>
+                        </div>
+                        <div class="actions">
+                            <button title="Modifier"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="delete" title="Supprimer"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:8px;">
+                    <i class="ph ph-info"></i> Une réservation rattachée à une agence applique automatiquement sa grille négociée au lieu du tarif public
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 5: CATALOGUE EXTRAS ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tab-content" id="tab-extras">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-shopping-cart"></i> Catalogue Extras / Points de Vente (POS)</h3>
+                    <div class="actions">
+                        <button class="primary" onclick="alert('➕ Ajouter un nouvel extra au catalogue')"><i class="ph ph-plus-circle"></i> Ajouter un Extra</button>
+                    </div>
+                </div>
+                <div class="extras-grid">
+                    <div class="extra-category">
+                        <div class="cat-title"><i class="ph ph-fork-knife"></i> Restaurant</div>
+                        <div class="extra-item"><span class="name">Petit-déjeuner</span><span class="price">150 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Déjeuner</span><span class="price">200 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Dîner</span><span class="price">250 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Menu dégustation</span><span class="price">450 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                    </div>
+                    <div class="extra-category">
+                        <div class="cat-title"><i class="ph ph-wine"></i> Bar / Boissons</div>
+                        <div class="extra-item"><span class="name">Soft drink</span><span class="price">40 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Jus frais</span><span class="price">60 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Vin (bouteille)</span><span class="price">250 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Cocktail</span><span class="price">120 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                    </div>
+                    <div class="extra-category">
+                        <div class="cat-title"><i class="ph ph-flower"></i> SPA</div>
+                        <div class="extra-item"><span class="name">Massage Suédois</span><span class="price">600 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Massage aux pierres</span><span class="price">750 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Hammam</span><span class="price">400 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Soin du visage</span><span class="price">500 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                    </div>
+                    <div class="extra-category">
+                        <div class="cat-title"><i class="ph ph-bicycle"></i> Activités</div>
+                        <div class="extra-item"><span class="name">Quad (1h)</span><span class="price">450 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Montgolfière</span><span class="price">850 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Excursion Désert</span><span class="price">1200 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Golf (parcours)</span><span class="price">600 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                    </div>
+                    <div class="extra-category">
+                        <div class="cat-title"><i class="ph ph-washing-machine"></i> Autre</div>
+                        <div class="extra-item"><span class="name">Blanchisserie (pièce)</span><span class="price">35 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                        <div class="extra-item"><span class="name">Transfert aéroport</span><span class="price">300 DH</span><span class="actions"><button><i class="ph ph-pencil-simple"></i></button></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 6: PACKAGES ===== -->
+        <!-- ============================================================ -->
+
+        <div class="tab-content" id="tab-packages">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="ph ph-gift"></i> Tarifs Packagés</h3>
+                    <div class="actions">
+                        <button class="primary" onclick="alert('➕ Nouveau package à créer')"><i class="ph ph-plus-circle"></i> Nouveau Package</button>
+                    </div>
+                </div>
+                <div class="packages-grid">
+                    <div class="package-item">
+                        <div class="package-icon romance"><i class="ph ph-heart"></i></div>
+                        <div class="package-name">Package Romance</div>
+                        <div class="package-price">3 000 DH</div>
+                        <div class="package-details">
+                            <span>Hébergement: 2 000 DH</span>
+                            <span>SPA: 600 DH</span>
+                            <span>Dîner: 400 DH</span>
+                        </div>
+                        <div class="package-split"><i class="ph ph-chart-pie-slice"></i> Ventilation automatique du CA vers Hébergement / SPA / Restauration</div>
+                        <div class="actions">
+                            <button>Modifier</button>
+                            <button style="color:#ef4444;border-color:#fecaca;">Supprimer</button>
+                        </div>
+                    </div>
+                    <div class="package-item">
+                        <div class="package-icon wellness"><i class="ph ph-flower-lotus"></i></div>
+                        <div class="package-name">Package Bien-Être</div>
+                        <div class="package-price">2 500 DH</div>
+                        <div class="package-details">
+                            <span>Hébergement: 1 500 DH</span>
+                            <span>SPA: 800 DH</span>
+                            <span>Massage: 200 DH</span>
+                        </div>
+                        <div class="package-split"><i class="ph ph-chart-pie-slice"></i> Ventilation automatique du CA vers Hébergement / SPA</div>
+                        <div class="actions">
+                            <button>Modifier</button>
+                            <button style="color:#ef4444;border-color:#fecaca;">Supprimer</button>
+                        </div>
+                    </div>
+                    <div class="package-item">
+                        <div class="package-icon desert"><i class="ph ph-compass"></i></div>
+                        <div class="package-name">Package Désert</div>
+                        <div class="package-price">4 200 DH</div>
+                        <div class="package-details">
+                            <span>Hébergement: 2 500 DH</span>
+                            <span>Excursion: 1 200 DH</span>
+                            <span>Dîner: 500 DH</span>
+                        </div>
+                        <div class="package-split"><i class="ph ph-chart-pie-slice"></i> Ventilation automatique du CA vers Hébergement / Activités / Restauration</div>
+                        <div class="actions">
+                            <button>Modifier</button>
+                            <button style="color:#ef4444;border-color:#fecaca;">Supprimer</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:8px;">
+                    <i class="ph ph-info"></i> Le prix global est facturé au client ; le back-office ventile automatiquement le CA dans les bonnes tables comptables
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ================================================================
+        // ===== TOGGLE SOUS-MENUS / NAVIGATION =====
+        // ================================================================
+        document.querySelectorAll('.nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href') && this.getAttribute('href') !== '#') return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub && sub.classList.contains('sub-menu')) {
+                    sub.classList.toggle('open');
+                    if (arrow) arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            });
+        });
+
+        // ================================================================
+        // ===== HAMBURGER =====
+        // ================================================================
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // ================================================================
+        // ===== TABS =====
+        // ================================================================
+        function switchTab(btn, tabId) {
+            document.querySelectorAll('.tabs-container button').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // ================================================================
+        // ===== SAVE PRICES (FEEDBACK VISUEL) =====
+        // ================================================================
+        document.querySelectorAll('.tarif-table .price-cell input').forEach(input => {
+            input.addEventListener('change', function() {
+                this.style.borderColor = '#22c55e';
+                setTimeout(() => { this.style.borderColor = '#e5e7eb'; }, 1500);
+            });
+        });
+
+        function saveGrille() {
+            alert('✅ Grille tarifaire enregistrée avec succès.');
+        }
+
+        function saveNotice(btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="ph ph-check"></i> Enregistré';
+            setTimeout(() => { btn.innerHTML = original; }, 1500);
+        }
+
+        // ================================================================
+        // ===== RÉGIME DE RÈGLEMENT DES TAXES (TS/TPT) =====
+        // ================================================================
+        function setTaxRegime(mode) {
+            document.getElementById('btnPayeeReservation').classList.toggle('active', mode === 'reservation');
+            document.getElementById('btnPayeePlace').classList.toggle('active', mode === 'place');
+            const note = document.getElementById('taxRegimeNote');
+            note.innerHTML = mode === 'reservation'
+                ? '<i class="ph ph-info"></i> Les taxes sont intégrées et réglées dans la facture globale de la réservation.'
+                : '<i class="ph ph-info"></i> Les taxes sont isolées et basculées sur le compte "Extras de chambre", à régler obligatoirement au Check-out.';
+        }
+
+        // ================================================================
+        // ===== SIMULATEUR DE REMISE =====
+        // ================================================================
+        document.getElementById('simType').addEventListener('change', function() {
+            document.getElementById('simValueLabel').textContent = this.value === 'percent' ? 'Valeur (%)' : 'Nouveau prix (DH)';
+        });
+
+        function simulateDiscount() {
+            const base = parseFloat(document.getElementById('simBase').value) || 0;
+            const type = document.getElementById('simType').value;
+            const val = parseFloat(document.getElementById('simValue').value) || 0;
+            const finalPrice = type === 'percent' ? base * (1 - val / 100) : val;
+            const resultBox = document.getElementById('discountResult');
+            const resultText = document.getElementById('discountResultText');
+            resultText.textContent = type === 'percent'
+                ? `Tarif après remise de ${val}% : ${finalPrice.toFixed(0)} DH (au lieu de ${base.toFixed(0)} DH)`
+                : `Tarif forcé manuellement à ${finalPrice.toFixed(0)} DH (au lieu de ${base.toFixed(0)} DH)`;
+            resultBox.classList.add('active');
+        }
+    </script>
+
+</body>
+</html>

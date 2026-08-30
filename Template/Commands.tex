@@ -1,0 +1,75 @@
+\newcommand{\reportAuthor} {%
+	First name \textsc{NAME}%
+}
+
+\newcommand{\reportTitle} {%
+	PROJECT TITLE \\ Title%
+}
+
+\newcommand{\reportSubject} {%
+	PROJECT TITLE \\ Title%
+}
+
+\newcommand{\dateSoutenance} {%
+	dd/mm/yyyy%
+}
+
+\newcommand{\studyDepartment} {%
+	Electronic Systems Engineering 
+	and Communication%
+}
+
+\newcommand{\ENETCOM} {%
+	National School of Electronics and Telecommunications of Sfax%
+}
+
+\newcommand{\codePFE} {% Reference %
+}
+
+\newcommand{\juryPresident} {%
+	Mr Foulen \textsc{Fouleni}%
+}
+\newcommand{\juryPresidentDesc} {%
+	President%
+}
+
+\newcommand{\juryMemberOne} {%
+	Ms Foulena \textsc{Foulenia}%
+}
+\newcommand{\juryMemberOneDesc} {%
+	Supervisor %Mentor
+}
+
+\newcommand{\juryMemberTwo} {%
+	Mr Foulen \textsc{Fouleni}%
+}
+\newcommand{\juryMemberTwoDesc} {%
+	Reviewer% Examiner, Reporter
+}
+
+\newcommand{\specialcell}[1]{%
+	\begin{tabularx}{\textwidth}{@{}X@{}}#1\end{tabularx}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add your own commands here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Traduction des tableaux en français
+% Cette partie permet d'afficher "Tableau" dans les légendes
+% et dans la Liste des tableaux.
+\makeatletter
+\addto\captionsfrench{%
+	\renewcommand{\tablename}{Tableau}%
+	\renewcommand{\listtablename}{Liste des tableaux}%
+}
+
+\AtBeginDocument{%
+	\renewcommand{\tablename}{Tableau}%
+	\renewcommand{\listtablename}{Liste des tableaux}%
+}
+\makeatother
+
+\newcommand{\MyCommand} {%
+	Does nothing really%
+}

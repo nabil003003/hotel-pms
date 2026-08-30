@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Night Audit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle { font-size: 10px; font-weight: 600; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0; padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px; color: #6b7a8e; font-size: 13px; font-weight: 400;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: ''; position: absolute; left: 26px;
+            width: 4px; height: 4px; border-radius: 50%; background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block { margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+        .sidebar .logout-block a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 14px; border-radius: 10px;
+            color: #ef4444; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: #1a1a2e; cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main { margin-left: 270px; flex: 1; padding: 24px 32px; min-height: 100vh; }
+
+        /* ===== TOP BAR ===== */
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .topbar .greeting h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .topbar .greeting h1 i { color: #4a6cf7; font-size: 22px; }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .actions .notification {
+            background: #fff; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+        }
+
+        /* ============================================================ */
+        /* ===== NIGHT AUDIT ===== */
+        /* ============================================================ */
+
+        .na-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        /* --- DATE BANNER --- */
+        .date-banner {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1a1a2e, #2d2d44);
+            border-radius: 16px;
+            padding: 20px 28px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .date-banner .left { display: flex; align-items: center; gap: 16px; }
+        .date-banner .left .icon { font-size: 32px; color: #f59e0b; }
+        .date-banner .left .info .date { font-size: 20px; font-weight: 700; }
+        .date-banner .left .info .sub { font-size: 13px; opacity: 0.7; }
+        .date-banner .right {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 10px;
+        }
+        .date-banner .right .status { font-size: 13px; font-weight: 600; }
+        .date-banner .right .status.open { color: #22c55e; }
+        .date-banner .right .status.closed { color: #ef4444; }
+        .date-banner .right .badge {
+            padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* --- CARDS --- */
+        .na-card { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        .na-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .na-card .card-header h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .na-card .card-header h3 i { color: #4a6cf7; }
+        .na-card .card-header .badge-count {
+            font-size: 12px; font-weight: 600; padding: 2px 12px; border-radius: 20px;
+            background: #eef2ff; color: #4a6cf7;
+        }
+
+        /* --- BALANCEMENT --- */
+        .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .balance-side { padding: 12px 16px; border-radius: 10px; border: 2px solid #e5e7eb; }
+        .balance-side .title {
+            font-size: 12px; font-weight: 600; color: #7a8aa0;
+            text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px;
+        }
+        .balance-side .item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+        .balance-side .item .label { color: #5a6a7e; }
+        .balance-side .item .value { font-weight: 600; }
+        .balance-side .total {
+            border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 8px;
+            display: flex; justify-content: space-between; font-weight: 700; font-size: 15px;
+        }
+        .balance-side .total .value { color: #4a6cf7; }
+        .balance-side.debits { border-color: #dbeafe; background: #f8faff; }
+        .balance-side.credits { border-color: #d1fae5; background: #f8fdfa; }
+
+        /* --- ALERTE ÉCART --- */
+        .ecart-alert {
+            display: none; padding: 12px 16px; border-radius: 10px; margin-top: 12px;
+            border: 1px solid #fecaca; background: #fef2f2; color: #991b1b;
+        }
+        .ecart-alert.active { display: flex; align-items: center; gap: 10px; }
+        .ecart-alert i { font-size: 20px; color: #ef4444; }
+        .ecart-alert .details { flex: 1; }
+        .ecart-alert .details .title { font-weight: 600; }
+        .ecart-alert .details .sub { font-size: 13px; }
+        .ecart-alert .btn-details {
+            padding: 4px 16px; border-radius: 8px; border: 1px solid #ef4444;
+            background: transparent; color: #ef4444; font-weight: 600; font-size: 12px;
+            cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;
+        }
+        .ecart-alert .btn-details:hover { background: #ef4444; color: #fff; }
+
+        /* --- RAPPORTS --- */
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .report-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+            border: 1px solid #e5e7eb; border-radius: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .report-item:hover { border-color: #4a6cf7; background: #f8f9ff; }
+        .report-item i { font-size: 20px; color: #4a6cf7; }
+        .report-item .info { flex: 1; }
+        .report-item .info .name { font-size: 13px; font-weight: 600; }
+        .report-item .info .desc { font-size: 11px; color: #7a8aa0; }
+        .report-item .check { color: #22c55e; font-size: 16px; }
+
+        /* ============================================================ */
+        /* ===== DÉPARTS ATTENDUS ===== */
+        /* ============================================================ */
+
+        .departure-list { font-size: 13px; }
+        .departure-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; border-bottom: 1px solid #f5f6fa; transition: 0.2s; border-radius: 8px;
+        }
+        .departure-item:hover { background: #f8f9fc; }
+        .departure-item:last-child { border-bottom: none; }
+        .departure-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .departure-info .room { font-weight: 700; color: #1a1a2e; font-size: 14px; min-width: 70px; }
+        .departure-info .guest { color: #374151; font-weight: 500; }
+        .departure-info .date { font-size: 11px; color: #8a9bb5; }
+        .departure-info .badge-vip {
+            font-size: 9px; font-weight: 700; padding: 2px 10px; border-radius: 20px;
+            background: #fbbf24; color: #000; text-transform: uppercase;
+        }
+        .departure-balance { display: flex; align-items: center; gap: 10px; }
+        .departure-balance .balance { font-weight: 700; font-size: 14px; min-width: 80px; text-align: right; }
+        .departure-balance .balance.due { color: #dc2626; }
+        .departure-balance .balance.paid { color: #16a34a; }
+        .departure-balance .alert-icon { color: #ef4444; font-size: 18px; animation: pulse-alert 1.5s infinite; }
+        @keyframes pulse-alert {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        .departure-balance .btn-pay {
+            padding: 4px 12px; border-radius: 6px; border: none; background: #22c55e; color: #fff;
+            font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .departure-balance .btn-pay:hover { background: #16a34a; transform: scale(1.05); }
+        .departure-summary {
+            display: flex; justify-content: space-between; padding: 10px 12px; margin-top: 6px;
+            background: #f8f9fc; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151;
+            flex-wrap: wrap; gap: 8px;
+        }
+        .departure-summary span:last-child { color: #4a6cf7; }
+
+        /* ============================================================ */
+        /* ===== ARRIVÉES PRÉVUES ===== */
+        /* ============================================================ */
+
+        .arrival-list { font-size: 13px; }
+        .arrival-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; border-bottom: 1px solid #f5f6fa;
+        }
+        .arrival-item:last-child { border-bottom: none; }
+        .arrival-item .room { font-weight: 600; min-width: 60px; }
+        .arrival-item .guest { color: #5a6a7e; flex: 1; }
+        .arrival-item .time { font-size: 11px; color: #8a9bb5; min-width: 50px; }
+        .arrival-item .spec {
+            font-size: 10px; padding: 2px 10px; border-radius: 20px;
+            background: #eef2ff; color: #4a6cf7; font-weight: 600;
+        }
+        .arrival-item .spec.vip { background: #fef3c7; color: #b45309; }
+        .arrival-item .spec.garantie { background: #d1fae5; color: #065f46; }
+        .arrival-item .spec.late { background: #fee2e2; color: #991b1b; }
+
+        /* --- OCCUPANCY FORECAST --- */
+        .forecast-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .forecast-item { text-align: center; padding: 12px; background: #f8f9fc; border-radius: 10px; }
+        .forecast-item .forecast-icon {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; margin: 0 auto 8px;
+            border-radius: 10px; background: #eef2ff; color: #4a6cf7; font-size: 18px;
+        }
+        .forecast-item .value { font-size: 22px; font-weight: 700; color: #4a6cf7; }
+        .forecast-item .label { font-size: 11px; color: #7a8aa0; margin-top: 2px; }
+
+        /* --- LAUNCH BUTTON --- */
+        .launch-section {
+            grid-column: 1 / -1; background: #fff; border-radius: 16px; padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); text-align: center; border: 2px solid #e5e7eb; transition: 0.3s;
+        }
+        .launch-section .warning-icon { font-size: 48px; color: #f59e0b; margin-bottom: 12px; }
+        .launch-section h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .launch-section p { color: #7a8aa0; font-size: 14px; margin-bottom: 16px; }
+        .launch-section .btn-launch {
+            padding: 14px 40px; border-radius: 12px; border: none; font-weight: 700; font-size: 16px;
+            cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif;
+            display: inline-flex; align-items: center; gap: 12px;
+        }
+        .launch-section .btn-launch.success { background: #22c55e; color: #fff; }
+        .launch-section .btn-launch.success:hover {
+            background: #16a34a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34, 197, 94, 0.30);
+        }
+        .launch-section .btn-launch.danger { background: #ef4444; color: #fff; }
+        .launch-section .btn-launch.danger:hover {
+            background: #dc2626; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239, 68, 68, 0.30);
+        }
+        .launch-section .btn-launch:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .launch-section .btn-launch .spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- COMPTE À REBOURS --- */
+        .countdown-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 2000;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .countdown-overlay.active { display: flex; }
+        .countdown-overlay .countdown-number { font-size: 120px; font-weight: 800; color: #fff; animation: pulse-countdown 1s ease infinite; }
+        @keyframes pulse-countdown {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        .countdown-overlay .countdown-label { font-size: 24px; color: rgba(255, 255, 255, 0.6); margin-top: 8px; }
+        .countdown-overlay .countdown-spinner {
+            margin-top: 24px; width: 48px; height: 48px; border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+
+        /* ============================================================ */
+        /* ===== RESPONSIVE ===== */
+        /* ============================================================ */
+        @media (max-width: 1200px) {
+            .na-container { grid-template-columns: 1fr; }
+            .balance-grid { grid-template-columns: 1fr; }
+            .report-grid { grid-template-columns: 1fr; }
+            .forecast-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .hamburger { display: block !important; }
+            .date-banner { flex-direction: column; align-items: flex-start; }
+            .forecast-grid { grid-template-columns: 1fr; }
+            .departure-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .departure-balance { width: 100%; justify-content: flex-start; }
+        }
+        @media (max-width: 600px) {
+            .arrival-item { flex-wrap: wrap; gap: 4px; }
+            .launch-section .btn-launch { width: 100%; justify-content: center; }
+            .departure-info { flex-wrap: wrap; }
+            .departure-summary { flex-direction: column; align-items: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="../PMS 1/dashboard.html"><i class="ph ph-gauge"></i> Dashboard <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/reservations.html"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/front-office.html"><i class="ph ph-door"></i> Front Office <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/housekeeping.html"><i class="ph ph-broom"></i> Housekeeping <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu open">
+                    <a href="#"><i class="ph ph-moon"></i> Night Audit</a>
+                    <a href="#"><i class="ph ph-file-pdf"></i> Rapports</a>
+                    <a href="#"><i class="ph ph-chart-line"></i> Analyse Financière</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/analytics.html"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="../PMS 1/login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-moon"></i> Night Audit</h1>
+                    <p>Clôture comptable journalière · <strong>Hôtel Marrakech Palace</strong></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification"><i class="ph ph-bell"></i><span class="badge">3</span></div>
+                <div class="avatar">YE</div>
+            </div>
+        </header>
+
+        <!-- ============================================================ -->
+        <!-- ===== DATE BANNER ===== -->
+        <!-- ============================================================ -->
+
+        <div class="date-banner">
+            <div class="left">
+                <div class="icon"><i class="ph ph-calendar"></i></div>
+                <div class="info">
+                    <div class="date" id="currentDate">30 Juin 2026</div>
+                    <div class="sub">Journée en cours · Clôture imminente</div>
+                </div>
+            </div>
+            <div class="right">
+                <span class="status open"><i class="ph ph-circle-fill" style="color:#22c55e;font-size:10px;"></i> Ouvert</span>
+                <span class="badge">J+1: 1 Juillet 2026</span>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== NIGHT AUDIT CONTAINER ===== -->
+        <!-- ============================================================ -->
+
+        <div class="na-container">
+
+            <!-- ===== BALANCEMENT ===== -->
+            <div class="na-card" style="grid-column:1 / -1;">
+                <div class="card-header">
+                    <h3><i class="ph ph-scale"></i> Balancement des comptes</h3>
+                    <span class="badge-count" id="balanceStatus">✅ Équilibre</span>
+                </div>
+                <div class="balance-grid">
+                    <div class="balance-side debits">
+                        <div class="title"><i class="ph ph-arrow-down"></i> Débits (Facturations)</div>
+                        <div class="item"><span class="label">Hébergement</span><span class="value">32 000 DH</span></div>
+                        <div class="item"><span class="label">Restauration / Bar</span><span class="value">8 500 DH</span></div>
+                        <div class="item"><span class="label">Extras (téléphone, blanchisserie, transferts)</span><span class="value">4 200 DH</span></div>
+                        <div class="item"><span class="label">Taxes de séjour</span><span class="value">450 DH</span></div>
+                        <div class="total"><span>Total Débits</span><span class="value" id="totalDebits">45 150 DH</span></div>
+                    </div>
+                    <div class="balance-side credits">
+                        <div class="title"><i class="ph ph-arrow-up"></i> Crédits (Encaissements + Débiteurs)</div>
+                        <div class="item"><span class="label">Espèces</span><span class="value">12 300 DH</span></div>
+                        <div class="item"><span class="label">Carte Bancaire (CB)</span><span class="value">28 400 DH</span></div>
+                        <div class="item"><span class="label">Chèques</span><span class="value">2 100 DH</span></div>
+                        <div class="item"><span class="label">Virements</span><span class="value">2 350 DH</span></div>
+                        <div class="total"><span>Total Crédits</span><span class="value" id="totalCredits">45 150 DH</span></div>
+                    </div>
+                </div>
+
+                <!-- Alerte écart -->
+                <div class="ecart-alert" id="ecartAlert">
+                    <i class="ph ph-warning"></i>
+                    <div class="details">
+                        <div class="title">⚠️ Écart détecté !</div>
+                        <div class="sub" id="ecartMessage">Différence de 1 500 DH entre les débits et les crédits.</div>
+                    </div>
+                    <button class="btn-details" onclick="fixEcart()">🔧 Corriger</button>
+                </div>
+            </div>
+
+            <!-- ===== RAPPORTS FINANCIERS ===== -->
+            <div class="na-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-file-text"></i> Rapports Financiers</h3>
+                    <span class="badge-count">PDF</span>
+                </div>
+                <div class="report-grid">
+                    <div class="report-item" onclick="generateReport('CA')">
+                        <i class="ph ph-chart-bar"></i>
+                        <div class="info">
+                            <div class="name">CA Détaillé</div>
+                            <div class="desc">Hébergement · Restauration · Extras · Taxes</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                    <div class="report-item" onclick="generateReport('Encaissements')">
+                        <i class="ph ph-banknote"></i>
+                        <div class="info">
+                            <div class="name">Encaissements du Jour (Main Courante)</div>
+                            <div class="desc">Par mode de règlement</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                    <div class="report-item" onclick="generateReport('Debiteurs')">
+                        <i class="ph ph-handshake"></i>
+                        <div class="info">
+                            <div class="name">Débiteurs</div>
+                            <div class="desc">Factures agences/sociétés non réglées</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                    <div class="report-item" onclick="generateReport('TVA')">
+                        <i class="ph ph-receipt"></i>
+                        <div class="info">
+                            <div class="name">TVA Collectée</div>
+                            <div class="desc">CA HT / TVA / CA TTC</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== RAPPORTS OPÉRATIONNELS ===== -->
+            <div class="na-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-clipboard"></i> Rapports Opérationnels</h3>
+                    <span class="badge-count">J+1</span>
+                </div>
+                <div class="report-grid">
+                    <div class="report-item" onclick="generateReport('Depart')">
+                        <i class="ph ph-user-x"></i>
+                        <div class="info">
+                            <div class="name">Départs Attendus</div>
+                            <div class="desc">9 chambres · Solde restant</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                    <div class="report-item" onclick="generateReport('Arrivee')">
+                        <i class="ph ph-user-check"></i>
+                        <div class="info">
+                            <div class="name">Arrivées Prévues</div>
+                            <div class="desc">12 réservations</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                    <div class="report-item" onclick="generateReport('Occupation')">
+                        <i class="ph ph-chart-line"></i>
+                        <div class="info">
+                            <div class="name">Prévisions Occupation</div>
+                            <div class="desc">TO / ADR estimés au 1 Juillet 2026</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                    <div class="report-item" onclick="generateReport('Resume')">
+                        <i class="ph ph-list-checks"></i>
+                        <div class="info">
+                            <div class="name">Résumé Complet</div>
+                            <div class="desc">Tous les rapports en un seul PDF</div>
+                        </div>
+                        <span class="check"><i class="ph ph-download-simple"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ===== DÉPARTS ATTENDUS ===== -->
+            <!-- ============================================================ -->
+
+            <div class="na-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-user-x"></i> Départs Attendus</h3>
+                    <span class="badge-count">9 chambres · <span style="color:#dc2626;">2 avec solde</span></span>
+                </div>
+                <div class="departure-list">
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 101</span>
+                            <span class="guest">Dupont, Jean</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance due">1 250 DH</span>
+                            <i class="ph ph-warning alert-icon" title="Solde restant dû !"></i>
+                            <button class="btn-pay" onclick="alert('💰 Paiement de 1 250 DH pour la chambre 101 effectué')">Payer</button>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 103</span>
+                            <span class="guest">Agence X</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 201</span>
+                            <span class="guest">Laurent, Sophie</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 202</span>
+                            <span class="guest">⭐ Johnson, Robert</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                            <span class="badge-vip">VIP</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance due">3 200 DH</span>
+                            <i class="ph ph-warning alert-icon" title="Solde restant dû !"></i>
+                            <button class="btn-pay" onclick="alert('💰 Paiement de 3 200 DH pour la chambre 202 effectué')">Payer</button>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 301</span>
+                            <span class="guest">Dubois, Marc</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 304</span>
+                            <span class="guest">Petit, Marie</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 305</span>
+                            <span class="guest">Wong, Daniel</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 401</span>
+                            <span class="guest">Lee, Hannah</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+                    <div class="departure-item">
+                        <div class="departure-info">
+                            <span class="room">🛏️ 402</span>
+                            <span class="guest">Chen, Isabella</span>
+                            <span class="date">📅 30 Juin 2026</span>
+                        </div>
+                        <div class="departure-balance">
+                            <span class="balance paid">0 DH</span>
+                            <i class="ph ph-check-circle" style="color:#16a34a;font-size:16px;" title="Solde réglé"></i>
+                        </div>
+                    </div>
+
+                    <div class="departure-summary">
+                        <span>📊 Total départs : 9 chambres</span>
+                        <span style="color:#dc2626;">⚠️ 2 chambres avec solde restant</span>
+                        <span>💰 Montant total dû : 4 450 DH</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ===== ARRIVÉES PRÉVUES ===== -->
+            <!-- ============================================================ -->
+
+            <div class="na-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-user-check"></i> Arrivées Prévues</h3>
+                    <span class="badge-count">12 réservations</span>
+                </div>
+                <div class="arrival-list">
+                    <div class="arrival-item">
+                        <span class="room">🛏️ 102</span>
+                        <span class="guest">Martin, Pierre</span>
+                        <span class="time">14:00</span>
+                        <span class="spec">Prépaiement</span>
+                    </div>
+                    <div class="arrival-item">
+                        <span class="room">🛏️ 104</span>
+                        <span class="guest">Dubois, Marie</span>
+                        <span class="time">16:30</span>
+                        <span class="spec vip">⭐ VIP</span>
+                    </div>
+                    <div class="arrival-item">
+                        <span class="room">🛏️ 203</span>
+                        <span class="guest">Lopez, Carlos</span>
+                        <span class="time">12:00</span>
+                        <span class="spec garantie">Garantie</span>
+                    </div>
+                    <div class="arrival-item">
+                        <span class="room">🛏️ 302</span>
+                        <span class="guest">Garcia, Sofia</span>
+                        <span class="time">20:00</span>
+                        <span class="spec late">Late check-in</span>
+                    </div>
+                    <div class="arrival-item">
+                        <span class="room">🛏️ 303</span>
+                        <span class="guest">Kim, Sarah</span>
+                        <span class="time">15:00</span>
+                        <span class="spec">Standard</span>
+                    </div>
+                    <div class="arrival-item">
+                        <span class="room">🛏️ 403</span>
+                        <span class="guest">Smith, James</span>
+                        <span class="time">18:30</span>
+                        <span class="spec">Prépaiement</span>
+                    </div>
+                    <div class="arrival-item" style="color:#8a9bb5;font-size:12px;text-align:center;padding:8px 0;border:none;">
+                        <span>+ 6 autres arrivées</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== OCCUPANCY FORECAST ===== -->
+            <div class="na-card" style="grid-column:1 / -1;">
+                <div class="card-header">
+                    <h3><i class="ph ph-chart-line"></i> Prévisions d'Occupation</h3>
+                    <span class="badge-count">1 Juillet 2026</span>
+                </div>
+                <div class="forecast-grid">
+                    <div class="forecast-item">
+                        <i class="ph ph-users forecast-icon"></i>
+                        <div class="value" id="forecastPax">68</div>
+                        <div class="label">Pax total prévu</div>
+                    </div>
+                    <div class="forecast-item">
+                        <i class="ph ph-chart-pie-slice forecast-icon"></i>
+                        <div class="value" id="forecastTO">72%</div>
+                        <div class="label">Taux d'Occupation (TO)</div>
+                    </div>
+                    <div class="forecast-item">
+                        <i class="ph ph-currency-circle-dollar forecast-icon"></i>
+                        <div class="value" id="forecastADR">1 320 DH</div>
+                        <div class="label">ADR estimé</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== LAUNCH SECTION ===== -->
+            <div class="launch-section" id="launchSection">
+                <div class="warning-icon"><i class="ph ph-lock"></i></div>
+                <h3>Lancer le Night Audit</h3>
+                <p>Cette action est <strong style="color:#ef4444;">irréversible</strong>. Une fois lancée, la journée du <strong>30 Juin 2026</strong> sera définitivement clôturée.</p>
+                <button class="btn-launch success" id="launchBtn" onclick="startNightAudit()">
+                    <i class="ph ph-play-circle"></i> Lancer le Night Audit
+                </button>
+                <div style="margin-top:12px;font-size:12px;color:#7a8aa0;display:flex;align-items:center;gap:8px;justify-content:center;">
+                    <i class="ph ph-info"></i> Tous les rapports seront générés automatiquement au format PDF
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== COUNTDOWN OVERLAY ===== -->
+        <!-- ============================================================ -->
+
+        <div class="countdown-overlay" id="countdownOverlay">
+            <div class="countdown-number" id="countdownNumber">3</div>
+            <div class="countdown-label">Clôture en cours...</div>
+            <div class="countdown-spinner"></div>
+        </div>
+
+    </main>
+
+    <script>
+        // ================================================================
+        // ===== TOGGLE SOUS-MENUS / NAVIGATION =====
+        // ================================================================
+        document.querySelectorAll('.nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href') && this.getAttribute('href') !== '#') return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub && sub.classList.contains('sub-menu')) {
+                    sub.classList.toggle('open');
+                    if (arrow) arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            });
+        });
+
+        // ================================================================
+        // ===== HAMBURGER =====
+        // ================================================================
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // ================================================================
+        // ===== GESTION DE L'ÉCART =====
+        // ================================================================
+        let hasEcart = false;
+
+        function toggleEcart() {
+            setTimeout(() => {
+                if (!hasEcart) {
+                    hasEcart = true;
+                    document.getElementById('ecartAlert').classList.add('active');
+                    document.getElementById('balanceStatus').textContent = '⚠️ Écart détecté';
+                    document.getElementById('balanceStatus').style.color = '#dc2626';
+                    document.getElementById('launchBtn').disabled = true;
+                    document.getElementById('launchBtn').innerHTML = '🔒 Écart bloquant - Corrigez avant de lancer';
+                    document.getElementById('launchBtn').className = 'btn-launch danger';
+                }
+            }, 5000);
+        }
+
+        function fixEcart() {
+            if (confirm('Souhaitez-vous corriger l\'écart automatiquement ?')) {
+                hasEcart = false;
+                document.getElementById('ecartAlert').classList.remove('active');
+                document.getElementById('balanceStatus').textContent = '✅ Équilibre';
+                document.getElementById('balanceStatus').style.color = '';
+                document.getElementById('launchBtn').disabled = false;
+                document.getElementById('launchBtn').innerHTML = '<i class="ph ph-play-circle"></i> Lancer le Night Audit';
+                document.getElementById('launchBtn').className = 'btn-launch success';
+                alert('✅ Écart corrigé ! Le Night Audit peut être lancé.');
+            }
+        }
+
+        // Activer l'écart automatiquement après 5 secondes (démo)
+        toggleEcart();
+
+        // ================================================================
+        // ===== GÉNÉRATION DE RAPPORTS =====
+        // ================================================================
+        function generateReport(type) {
+            const names = {
+                'CA': 'Rapport_CA_Detaille_30-06-2026.pdf',
+                'Encaissements': 'Rapport_Encaissements_30-06-2026.pdf',
+                'Debiteurs': 'Rapport_Debiteurs_30-06-2026.pdf',
+                'TVA': 'Rapport_TVA_30-06-2026.pdf',
+                'Depart': 'Rapport_Departs_Attendus_01-07-2026.pdf',
+                'Arrivee': 'Rapport_Arrivees_Prevues_01-07-2026.pdf',
+                'Occupation': 'Rapport_Occupation_Forecast_01-07-2026.pdf',
+                'Resume': 'Rapport_Complet_Night_Audit_30-06-2026.pdf'
+            };
+            alert('📄 Génération du rapport : ' + (names[type] || type) + '\nLe fichier sera téléchargé automatiquement.');
+        }
+
+        // ================================================================
+        // ===== NIGHT AUDIT - LANCEMENT =====
+        // ================================================================
+        let isRunning = false;
+
+        function startNightAudit() {
+            if (isRunning) return;
+
+            const btn = document.getElementById('launchBtn');
+            if (btn.disabled) {
+                alert('⚠️ Impossible de lancer le Night Audit. Un écart a été détecté dans les comptes.');
+                return;
+            }
+
+            if (!confirm('⚠️ Êtes-vous sûr de vouloir lancer le Night Audit ?\n\nCette action est IRRÉVERSIBLE !\n\nLa journée du 30 Juin 2026 sera définitivement clôturée.\nAucune modification ne sera possible sur cette date.')) {
+                return;
+            }
+
+            if (!confirm('🔒 CONFIRMATION FINALE :\n\nVoulez-vous vraiment clôturer la journée ?\nCette action ne peut pas être annulée.')) {
+                return;
+            }
+
+            isRunning = true;
+            btn.disabled = true;
+            btn.className = 'btn-launch danger';
+            btn.innerHTML = '<i class="ph ph-spinner spinner"></i> Clôture en cours...';
+
+            document.querySelectorAll('.report-item').forEach(el => {
+                el.style.opacity = '0.5';
+                el.style.cursor = 'not-allowed';
+            });
+
+            const overlay = document.getElementById('countdownOverlay');
+            overlay.classList.add('active');
+
+            let count = 3;
+            const numberEl = document.getElementById('countdownNumber');
+
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numberEl.textContent = count;
+                } else {
+                    clearInterval(interval);
+                    numberEl.textContent = '✅';
+                    overlay.querySelector('.countdown-label').textContent = 'Clôture terminée !';
+                    overlay.querySelector('.countdown-spinner').style.display = 'none';
+
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        finishNightAudit();
+                    }, 1500);
+                }
+            }, 1000);
+        }
+
+        function finishNightAudit() {
+            document.getElementById('currentDate').textContent = '1 Juillet 2026';
+            document.querySelector('.date-banner .right .status').textContent = '🔒 Clôturé';
+            document.querySelector('.date-banner .right .status').className = 'status closed';
+            document.querySelector('.date-banner .right .badge').textContent = 'J+1: 2 Juillet 2026';
+
+            const btn = document.getElementById('launchBtn');
+            btn.className = 'btn-launch';
+            btn.innerHTML = '🔒 Clôture effectuée - ' + document.getElementById('currentDate').textContent;
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+
+            document.getElementById('balanceStatus').textContent = '🔒 Clôturé';
+            document.getElementById('balanceStatus').style.color = '#4b5563';
+
+            const section = document.getElementById('launchSection');
+            section.style.borderColor = '#22c55e';
+            section.style.background = '#f0fdf4';
+
+            setTimeout(() => {
+                alert('📄 Tous les rapports ont été générés automatiquement en PDF.\n\n✅ CA Détaillé\n✅ Encaissements\n✅ Débiteurs\n✅ Départs Attendus\n✅ Arrivées Prévues\n✅ Occupation Forecast');
+            }, 500);
+
+            isRunning = false;
+        }
+    </script>
+
+</body>
+</html>

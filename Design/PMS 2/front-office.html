@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Front Office</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle { font-size: 10px; font-weight: 600; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0; padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px; color: #6b7a8e; font-size: 13px; font-weight: 400;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: ''; position: absolute; left: 26px;
+            width: 4px; height: 4px; border-radius: 50%; background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block { margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+        .sidebar .logout-block a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 14px; border-radius: 10px;
+            color: #ef4444; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: #1a1a2e; cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main { margin-left: 270px; flex: 1; padding: 24px 32px; min-height: 100vh; }
+
+        /* ===== TOP BAR ===== */
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .topbar .greeting h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .topbar .greeting h1 i { color: #4a6cf7; font-size: 22px; }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .actions .notification {
+            background: #fff; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+        }
+
+        /* ============================================================ */
+        /* ===== FRONT OFFICE ===== */
+        /* ============================================================ */
+
+        /* --- SEARCH SECTION --- */
+        .search-section { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); margin-bottom: 24px; }
+        .search-section .search-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .search-section .search-title i { color: #4a6cf7; }
+        .search-section .search-box { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .search-section .search-box .input-wrapper {
+            flex: 1; min-width: 280px; display: flex; align-items: center;
+            background: #f4f6fa; border-radius: 10px; padding: 0 14px; border: 2px solid transparent; transition: 0.2s;
+        }
+        .search-section .search-box .input-wrapper:focus-within { border-color: #4a6cf7; background: #fff; }
+        .search-section .search-box .input-wrapper i { color: #8a9bb5; font-size: 18px; }
+        .search-section .search-box .input-wrapper input {
+            border: none; background: transparent; padding: 10px 12px; font-size: 14px;
+            font-family: 'Inter', sans-serif; width: 100%; outline: none; color: #1a1a2e;
+        }
+        .search-section .search-box .input-wrapper input::placeholder { color: #8a9bb5; }
+        .search-section .search-box .btn-search {
+            background: #4a6cf7; color: #fff; border: none; padding: 10px 24px; border-radius: 10px;
+            font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .search-section .search-box .btn-search:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+
+        /* --- RESULTS --- */
+        .search-results { margin-top: 16px; border-top: 1px solid #f0f2f6; padding-top: 16px; display: none; }
+        .search-results.active { display: block; }
+        .search-results .result-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; border-radius: 10px; cursor: pointer; transition: 0.2s;
+            border: 1px solid transparent; margin-bottom: 4px;
+        }
+        .search-results .result-item:hover { background: #f8f9ff; border-color: #eef2ff; }
+        .search-results .result-item.selected { border-color: #4a6cf7; background: #f0f2ff; }
+        .search-results .result-item .info { display: flex; align-items: center; gap: 14px; }
+        .search-results .result-item .info .avatar-sm {
+            width: 36px; height: 36px; border-radius: 50%; background: #4a6cf7; color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0;
+        }
+        .search-results .result-item .info .details .name { font-weight: 600; font-size: 14px; }
+        .search-results .result-item .info .details .sub { font-size: 12px; color: #7a8aa0; }
+        .search-results .result-item .info .details .sub span { margin-right: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        .search-results .result-item .info .details .sub span i { color: #8a9bb5; font-size: 13px; }
+        .search-results .result-item .status-badge-sm {
+            font-size: 11px; font-weight: 600; padding: 4px 12px 4px 10px; border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .search-results .result-item .status-badge-sm .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .search-results .result-item .status-badge-sm.inhouse { background: #fef3c7; color: #b45309; }
+        .search-results .result-item .status-badge-sm.inhouse .dot { background: #f59e0b; animation: pulse-dot-sm 1.4s infinite; }
+        .search-results .result-item .status-badge-sm.confirmed { background: #dbeafe; color: #1d4ed8; }
+        .search-results .result-item .status-badge-sm.confirmed .dot { background: #3b82f6; }
+        .search-results .result-item .status-badge-sm.option { background: #e8eaf0; color: #5a6a7e; }
+        .search-results .result-item .status-badge-sm.option .dot { background: #9aa9be; }
+        .search-results .result-item .status-badge-sm.voucher { background: #d1fae5; color: #065f46; }
+        .search-results .result-item .status-badge-sm.voucher .dot { background: #10b981; }
+        .search-results .result-item .status-badge-sm.checkout { background: #f3f4f6; color: #4b5563; }
+        .search-results .result-item .status-badge-sm.checkout .dot { background: #6b7280; }
+        .search-results .result-item .status-badge-sm.no-show { background: #fee2e2; color: #991b1b; }
+        .search-results .result-item .status-badge-sm.no-show .dot { background: #ef4444; }
+        .search-results .result-item .status-badge-sm.cancelled { background: #f3f4f6; color: #9ca3af; }
+        .search-results .result-item .status-badge-sm.cancelled .dot { background: #d1d5db; }
+        @keyframes pulse-dot-sm {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.45; transform: scale(0.75); }
+        }
+        .search-results .no-result { text-align: center; padding: 24px 0; color: #8a9bb5; }
+        .search-results .no-result i { font-size: 32px; display: block; margin-bottom: 8px; color: #d1d5db; }
+
+        /* --- CLIENT CARD --- */
+        .client-card {
+            background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px; display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+        }
+        .client-card.active { display: flex; }
+        .client-card .info { display: flex; align-items: center; gap: 16px; }
+        .client-card .info .avatar-lg {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700;
+        }
+        .client-card .info .details .name { font-size: 18px; font-weight: 700; }
+        .client-card .info .details .sub { font-size: 13px; color: #7a8aa0; }
+        .client-card .info .details .sub span { margin-right: 12px; display: inline-flex; align-items: center; gap: 5px; }
+        .client-card .info .details .sub span i { color: #8a9bb5; font-size: 14px; }
+        .client-card .status-badge-lg {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 30px; font-weight: 600; font-size: 13px;
+        }
+        .client-card .status-badge-lg .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .client-card .status-badge-lg.inhouse { background: #fef3c7; color: #b45309; }
+        .client-card .status-badge-lg.inhouse .dot { background: #f59e0b; }
+        .client-card .status-badge-lg.confirmed { background: #dbeafe; color: #1d4ed8; }
+        .client-card .status-badge-lg.confirmed .dot { background: #3b82f6; }
+        .client-card .status-badge-lg.option { background: #e8eaf0; color: #5a6a7e; }
+        .client-card .status-badge-lg.option .dot { background: #9aa9be; }
+        .client-card .status-badge-lg.voucher { background: #d1fae5; color: #065f46; }
+        .client-card .status-badge-lg.voucher .dot { background: #10b981; }
+        .client-card .status-badge-lg.checkout { background: #f3f4f6; color: #4b5563; }
+        .client-card .status-badge-lg.checkout .dot { background: #6b7280; }
+        .client-card .status-badge-lg.no-show { background: #fee2e2; color: #991b1b; }
+        .client-card .status-badge-lg.no-show .dot { background: #ef4444; }
+        .client-card .status-badge-lg.cancelled { background: #f3f4f6; color: #9ca3af; }
+        .client-card .status-badge-lg.cancelled .dot { background: #d1d5db; }
+
+        /* --- FO CONTAINER --- */
+        .fo-container { display: none; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .fo-container.active { display: grid; }
+
+        /* --- STAGE STEPPER (workflow Réservation → In-House → Check-out) --- */
+        .stage-stepper {
+            grid-column: 1 / -1;
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            background: #f8f9fc; padding: 14px 18px; border-radius: 12px;
+        }
+        .stage-step {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: #9aa9be;
+            padding: 6px 14px; border-radius: 20px; transition: 0.2s;
+        }
+        .stage-step .num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #e5e7eb; color: #8a9bb5;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; transition: 0.2s; flex-shrink: 0;
+        }
+        .stage-step.active { color: #4a6cf7; background: #eef2ff; }
+        .stage-step.active .num { background: #4a6cf7; color: #fff; }
+        .stage-step.done { color: #16a34a; }
+        .stage-step.done .num { background: #22c55e; color: #fff; }
+        .stage-arrow { color: #c7cedb; font-size: 14px; }
+
+        /* --- NO ACTION CARD --- */
+        .no-action-card {
+            grid-column: 1 / -1; background: #fff; border-radius: 16px; padding: 32px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); text-align: center; color: #8a9bb5;
+        }
+        .no-action-card i { font-size: 34px; display: block; margin-bottom: 10px; color: #d1d5db; }
+
+        /* --- FOLIO / PRO-FORMA CARDS --- */
+        .folio-card { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        .folio-card.full { grid-column: 1 / -1; }
+        .folio-card .folio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .folio-card .folio-header h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .folio-card .folio-header h3 i { color: #4a6cf7; }
+        .folio-card .folio-header .actions { display: flex; gap: 8px; }
+        .folio-card .folio-header .actions button {
+            padding: 6px 14px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; font-weight: 500; color: #5a6a7e; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px;
+        }
+        .folio-card .folio-header .actions button:hover { border-color: #4a6cf7; color: #4a6cf7; }
+        .folio-card .folio-header .actions button.primary { background: #4a6cf7; color: #fff; border: none; }
+        .folio-card .folio-header .actions button.primary:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .folio-card .folio-header .actions button:disabled,
+        .folio-card input[type="checkbox"]:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .folio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .folio-table thead th {
+            text-align: left; padding: 10px 12px; font-weight: 600; color: #5a6a7e; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f2f6;
+        }
+        .folio-table tbody td { padding: 10px 12px; border-bottom: 1px solid #f5f6fa; }
+        .folio-table tbody tr:last-child td { border-bottom: none; }
+        .folio-table tbody tr:hover { background: #fafbff; }
+        .folio-table .total-row td { font-weight: 700; border-top: 2px solid #eef2f6; padding-top: 12px; }
+        .folio-table .checkbox-cell { width: 30px; text-align: center; }
+        .folio-table .checkbox-cell input[type="checkbox"] { width: 16px; height: 16px; accent-color: #4a6cf7; cursor: pointer; }
+        .folio-table .amount { font-weight: 600; text-align: right; }
+        .folio-note { margin-top: 12px; font-size: 12px; color: #8a9bb5; display: flex; align-items: center; gap: 8px; }
+
+        /* --- EXTRAS GRID --- */
+        .extras-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+        .extras-grid .extra-item {
+            display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+            border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: 0.2s;
+            background: #fff; font-size: 12px; font-weight: 500;
+        }
+        .extras-grid .extra-item:hover { border-color: #4a6cf7; background: #f8f9ff; }
+        .extras-grid .extra-item i { font-size: 16px; color: #4a6cf7; }
+        .extras-grid .extra-item .price { margin-left: auto; color: #7a8aa0; font-size: 11px; }
+
+        /* ============================================================ */
+        /* ===== CHECK-OUT WORKFLOW ===== */
+        /* ============================================================ */
+
+        .checkout-section { grid-column: 1 / -1; background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        .checkout-section h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+        .checkout-section h3 i { color: #4a6cf7; }
+
+        .step-visualisation { margin-bottom: 16px; padding: 12px 16px; background: #f8f9fc; border-radius: 10px; }
+        .step-visualisation .step-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .step-visualisation .step-header .step-title { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .step-num {
+            background: #4a6cf7; color: #fff; width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+        .step-visualisation .step-header button {
+            padding: 6px 14px; border-radius: 8px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif;
+        }
+        .step-visualisation .totals-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .step-visualisation .totals-grid .total-box { background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid #e5e7eb; }
+        .step-visualisation .totals-grid .total-box .label { font-size: 11px; color: #8a9bb5; }
+        .step-visualisation .totals-grid .total-box .value { font-weight: 700; font-size: 16px; }
+        .step-visualisation .totals-grid .total-box.highlight { border: 2px solid #4a6cf7; background: #eef2ff; }
+        .step-visualisation .totals-grid .total-box.highlight .value { color: #4a6cf7; font-size: 18px; }
+
+        .step-paiement { margin-bottom: 16px; }
+        .step-paiement .step-title { font-weight: 600; font-size: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .step-paiement .step-title .sub { font-size: 12px; font-weight: 400; color: #7a8aa0; margin-left: 8px; }
+
+        .total-alert { padding: 8px 14px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+        .total-alert.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
+        .total-alert.error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+        .total-alert .restant { margin-left: auto; padding: 2px 12px; border-radius: 20px; font-weight: 700; font-size: 14px; }
+        .total-alert .restant.zero { background: #dcfce7; color: #16a34a; }
+        .total-alert .restant.not-zero { background: #fee2e2; color: #dc2626; }
+
+        .payment-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .method-card { background: #f8f9fc; border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; transition: 0.2s; }
+        .method-card.active { border-color: #4a6cf7; background: #f0f2ff; }
+        .method-card .method-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .method-card .method-header input[type="checkbox"] { width: 16px; height: 16px; accent-color: #4a6cf7; cursor: pointer; }
+        .method-card .method-header label { font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .method-card .method-header .method-percent { margin-left: auto; font-size: 11px; font-weight: 700; color: #4a6cf7; }
+        .method-card .method-input { display: flex; align-items: center; background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; padding: 0 10px; }
+        .method-card .method-input span { font-size: 11px; font-weight: 600; color: #8a9bb5; margin-right: 4px; }
+        .method-card .method-input input {
+            border: none; padding: 6px 4px; width: 100%; font-size: 14px; font-weight: 600;
+            font-family: 'Inter', sans-serif; text-align: right; outline: none; background: transparent; color: #1a1a2e;
+        }
+        .method-card .method-input input::placeholder { color: #d1d5db; font-weight: 400; }
+        .method-card .method-input input:focus { color: #4a6cf7; }
+        .method-card .method-input input:disabled { color: #9ca3af; }
+        .method-card .method-bar { margin-top: 8px; height: 4px; background: #e5e7eb; border-radius: 10px; overflow: hidden; }
+        .method-card .method-bar .bar-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+        .method-card .method-bar .bar-fill.blue { background: #4a6cf7; }
+        .method-card .method-bar .bar-fill.green { background: #22c55e; }
+        .method-card .method-bar .bar-fill.orange { background: #f59e0b; }
+        .method-card .method-bar .bar-fill.purple { background: #8b5cf6; }
+        .method-card .method-bar .bar-fill.red { background: #ef4444; }
+
+        .checkout-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px solid #f0f2f6; flex-wrap: wrap; gap: 12px; }
+        .checkout-actions .total-final { font-size: 16px; font-weight: 600; }
+        .checkout-actions .total-final .amount { color: #4a6cf7; font-size: 20px; }
+        .checkout-actions .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        /* --- Boutons génériques réutilisés (Check-in / Check-out / Annuler) --- */
+        .btn-generic {
+            padding: 10px 24px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer;
+            transition: 0.2s; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; border: none;
+        }
+        .btn-generic.secondary { background: transparent; border: 1px solid #e5e7eb; color: #5a6a7e; }
+        .btn-generic.secondary:hover { border-color: #4a6cf7; color: #4a6cf7; }
+        .btn-generic.success { background: #22c55e; color: #fff; }
+        .btn-generic.success:hover { background: #16a34a; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.30); transform: translateY(-1px); }
+        .btn-generic.danger { background: #ef4444; color: #fff; }
+        .btn-generic.danger:hover { background: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.30); transform: translateY(-1px); }
+        .btn-generic:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        /* --- SECURITY ALERT --- */
+        .security-alert {
+            margin-top: 12px; padding: 10px 16px; background: #fef2f2; border-radius: 8px; border: 1px solid #fee2e2;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .security-alert i { color: #ef4444; font-size: 18px; }
+        .security-alert span { font-size: 12px; color: #991b1b; }
+        .security-alert.locked { background: #f3f4f6; border-color: #e5e7eb; }
+        .security-alert.locked i { color: #6b7280; }
+        .security-alert.locked span { color: #374151; }
+
+        /* ============================================================ */
+        /* ===== RESPONSIVE ===== */
+        /* ============================================================ */
+        @media (max-width: 1200px) {
+            .fo-container { grid-template-columns: 1fr; }
+            .payment-grid { grid-template-columns: repeat(3, 1fr); }
+            .extras-grid { grid-template-columns: repeat(2, 1fr); }
+            .step-visualisation .totals-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .hamburger { display: block !important; }
+            .client-card { flex-direction: column; align-items: flex-start; }
+            .payment-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .payment-grid { grid-template-columns: 1fr; }
+            .extras-grid { grid-template-columns: 1fr; }
+            .step-visualisation .totals-grid { grid-template-columns: 1fr; }
+            .checkout-actions { flex-direction: column; align-items: stretch; }
+            .checkout-actions .btns { flex-direction: column; }
+            .checkout-actions .btns button { justify-content: center; }
+            .search-section .search-box { flex-direction: column; }
+            .search-section .search-box .input-wrapper { min-width: unset; width: 100%; }
+            .search-section .search-box .btn-search { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="../PMS 1/dashboard.html"><i class="ph ph-gauge"></i> Dashboard <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/reservations.html"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active"><i class="ph ph-door"></i> Front Office <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu open">
+                    <a href="#"><i class="ph ph-user-check"></i> Check-in</a>
+                    <a href="#"><i class="ph ph-user-x"></i> Check-out</a>
+                    <a href="#"><i class="ph ph-file-text"></i> Factures Pro-forma</a>
+                    <a href="#"><i class="ph ph-receipt"></i> Folios</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="housekeeping.html"><i class="ph ph-broom"></i> Housekeeping <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu">
+                    <a href="housekeeping.html"><i class="ph ph-grid-four"></i> Vue Chambres</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 3/night-audit.html"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/analytics.html"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="../PMS 1/login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-door"></i> Front Office</h1>
+                    <p>Check-in / Check-out · Facturation Folio A &amp; B · <strong>Hôtel Marrakech Palace</strong></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification"><i class="ph ph-bell"></i><span class="badge">3</span></div>
+                <div class="avatar">YE</div>
+            </div>
+        </header>
+
+        <!-- ===== SEARCH SECTION ===== -->
+        <section class="search-section">
+            <div class="search-title">
+                <i class="ph ph-magnifying-glass"></i>
+                Rechercher un client
+                <span style="font-size:12px;font-weight:400;color:#7a8aa0;margin-left:8px;">Par nom, email ou #réservation</span>
+            </div>
+            <div class="search-box">
+                <div class="input-wrapper">
+                    <i class="ph ph-user"></i>
+                    <input type="text" id="searchInput" placeholder="Ex: Emily Carter, #BKG-1024" />
+                </div>
+                <button class="btn-search" id="searchBtn"><i class="ph ph-magnifying-glass"></i> Rechercher</button>
+            </div>
+
+            <div class="search-results" id="searchResults">
+                <div class="result-item" data-client="emily" onclick="selectClient('emily')">
+                    <div class="info">
+                        <div class="avatar-sm">EC</div>
+                        <div class="details">
+                            <div class="name">Emily Carter</div>
+                            <div class="sub"><span>#BKG-1024</span><span><i class="ph ph-door"></i> Chambre 210</span><span><i class="ph ph-calendar"></i> 12-15 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm inhouse"><span class="dot"></span> In-House</span>
+                </div>
+                <div class="result-item" data-client="daniel" onclick="selectClient('daniel')">
+                    <div class="info">
+                        <div class="avatar-sm">DW</div>
+                        <div class="details">
+                            <div class="name">Daniel Wong</div>
+                            <div class="sub"><span>#BKG-2032</span><span><i class="ph ph-door"></i> Chambre 118</span><span><i class="ph ph-calendar"></i> 13-15 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm confirmed"><span class="dot"></span> Confirmée</span>
+                </div>
+                <div class="result-item" data-client="hannah" onclick="selectClient('hannah')">
+                    <div class="info">
+                        <div class="avatar-sm">HL</div>
+                        <div class="details">
+                            <div class="name">Hannah Lee</div>
+                            <div class="sub"><span>#BKG-2033</span><span><i class="ph ph-door"></i> Chambre 305</span><span><i class="ph ph-calendar"></i> 14-19 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm voucher"><span class="dot"></span> Voucher</span>
+                </div>
+                <div class="result-item" data-client="liam" onclick="selectClient('liam')">
+                    <div class="info">
+                        <div class="avatar-sm">LJ</div>
+                        <div class="details">
+                            <div class="name">Liam Johnson</div>
+                            <div class="sub"><span>#BKG-1027</span><span><i class="ph ph-door"></i> Chambre 202</span><span><i class="ph ph-calendar"></i> 15-22 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm option"><span class="dot"></span> Option</span>
+                </div>
+                <div class="result-item" data-client="sophia" onclick="selectClient('sophia')">
+                    <div class="info">
+                        <div class="avatar-sm">SM</div>
+                        <div class="details">
+                            <div class="name">Sophia Miles</div>
+                            <div class="sub"><span>#BKG-1028</span><span><i class="ph ph-door"></i> Chambre 101</span><span><i class="ph ph-calendar"></i> 16-18 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm checkout"><span class="dot"></span> Check-out</span>
+                </div>
+                <div class="result-item" data-client="robert" onclick="selectClient('robert')">
+                    <div class="info">
+                        <div class="avatar-sm">RM</div>
+                        <div class="details">
+                            <div class="name">Robert Miles</div>
+                            <div class="sub"><span>#BKG-1029</span><span><i class="ph ph-door"></i> Chambre 302</span><span><i class="ph ph-calendar"></i> 12-17 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm no-show"><span class="dot"></span> No-Show</span>
+                </div>
+                <div class="result-item" data-client="isabella" onclick="selectClient('isabella')">
+                    <div class="info">
+                        <div class="avatar-sm">IC</div>
+                        <div class="details">
+                            <div class="name">Isabella Chen</div>
+                            <div class="sub"><span>#BKG-1030</span><span><i class="ph ph-door"></i> Chambre 201</span><span><i class="ph ph-calendar"></i> 17-20 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm confirmed"><span class="dot"></span> Confirmée</span>
+                </div>
+                <div class="result-item" data-client="ethan" onclick="selectClient('ethan')">
+                    <div class="info">
+                        <div class="avatar-sm">EB</div>
+                        <div class="details">
+                            <div class="name">Ethan Brown</div>
+                            <div class="sub"><span>#BKG-1031</span><span><i class="ph ph-door"></i> Chambre 103</span><span><i class="ph ph-calendar"></i> 10-14 Juin 2026</span></div>
+                        </div>
+                    </div>
+                    <span class="status-badge-sm cancelled"><span class="dot"></span> Annulée</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CLIENT CARD ===== -->
+        <div class="client-card" id="clientCard">
+            <div class="info">
+                <div class="avatar-lg" id="clientAvatar">EC</div>
+                <div class="details">
+                    <div class="name" id="clientName">Emily Carter</div>
+                    <div class="sub">
+                        <span id="clientBooking"><i class="ph ph-ticket"></i> #BKG-1024</span>
+                        <span id="clientRoom"><i class="ph ph-door"></i> Chambre 210</span>
+                        <span id="clientDates"><i class="ph ph-calendar"></i> 12-15 Juin 2026</span>
+                        <span id="clientPax"><i class="ph ph-users"></i> 2 Pax</span>
+                    </div>
+                </div>
+            </div>
+            <div class="status-badge-lg inhouse" id="clientStatus"><span class="dot"></span> In-House</div>
+        </div>
+
+        <!-- ===== FO CONTAINER (piloté par l'étape du dossier) ===== -->
+        <div class="fo-container" id="foContainer">
+
+            <!-- Aucune action possible (No-Show / Annulée) -->
+            <div class="no-action-card" id="noActionCard">
+                <i class="ph ph-warning-circle"></i>
+                Aucune action Front Office disponible pour ce dossier (réservation <strong>annulée</strong> ou <strong>no-show</strong>).
+            </div>
+
+            <!-- Fil du workflow -->
+            <div class="stage-stepper" id="stageStepper">
+                <div class="stage-step" data-stage="reservation"><span class="num">1</span> Réservation · Pro-forma</div>
+                <i class="ph ph-arrow-right stage-arrow"></i>
+                <div class="stage-step" data-stage="inhouse"><span class="num">2</span> In-House · Extrait de compte</div>
+                <i class="ph ph-arrow-right stage-arrow"></i>
+                <div class="stage-step" data-stage="checkedout"><span class="num">3</span> Check-out · Dossier verrouillé</div>
+            </div>
+
+            <!-- ===== AVANT CHECK-IN : FACTURE PRO-FORMA UNIQUEMENT ===== -->
+            <div class="folio-card full" id="proformaCard">
+                <div class="folio-header">
+                    <h3><i class="ph ph-file-text"></i> Facture Pro-forma · Avant arrivée</h3>
+                    <div class="actions">
+                        <button><i class="ph ph-printer"></i> Imprimer</button>
+                        <button class="primary" id="editProformaBtn"><i class="ph ph-pencil-simple"></i> Modifier</button>
+                    </div>
+                </div>
+                <table class="folio-table">
+                    <thead><tr><th>Description</th><th style="text-align:right;">Montant estimé</th></tr></thead>
+                    <tbody id="proformaLines"></tbody>
+                </table>
+                <div class="folio-note"><i class="ph ph-info"></i> Document estimatif, non contractuel. Il sera automatiquement remplacé par l'Extrait de compte (Folio A/B) dès le Check-in.</div>
+                <div style="display:flex;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:2px solid #f0f2f6;">
+                    <button class="btn-generic success" id="validateCheckin"><i class="ph ph-user-check"></i> Valider Check-in</button>
+                </div>
+            </div>
+
+            <!-- ===== FOLIO A ===== -->
+            <div class="folio-card" id="folioA">
+                <div class="folio-header">
+                    <h3><i class="ph ph-user"></i> Folio A · Client</h3>
+                    <div class="actions">
+                        <button><i class="ph ph-printer"></i> Imprimer</button>
+                        <button><i class="ph ph-eye-slash"></i> Masquer</button>
+                        <button class="primary" id="addExtraBtnRef"><i class="ph ph-plus-circle"></i> Ajouter Extra</button>
+                    </div>
+                </div>
+                <table class="folio-table">
+                    <thead><tr><th class="checkbox-cell"><input type="checkbox" checked /></th><th>Description</th><th style="text-align:right;">Montant</th></tr></thead>
+                    <tbody>
+                        <tr><td class="checkbox-cell"><input type="checkbox" checked /></td><td>Petit-déjeuner (3 x 150 DH)</td><td class="amount">450 DH</td></tr>
+                        <tr><td class="checkbox-cell"><input type="checkbox" checked /></td><td>SPA · Massage Suédois</td><td class="amount">600 DH</td></tr>
+                        <tr><td class="checkbox-cell"><input type="checkbox" /></td><td>Mini-bar (consommation)</td><td class="amount">120 DH</td></tr>
+                        <tr><td class="checkbox-cell"><input type="checkbox" checked /></td><td>Taxe de Séjour (TS) · 2 Pax x 3 nuits</td><td class="amount">90 DH</td></tr>
+                        <tr class="total-row"><td colspan="2" style="font-weight:700;">Total Folio A</td><td class="amount" style="font-size:16px;">1 260 DH</td></tr>
+                    </tbody>
+                </table>
+                <div class="folio-note"><i class="ph ph-info"></i> Extras et prestations à charge directe du client. Les lignes décochées n'apparaîtront pas sur l'impression — traçabilité intégrale conservée en arrière-plan, le total réel ne peut jamais être altéré.</div>
+            </div>
+
+            <!-- ===== FOLIO B ===== -->
+            <div class="folio-card" id="folioB">
+                <div class="folio-header">
+                    <h3><i class="ph ph-building"></i> Folio B · Prise en charge</h3>
+                    <div class="actions">
+                        <button><i class="ph ph-printer"></i> Imprimer</button>
+                        <button><i class="ph ph-eye-slash"></i> Masquer</button>
+                        <button class="primary" id="editFolioBBtn"><i class="ph ph-pencil-simple"></i> Modifier</button>
+                    </div>
+                </div>
+                <table class="folio-table">
+                    <thead><tr><th class="checkbox-cell"><input type="checkbox" checked /></th><th>Description</th><th style="text-align:right;">Montant</th></tr></thead>
+                    <tbody>
+                        <tr><td class="checkbox-cell"><input type="checkbox" checked /></td><td>Hébergement · Chambre 210 (3 nuits) · Agence Voyages Maroc</td><td class="amount">3 750 DH</td></tr>
+                        <tr><td class="checkbox-cell"><input type="checkbox" checked /></td><td>Dîner (2 personnes) · 14 Juin</td><td class="amount">400 DH</td></tr>
+                        <tr><td class="checkbox-cell"><input type="checkbox" /></td><td>Transfert Aéroport (Aller/Retour)</td><td class="amount">350 DH</td></tr>
+                        <tr class="total-row"><td colspan="2" style="font-weight:700;">Total Folio B</td><td class="amount" style="font-size:16px;">4 500 DH</td></tr>
+                    </tbody>
+                </table>
+                <div class="folio-note"><i class="ph ph-info"></i> Hébergement et prestations prises en charge par l'agence. Facturé séparément — non réglé par le client au Check-out. Traçabilité intégrale conservée, total réel non modifiable.</div>
+            </div>
+
+            <!-- ===== CATALOGUE EXTRAS ===== -->
+            <div class="folio-card full" id="extrasBlock">
+                <h4 style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+                    <i class="ph ph-shopping-cart" style="color:#4a6cf7;"></i> Catalogue Extras / POS
+                    <span style="font-size:11px;font-weight:400;color:#7a8aa0;margin-left:8px;">Cliquez pour ajouter au Folio A</span>
+                </h4>
+                <div class="extras-grid">
+                    <div class="extra-item" onclick="addExtra('Restaurant', 250)"><i class="ph ph-fork-knife"></i> Restaurant <span class="price">+ 250 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('Bar / Boissons', 80)"><i class="ph ph-wine"></i> Bar / Boissons <span class="price">+ 80 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('SPA', 600)"><i class="ph ph-flower"></i> SPA <span class="price">+ 600 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('Activités', 450)"><i class="ph ph-bicycle"></i> Activités <span class="price">+ 450 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('Blanchisserie', 120)"><i class="ph ph-t-shirt"></i> Blanchisserie <span class="price">+ 120 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('Transferts', 350)"><i class="ph ph-airplane"></i> Transferts <span class="price">+ 350 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('Wi-Fi Premium', 50)"><i class="ph ph-wifi-high"></i> Wi-Fi Premium <span class="price">+ 50 DH</span></div>
+                    <div class="extra-item" onclick="addExtra('Package Romance', 900)"><i class="ph ph-gift"></i> Package Romance <span class="price">+ 900 DH</span></div>
+                </div>
+            </div>
+
+            <!-- ===== CHECK-OUT : WORKFLOW DE DÉPART ===== -->
+            <div class="checkout-section" id="checkoutSection">
+                <h3><i class="ph ph-user-x"></i> Check-out · Workflow de départ</h3>
+
+                <!-- ÉTAPE 1: Visualisation -->
+                <div class="step-visualisation">
+                    <div class="step-header">
+                        <div class="step-title"><span class="step-num">1</span> Extrait de compte final</div>
+                        <button><i class="ph ph-eye"></i> Voir l'extrait complet</button>
+                    </div>
+                    <div class="totals-grid">
+                        <div class="total-box"><div class="label">Folio A (Client)</div><div class="value">1 260 DH</div></div>
+                        <div class="total-box"><div class="label">Folio B (Agence)</div><div class="value">4 500 DH</div></div>
+                        <div class="total-box highlight"><div class="label">DÛ PAR LE CLIENT</div><div class="value" id="totalDue">1 260 DH</div></div>
+                    </div>
+                    <div style="margin-top:10px;font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:6px;">
+                        <i class="ph ph-info"></i> Total du séjour (Folio A + Folio B) : <strong>5 760 DH</strong>. Le client règle uniquement le Folio A au Check-out ; le Folio B (4 500 DH) est facturé séparément à l'agence.
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 2: Encaissement -->
+                <div class="step-paiement">
+                    <div class="step-title"><span class="step-num">2</span> Encaissement · Répartition du paiement <span class="sub">(sélection obligatoire du ou des modes)</span></div>
+
+                    <div class="total-alert success" id="totalAlert">
+                        <i class="ph ph-check-circle"></i>
+                        <span id="alertMessage">Montant total saisi : 1 260 DH</span>
+                        <span class="restant zero" id="restantDisplay">Restant: 0 DH ✅</span>
+                    </div>
+
+                    <div class="payment-grid">
+                        <div class="method-card active" id="methodCB">
+                            <div class="method-header">
+                                <input type="checkbox" checked onchange="updatePayment()" />
+                                <label><i class="ph ph-credit-card" style="color:#4a6cf7;"></i> CB</label>
+                                <span class="method-percent" id="percentCB">0%</span>
+                            </div>
+                            <div class="method-input"><span>DH</span><input type="number" class="amount-input" value="1260" min="0" oninput="updatePayment()" /></div>
+                            <div class="method-bar"><div class="bar-fill blue" id="barCB" style="width:0%;"></div></div>
+                        </div>
+                        <div class="method-card" id="methodESP">
+                            <div class="method-header">
+                                <input type="checkbox" checked onchange="updatePayment()" />
+                                <label><i class="ph ph-banknote" style="color:#22c55e;"></i> Espèces</label>
+                                <span class="method-percent" id="percentESP">0%</span>
+                            </div>
+                            <div class="method-input"><span>DH</span><input type="number" class="amount-input" value="0" min="0" placeholder="0" oninput="updatePayment()" /></div>
+                            <div class="method-bar"><div class="bar-fill green" id="barESP" style="width:0%;"></div></div>
+                        </div>
+                        <div class="method-card" id="methodCHQ">
+                            <div class="method-header">
+                                <input type="checkbox" checked onchange="updatePayment()" />
+                                <label><i class="ph ph-file-text" style="color:#f59e0b;"></i> Chèque</label>
+                                <span class="method-percent" id="percentCHQ">0%</span>
+                            </div>
+                            <div class="method-input"><span>DH</span><input type="number" class="amount-input" value="0" min="0" placeholder="0" oninput="updatePayment()" /></div>
+                            <div class="method-bar"><div class="bar-fill orange" id="barCHQ" style="width:0%;"></div></div>
+                        </div>
+                        <div class="method-card" id="methodVIR">
+                            <div class="method-header">
+                                <input type="checkbox" onchange="updatePayment()" />
+                                <label><i class="ph ph-arrow-right" style="color:#8b5cf6;"></i> Virement</label>
+                                <span class="method-percent" id="percentVIR">0%</span>
+                            </div>
+                            <div class="method-input"><span>DH</span><input type="number" class="amount-input" value="0" min="0" placeholder="0" oninput="updatePayment()" /></div>
+                            <div class="method-bar"><div class="bar-fill purple" id="barVIR" style="width:0%;"></div></div>
+                        </div>
+                        <div class="method-card" id="methodDEB">
+                            <div class="method-header">
+                                <input type="checkbox" onchange="updatePayment()" />
+                                <label><i class="ph ph-handshake" style="color:#ef4444;"></i> Débiteur</label>
+                                <span class="method-percent" id="percentDEB">0%</span>
+                            </div>
+                            <div class="method-input"><span>DH</span><input type="number" class="amount-input" value="0" min="0" placeholder="0" oninput="updatePayment()" /></div>
+                            <div class="method-bar"><div class="bar-fill red" id="barDEB" style="width:0%;"></div></div>
+                        </div>
+                    </div>
+                    <div style="font-size:12px;color:#8a9bb5;display:flex;align-items:center;gap:6px;margin-top:10px;">
+                        <i class="ph ph-info"></i> Cochez les modes utilisés et saisissez les montants. Le total doit correspondre au Folio A, soit <strong id="totalDueSmall">1 260 DH</strong>.
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 3: Validation -->
+                <div class="checkout-actions">
+                    <div class="total-final">Dû par le client: <span class="amount" id="totalDisplay">1 260 DH</span></div>
+                    <div class="btns">
+                        <button class="btn-generic secondary"><i class="ph ph-x"></i> Annuler</button>
+                        <button class="btn-generic danger" id="validateCheckout" disabled><i class="ph ph-lock"></i> Valider Check-out</button>
+                    </div>
+                </div>
+
+                <div class="security-alert" id="securityAlert">
+                    <i class="ph ph-warning"></i>
+                    <span id="securityAlertText">Dès que le Check-out est validé, le dossier est définitivement verrouillé. Aucune réactivation du Check-in ne sera possible pour ce séjour.</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ================================================================
+        // ===== TOGGLE SOUS-MENUS & HAMBURGER =====
+        // ================================================================
+        document.querySelectorAll('.nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href') && this.getAttribute('href') !== '#') return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub && sub.classList.contains('sub-menu')) {
+                    sub.classList.toggle('open');
+                    if (arrow) arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            });
+        });
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // ================================================================
+        // ===== RECHERCHE =====
+        // ================================================================
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const items = searchResults.querySelectorAll('.result-item');
+            if (query.length === 0) { searchResults.classList.remove('active'); return; }
+
+            let hasResults = false;
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) { item.style.display = 'flex'; hasResults = true; }
+                else { item.style.display = 'none'; }
+            });
+            searchResults.classList.add('active');
+
+            let noResult = searchResults.querySelector('.no-result');
+            if (!hasResults) {
+                if (!noResult) {
+                    noResult = document.createElement('div');
+                    noResult.className = 'no-result';
+                    noResult.innerHTML = '<i class="ph ph-user"></i>Aucun client trouvé';
+                    searchResults.appendChild(noResult);
+                }
+                noResult.style.display = 'block';
+            } else if (noResult) { noResult.style.display = 'none'; }
+        });
+        document.getElementById('searchBtn').addEventListener('click', () => searchInput.dispatchEvent(new Event('input')));
+
+        // ================================================================
+        // ===== DONNÉES CLIENTS (avec étape de dossier initiale) =====
+        // ================================================================
+        // stage: 'reservation' (avant check-in, pro-forma) → 'inhouse' (après check-in, Folio A/B)
+        //        → 'checkedout' (verrouillé) ; 'blocked' = no-show / annulée, aucune action
+        const clients = {
+            emily: { name: 'Emily Carter', avatar: 'EC', booking: '#BKG-1024', room: 'Chambre 210', dates: '12-15 Juin 2026', pax: '2 Pax', status: 'In-House', statusClass: 'inhouse', totalDue: 1260, stage: 'inhouse' },
+            daniel: { name: 'Daniel Wong', avatar: 'DW', booking: '#BKG-2032', room: 'Chambre 118', dates: '13-15 Juin 2026', pax: '1 Pax', status: 'Confirmée', statusClass: 'confirmed', totalDue: 3800, stage: 'reservation' },
+            hannah: { name: 'Hannah Lee', avatar: 'HL', booking: '#BKG-2033', room: 'Chambre 305', dates: '14-19 Juin 2026', pax: '2 Pax', status: 'Voucher', statusClass: 'voucher', totalDue: 6500, stage: 'reservation' },
+            liam: { name: 'Liam Johnson', avatar: 'LJ', booking: '#BKG-1027', room: 'Chambre 202', dates: '15-22 Juin 2026', pax: '2 Pax', status: 'Option', statusClass: 'option', totalDue: 4200, stage: 'reservation' },
+            sophia: { name: 'Sophia Miles', avatar: 'SM', booking: '#BKG-1028', room: 'Chambre 101', dates: '16-18 Juin 2026', pax: '1 Pax', status: 'Check-out', statusClass: 'checkout', totalDue: 2200, stage: 'checkedout' },
+            robert: { name: 'Robert Miles', avatar: 'RM', booking: '#BKG-1029', room: 'Chambre 302', dates: '12-17 Juin 2026', pax: '2 Pax', status: 'No-Show', statusClass: 'no-show', totalDue: 3750, stage: 'blocked' },
+            isabella: { name: 'Isabella Chen', avatar: 'IC', booking: '#BKG-1030', room: 'Chambre 201', dates: '17-20 Juin 2026', pax: '1 Pax', status: 'Confirmée', statusClass: 'confirmed', totalDue: 3200, stage: 'reservation' },
+            ethan: { name: 'Ethan Brown', avatar: 'EB', booking: '#BKG-1031', room: 'Chambre 103', dates: '10-14 Juin 2026', pax: '2 Pax', status: 'Annulée', statusClass: 'cancelled', totalDue: 2800, stage: 'blocked' }
+        };
+
+        let currentClient = null;
+
+        function selectClient(clientId) {
+            const client = clients[clientId];
+            if (!client) return;
+            currentClient = client;
+
+            document.getElementById('clientCard').classList.add('active');
+            document.getElementById('clientAvatar').textContent = client.avatar;
+            document.getElementById('clientName').textContent = client.name;
+            document.getElementById('clientBooking').innerHTML = '<i class="ph ph-ticket"></i> ' + client.booking;
+            document.getElementById('clientRoom').innerHTML = '<i class="ph ph-door"></i> ' + client.room;
+            document.getElementById('clientDates').innerHTML = '<i class="ph ph-calendar"></i> ' + client.dates;
+            document.getElementById('clientPax').innerHTML = '<i class="ph ph-users"></i> ' + client.pax;
+
+            const statusEl = document.getElementById('clientStatus');
+            statusEl.innerHTML = '<span class="dot"></span> ' + client.status;
+            statusEl.className = 'status-badge-lg ' + client.statusClass;
+
+            document.getElementById('foContainer').classList.add('active');
+
+            document.getElementById('proformaLines').innerHTML = `
+                <tr><td>Hébergement · ${client.room} (${client.dates})</td><td class="amount">${client.totalDue.toLocaleString()} DH</td></tr>
+                <tr class="total-row"><td style="font-weight:700;">Total estimé (Pro-forma)</td><td class="amount" style="font-size:16px;">${client.totalDue.toLocaleString()} DH</td></tr>
+            `;
+
+            document.getElementById('totalDue').textContent = client.totalDue.toLocaleString() + ' DH';
+            document.getElementById('totalDueSmall').textContent = client.totalDue.toLocaleString() + ' DH';
+            document.getElementById('totalDisplay').textContent = client.totalDue.toLocaleString() + ' DH';
+
+            document.querySelectorAll('.method-card .amount-input').forEach(input => input.value = 0);
+            document.querySelector('#methodCB input[type="checkbox"]').checked = true;
+            document.querySelector('#methodCB .amount-input').value = client.totalDue;
+
+            if (client.stage === 'checkedout') {
+                document.getElementById('validateCheckout').innerHTML = '<i class="ph ph-lock"></i> Check-out effectué';
+            } else {
+                document.getElementById('validateCheckout').innerHTML = '<i class="ph ph-lock"></i> Valider Check-out';
+            }
+
+            renderStage();
+            document.getElementById('foContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ================================================================
+        // ===== AFFICHAGE PILOTÉ PAR L'ÉTAPE DU DOSSIER =====
+        // ================================================================
+        function renderStage() {
+            if (!currentClient) return;
+            const stage = currentClient.stage;
+            const blocked = stage === 'blocked';
+
+            document.getElementById('noActionCard').style.display = blocked ? 'block' : 'none';
+            document.getElementById('stageStepper').style.display = blocked ? 'none' : 'flex';
+            document.getElementById('proformaCard').style.display = stage === 'reservation' ? 'block' : 'none';
+            document.getElementById('folioA').style.display = (stage === 'inhouse' || stage === 'checkedout') ? 'block' : 'none';
+            document.getElementById('folioB').style.display = (stage === 'inhouse' || stage === 'checkedout') ? 'block' : 'none';
+            document.getElementById('extrasBlock').style.display = stage === 'inhouse' ? 'block' : 'none';
+            document.getElementById('checkoutSection').style.display = (stage === 'inhouse' || stage === 'checkedout') ? 'block' : 'none';
+
+            document.querySelectorAll('.stage-step').forEach(el => {
+                el.classList.toggle('active', el.dataset.stage === stage);
+                el.classList.toggle('done',
+                    (stage === 'inhouse' && el.dataset.stage === 'reservation') ||
+                    (stage === 'checkedout' && el.dataset.stage !== 'checkedout')
+                );
+            });
+
+            const locked = stage === 'checkedout';
+            document.querySelectorAll('#folioA input[type="checkbox"], #folioB input[type="checkbox"]').forEach(cb => cb.disabled = locked);
+            const addExtraBtn = document.getElementById('addExtraBtnRef');
+            const editFolioBBtn = document.getElementById('editFolioBBtn');
+            if (addExtraBtn) addExtraBtn.disabled = locked;
+            if (editFolioBBtn) editFolioBBtn.disabled = locked;
+
+            document.getElementById('validateCheckin').disabled = stage !== 'reservation';
+
+            const securityAlert = document.getElementById('securityAlert');
+            const securityAlertText = document.getElementById('securityAlertText');
+            if (locked) {
+                securityAlert.classList.add('locked');
+                securityAlertText.textContent = '🔒 Dossier verrouillé — le Check-out a été validé. Réactivation du Check-in strictement impossible pour ce séjour.';
+                document.getElementById('validateCheckout').disabled = true;
+                document.querySelectorAll('.method-card input').forEach(el => el.disabled = true);
+            } else {
+                securityAlert.classList.remove('locked');
+                securityAlertText.textContent = 'Dès que le Check-out est validé, le dossier est définitivement verrouillé. Aucune réactivation du Check-in ne sera possible pour ce séjour.';
+                document.querySelectorAll('.method-card input').forEach(el => el.disabled = false);
+                if (stage === 'inhouse') updatePayment();
+            }
+        }
+
+        // ================================================================
+        // ===== VALIDER CHECK-IN =====
+        // ================================================================
+        document.getElementById('validateCheckin').addEventListener('click', function() {
+            if (!currentClient || currentClient.stage !== 'reservation') return;
+            if (!confirm('Confirmer le Check-in de ' + currentClient.name + ' ?\nLa Facture Pro-forma sera remplacée par l\'Extrait de compte (Folio A / Folio B).')) return;
+
+            currentClient.stage = 'inhouse';
+            currentClient.status = 'In-House';
+            currentClient.statusClass = 'inhouse';
+            const statusEl = document.getElementById('clientStatus');
+            statusEl.innerHTML = '<span class="dot"></span> In-House';
+            statusEl.className = 'status-badge-lg inhouse';
+
+            renderStage();
+            alert('✅ Check-in validé.\n' + currentClient.room + ' passe en statut "Occupée".');
+        });
+
+        // ================================================================
+        // ===== VALIDER CHECK-OUT =====
+        // ================================================================
+        document.getElementById('validateCheckout').addEventListener('click', function() {
+            if (!currentClient || currentClient.stage !== 'inhouse') return;
+            if (!confirm('⚠️ Êtes-vous sûr de vouloir valider le Check-out ? Cette action est irréversible.')) return;
+
+            currentClient.stage = 'checkedout';
+            currentClient.status = 'Check-out';
+            currentClient.statusClass = 'checkout';
+            const statusEl = document.getElementById('clientStatus');
+            statusEl.innerHTML = '<span class="dot"></span> Check-out';
+            statusEl.className = 'status-badge-lg checkout';
+
+            this.innerHTML = '<i class="ph ph-lock"></i> Check-out effectué';
+            renderStage();
+            alert('✅ Check-out validé avec succès !\nLe dossier est désormais verrouillé — réactivation du Check-in impossible.\n🧹 ' + currentClient.room + ' repasse automatiquement en statut "Sale" (Housekeeping).');
+        });
+
+        // ================================================================
+        // ===== CALCUL DES PAIEMENTS =====
+        // ================================================================
+        function updatePayment() {
+            const totalDue = currentClient ? currentClient.totalDue : 1260;
+            let totalSaisi = 0;
+
+            document.querySelectorAll('.method-card').forEach(card => {
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                const input = card.querySelector('.amount-input');
+                const percentEl = card.querySelector('.method-percent');
+                const barEl = card.querySelector('.bar-fill');
+
+                if (checkbox.checked) {
+                    const val = parseFloat(input.value) || 0;
+                    totalSaisi += val;
+                    card.classList.add('active');
+                    const percent = totalDue > 0 ? (val / totalDue) * 100 : 0;
+                    percentEl.textContent = Math.round(percent) + '%';
+                    barEl.style.width = Math.min(percent, 100) + '%';
+                } else {
+                    card.classList.remove('active');
+                    percentEl.textContent = '0%';
+                    barEl.style.width = '0%';
+                }
+            });
+
+            const restant = totalDue - totalSaisi;
+            const alertEl = document.getElementById('totalAlert');
+            const messageEl = document.getElementById('alertMessage');
+            const restantEl = document.getElementById('restantDisplay');
+            const canValidate = currentClient && currentClient.stage === 'inhouse';
+
+            if (Math.abs(restant) < 0.01) {
+                alertEl.className = 'total-alert success';
+                messageEl.textContent = '✅ Montant total saisi : ' + totalSaisi.toLocaleString() + ' DH';
+                restantEl.className = 'restant zero';
+                restantEl.textContent = '✅ Équilibre parfait !';
+                document.getElementById('validateCheckout').disabled = !canValidate;
+            } else if (restant > 0) {
+                alertEl.className = 'total-alert error';
+                messageEl.textContent = '⚠️ Montant saisi : ' + totalSaisi.toLocaleString() + ' DH';
+                restantEl.className = 'restant not-zero';
+                restantEl.textContent = 'Restant: ' + restant.toLocaleString() + ' DH';
+                document.getElementById('validateCheckout').disabled = true;
+            } else {
+                alertEl.className = 'total-alert error';
+                messageEl.textContent = '⚠️ Montant saisi : ' + totalSaisi.toLocaleString() + ' DH (dépassement)';
+                restantEl.className = 'restant not-zero';
+                restantEl.textContent = 'Excédent: ' + Math.abs(restant).toLocaleString() + ' DH';
+                document.getElementById('validateCheckout').disabled = true;
+            }
+        }
+
+        // ================================================================
+        // ===== AJOUTER UN EXTRA =====
+        // ================================================================
+        function addExtra(name, price) {
+            if (!currentClient || currentClient.stage !== 'inhouse') return;
+            alert('🛒 ' + name + ' ajouté au Folio A · +' + price + ' DH');
+        }
+
+        // ================================================================
+        // ===== INITIALISATION =====
+        // ================================================================
+        setTimeout(() => { searchResults.classList.add('active'); }, 500);
+    </script>
+
+</body>
+</html>

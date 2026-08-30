@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Réservations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle { font-size: 10px; font-weight: 600; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0; padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px; color: #6b7a8e; font-size: 13px; font-weight: 400;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: ''; position: absolute; left: 26px;
+            width: 4px; height: 4px; border-radius: 50%; background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block { margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+        .sidebar .logout-block a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 14px; border-radius: 10px;
+            color: #ef4444; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: #1a1a2e; cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main { margin-left: 270px; flex: 1; padding: 24px 32px; min-height: 100vh; }
+
+        /* ===== TOP BAR ===== */
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .topbar .greeting h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .topbar .greeting h1 i { color: #4a6cf7; font-size: 22px; }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .actions .notification {
+            background: #fff; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+        }
+
+        /* ============================================================ */
+        /* ===== ALERTE PAIEMENT ===== */
+        /* ============================================================ */
+        .payment-alert {
+            display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px;
+            color: #991b1b; font-size: 13px; margin-bottom: 20px;
+        }
+        .payment-alert i { font-size: 20px; color: #ef4444; }
+        .payment-alert .txt { flex: 1; }
+        .payment-alert .txt strong { font-weight: 700; }
+        .payment-alert button {
+            padding: 6px 14px; border-radius: 8px; border: 1px solid #ef4444; background: transparent;
+            color: #ef4444; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .payment-alert button:hover { background: #ef4444; color: #fff; }
+
+        /* ============================================================ */
+        /* ===== TABS ===== */
+        /* ============================================================ */
+        .tabs-container {
+            display: flex; gap: 4px; background: #fff; padding: 4px; border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); margin-bottom: 24px; flex-wrap: wrap;
+        }
+        .tabs-container button {
+            padding: 10px 20px; border: none; background: transparent; border-radius: 10px;
+            font-weight: 600; font-size: 13px; color: #5a6a7e; cursor: pointer; transition: 0.2s;
+            font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 8px;
+        }
+        .tabs-container button:hover { color: #1a1a2e; background: #f4f6fa; }
+        .tabs-container button.active { background: #4a6cf7; color: #fff; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ============================================================ */
+        /* ===== PAGE RÉSERVATIONS (LISTE) ===== */
+        /* ============================================================ */
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            background: #fff; border-radius: 14px; padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); transition: all 0.25s ease; border: 1px solid transparent;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74, 108, 247, 0.08); border-color: #eef2ff; }
+        .stat-card .stat-label {
+            font-size: 12px; color: #7a8aa0; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .stat-card .stat-label i { font-size: 14px; color: #4a6cf7; }
+        .stat-card .stat-value { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-top: 4px; }
+        .stat-card .stat-change {
+            font-size: 11px; font-weight: 600; margin-top: 2px; display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 10px; border-radius: 20px;
+        }
+        .stat-card .stat-change.up { color: #16a34a; background: #f0fdf4; }
+        .stat-card .stat-change.down { color: #dc2626; background: #fef2f2; }
+
+        .filters-bar {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px;
+            background: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .filters-bar .search-box {
+            flex: 1; min-width: 200px; display: flex; align-items: center;
+            background: #f4f6fa; border-radius: 10px; padding: 0 14px; border: 1px solid transparent; transition: 0.2s;
+        }
+        .filters-bar .search-box:focus-within { border-color: #4a6cf7; background: #fff; }
+        .filters-bar .search-box i { color: #8a9bb5; font-size: 18px; }
+        .filters-bar .search-box input {
+            border: none; background: transparent; padding: 10px 12px; font-size: 13px;
+            font-family: 'Inter', sans-serif; width: 100%; outline: none; color: #1a1a2e;
+        }
+        .filters-bar select {
+            padding: 10px 16px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; font-weight: 500; color: #374151; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;
+        }
+        .filters-bar select:hover { border-color: #4a6cf7; }
+        .filters-bar .btn-primary {
+            background: #4a6cf7; color: #fff; border: none; padding: 10px 20px; border-radius: 10px;
+            font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+            transition: 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .filters-bar .btn-primary:hover { background: #3b5de7; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .filters-bar .btn-outline {
+            background: transparent; color: #5a6a7e; border: 1px solid #e5e7eb; padding: 10px 16px; border-radius: 10px;
+            font-weight: 500; font-size: 12px; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .filters-bar .btn-outline:hover { border-color: #4a6cf7; color: #4a6cf7; }
+
+        .table-wrapper { background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); overflow-x: auto; padding: 4px 0; }
+        .reservation-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+        .reservation-table thead th {
+            text-align: left; padding: 14px 16px; font-weight: 600; color: #5a6a7e; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.5px; background: #f8f9fc; border-bottom: 2px solid #eef2f6;
+        }
+        .reservation-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f5f6fa; vertical-align: middle; }
+        .reservation-table tbody tr:hover { background: #fafbff; }
+        .reservation-table tbody tr:last-child td { border-bottom: none; }
+        .reservation-table tbody tr.row-hidden { display: none; }
+
+        .guest-info { display: flex; flex-direction: column; }
+        .guest-info .name { font-weight: 600; color: #1a1a2e; }
+        .guest-info .id { font-size: 11px; color: #8a9bb5; }
+
+        .room-type { display: flex; align-items: center; gap: 6px; }
+        .room-type .badge { font-size: 10px; padding: 2px 10px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+        .room-type .badge.standard { background: #eef2ff; color: #4a6cf7; }
+        .room-type .badge.suite { background: #fef3c7; color: #b45309; }
+        .room-type .badge.lodge { background: #d1fae5; color: #065f46; }
+        .room-type .badge.premium { background: #ede9fe; color: #6d28d9; }
+        .room-type .room-num { font-weight: 600; color: #1a1a2e; font-size: 12px; }
+
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-badge .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .status-badge.option { background: #e8eaf0; color: #5a6a7e; }
+        .status-badge.option .dot { background: #9aa9be; }
+        .status-badge.confirmed { background: #dbeafe; color: #1d4ed8; }
+        .status-badge.confirmed .dot { background: #3b82f6; }
+        .status-badge.voucher { background: #d1fae5; color: #065f46; }
+        .status-badge.voucher .dot { background: #10b981; }
+        .status-badge.inhouse { background: #fef3c7; color: #b45309; }
+        .status-badge.inhouse .dot { background: #f59e0b; }
+        .status-badge.checkout { background: #f3f4f6; color: #4b5563; }
+        .status-badge.checkout .dot { background: #6b7280; }
+        .status-badge.no-show { background: #fee2e2; color: #991b1b; }
+        .status-badge.no-show .dot { background: #ef4444; }
+        .status-badge.cancelled { background: #f3f4f6; color: #9ca3af; }
+        .status-badge.cancelled .dot { background: #d1d5db; }
+
+        .payment-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; }
+        .payment-status i { font-size: 14px; }
+        .payment-status.paid { background: #dcfce7; color: #16a34a; }
+        .payment-status.paid i { color: #22c55e; }
+        .payment-status.partial { background: #fef3c7; color: #b45309; }
+        .payment-status.partial i { color: #f59e0b; }
+        .payment-status.unpaid { background: #fee2e2; color: #dc2626; }
+        .payment-status.unpaid i { color: #ef4444; }
+        .payment-status.pending { background: #e5e7eb; color: #4b5563; }
+        .payment-status.pending i { color: #6b7280; }
+        .payment-status.refunded { background: #f3e8ff; color: #7c3aed; }
+        .payment-status.refunded i { color: #8b5cf6; }
+
+        .source-tag {
+            display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: #5a6a7e;
+            background: #f4f6fa; padding: 2px 10px; border-radius: 20px;
+        }
+        .source-tag i { font-size: 12px; color: #8a9bb5; }
+
+        .action-btns { display: flex; gap: 6px; }
+        .action-btns button { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; color: #8a9bb5; transition: 0.2s; font-size: 16px; }
+        .action-btns button:hover { background: #eef2ff; color: #4a6cf7; }
+        .action-btns button.delete:hover { color: #ef4444; }
+        .action-btns select.status-select {
+            border: 1px solid #e5e7eb; border-radius: 6px; font-size: 11px; padding: 3px 4px;
+            font-family: 'Inter', sans-serif; color: #5a6a7e; cursor: pointer;
+        }
+
+        .pagination { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid #f0f2f6; flex-wrap: wrap; gap: 12px; }
+        .pagination .info { font-size: 13px; color: #7a8aa0; }
+        .pagination .info strong { color: #1a1a2e; }
+        .pagination .pages { display: flex; gap: 4px; }
+        .pagination .pages button {
+            width: 36px; height: 36px; border-radius: 8px; border: 1px solid transparent; background: transparent;
+            font-weight: 500; font-size: 13px; color: #5a6a7e; cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .pagination .pages button:hover { background: #f4f6fa; border-color: #e5e7eb; }
+        .pagination .pages button.active { background: #4a6cf7; color: #fff; }
+
+        /* ============================================================ */
+        /* ===== PLANNING (ROOM SHIFTING) ===== */
+        /* ============================================================ */
+        .planning-card { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        .planning-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .planning-card .card-header h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .planning-card .card-header h3 i { color: #4a6cf7; }
+        .planning-note {
+            font-size: 12px; color: #8a9bb5; display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+        }
+        .planning-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .planning-legend .item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #5a6a7e; }
+        .planning-legend .swatch { width: 12px; height: 12px; border-radius: 4px; }
+
+        .planning-grid { overflow-x: auto; border: 1px solid #f0f2f6; border-radius: 12px; }
+        .planning-header-row {
+            display: grid; grid-template-columns: 140px repeat(7, 1fr); min-width: 900px;
+            background: #f8f9fc; border-bottom: 2px solid #eef2f6;
+        }
+        .planning-header-row .ph-cell {
+            padding: 10px 8px; font-size: 11px; font-weight: 700; color: #5a6a7e; text-align: center;
+            text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .planning-header-row .ph-cell:first-child { text-align: left; padding-left: 14px; }
+        .planning-row {
+            display: grid; grid-template-columns: 140px repeat(7, 1fr); min-width: 900px;
+            border-bottom: 1px solid #f5f6fa; min-height: 52px;
+        }
+        .planning-row:last-child { border-bottom: none; }
+        .planning-room-label {
+            display: flex; flex-direction: column; justify-content: center; padding: 6px 14px;
+            border-right: 1px solid #f0f2f6; background: #fafbff;
+        }
+        .planning-room-label .num { font-weight: 700; font-size: 13px; color: #1a1a2e; }
+        .planning-room-label .cat { font-size: 10px; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.3px; }
+        .planning-cells {
+            grid-column: 2 / -1; display: grid; grid-template-columns: repeat(7, 1fr);
+            position: relative; padding: 6px 4px;
+        }
+        .planning-cells .cell-line { border-right: 1px dashed #f0f2f6; }
+        .planning-cells.drag-over { background: #eef2ff; }
+        .planning-bar {
+            grid-row: 1; border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; cursor: grab; border-left: 4px solid;
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis; align-self: center; height: 34px;
+            transition: 0.2s;
+        }
+        .planning-bar:active { cursor: grabbing; }
+        .planning-bar.dragging { opacity: 0.4; }
+        .planning-bar.option { background: #e8eaf0; color: #4b5563; border-color: #9aa9be; }
+        .planning-bar.confirmed { background: #dbeafe; color: #1d4ed8; border-color: #3b82f6; }
+        .planning-bar.voucher { background: #d1fae5; color: #065f46; border-color: #10b981; }
+        .planning-bar.inhouse { background: #fef3c7; color: #b45309; border-color: #f59e0b; }
+        .planning-bar.no-show { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+        .planning-bar .continues { margin-left: auto; opacity: 0.6; }
+
+        /* ============================================================ */
+        /* ===== MODAL: NOUVELLE RÉSERVATION ===== */
+        /* ============================================================ */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(20, 22, 34, 0.55);
+            backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 18px; width: 100%; max-width: 640px; max-height: 90vh;
+            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 20px 24px;
+            border-bottom: 1px solid #f0f2f6; position: sticky; top: 0; background: #fff; z-index: 2;
+        }
+        .modal-header h3 { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .modal-header h3 i { color: #4a6cf7; }
+        .modal-header .close-btn { background: none; border: none; font-size: 20px; color: #8a9bb5; cursor: pointer; }
+        .modal-header .close-btn:hover { color: #ef4444; }
+        .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field.full { grid-column: 1 / -1; }
+        .form-field label { font-size: 11px; font-weight: 600; color: #7a8aa0; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-field input,
+        .form-field select {
+            padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px;
+            font-family: 'Inter', sans-serif; color: #1a1a2e; background: #fff; transition: 0.2s;
+        }
+        .form-field input:focus,
+        .form-field select:focus { border-color: #4a6cf7; outline: none; box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1); }
+        .crm-note {
+            display: none; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px;
+            font-size: 12px; font-weight: 500;
+        }
+        .crm-note.active { display: flex; }
+        .crm-note.known { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .crm-note.new { background: #f4f6fa; color: #5a6a7e; border: 1px solid #eef2f6; }
+        .modal-footer {
+            display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0f2f6;
+            position: sticky; bottom: 0; background: #fff;
+        }
+        .modal-footer button {
+            padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer;
+            transition: 0.2s; font-family: 'Inter', sans-serif; border: none;
+        }
+        .modal-footer .btn-cancel { background: #f4f6fa; color: #5a6a7e; }
+        .modal-footer .btn-cancel:hover { background: #eceef4; }
+        .modal-footer .btn-confirm { background: #4a6cf7; color: #fff; }
+        .modal-footer .btn-confirm:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .hamburger { display: block !important; }
+            .filters-bar { flex-direction: column; align-items: stretch; }
+            .filters-bar .search-box { min-width: unset; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .reservation-table { font-size: 11px; min-width: 800px; }
+            .reservation-table thead th, .reservation-table tbody td { padding: 8px 10px; }
+            .pagination { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="../PMS 1/dashboard.html"><i class="ph ph-gauge"></i> Dashboard <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu open">
+                    <a href="#" onclick="openModal(); return false;"><i class="ph ph-plus-circle"></i> Nouvelle Réservation</a>
+                    <a href="#" onclick="switchTab(document.querySelector('.tabs-container button'), 'liste'); return false;"><i class="ph ph-list"></i> Toutes les Réservations</a>
+                    <a href="#" onclick="switchTab(document.querySelectorAll('.tabs-container button')[1], 'planning'); return false;"><i class="ph ph-kanban"></i> Planning (Room Shifting)</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/front-office.html"><i class="ph ph-door"></i> Front Office <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/housekeeping.html"><i class="ph ph-broom"></i> Housekeeping <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 3/night-audit.html"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/analytics.html"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="../PMS 1/login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-book-open"></i> Gestion des Réservations</h1>
+                    <p>Segmentation, cycle de vie & planning · <strong>Hôtel Marrakech Palace</strong></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification"><i class="ph ph-bell"></i><span class="badge">3</span></div>
+                <div class="avatar">YE</div>
+            </div>
+        </header>
+
+        <!-- ===== ALERTE PAIEMENT ===== -->
+        <div class="payment-alert">
+            <i class="ph ph-warning"></i>
+            <div class="txt"><strong>2 réservations "Confirmées"</strong> n'ont pas reçu leur acompte à la date limite définie (30% à la réservation).</div>
+            <button onclick="highlightUnpaid()">Voir les réservations</button>
+        </div>
+
+        <!-- ===== TABS ===== -->
+        <div class="tabs-container">
+            <button class="active" onclick="switchTab(this, 'liste')"><i class="ph ph-list"></i> Toutes les Réservations</button>
+            <button onclick="switchTab(this, 'planning')"><i class="ph ph-kanban"></i> Planning (Room Shifting)</button>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 1: LISTE ===== -->
+        <!-- ============================================================ -->
+        <div class="tab-content active" id="tab-liste">
+
+            <!-- ===== STATS ROW ===== -->
+            <section class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label"><i class="ph ph-calendar-check"></i> Réservations Actives</div>
+                    <div class="stat-value" id="statActive">128</div>
+                    <div class="stat-change up"><i class="ph ph-caret-up"></i> +12.4% vs semaine dernière</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="ph ph-user-check"></i> Check-in Aujourd'hui</div>
+                    <div class="stat-value">24</div>
+                    <div class="stat-change up"><i class="ph ph-caret-up"></i> +8.7% vs hier</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="ph ph-user-x"></i> Check-out Aujourd'hui</div>
+                    <div class="stat-value">18</div>
+                    <div class="stat-change down"><i class="ph ph-caret-down"></i> -3.2% vs hier</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="ph ph-wallet"></i> CA Réservations</div>
+                    <div class="stat-value">58 240 DH</div>
+                    <div class="stat-change up"><i class="ph ph-caret-up"></i> +15.8% vs semaine dernière</div>
+                </div>
+            </section>
+
+            <!-- ===== FILTERS BAR ===== -->
+            <section class="filters-bar">
+                <div class="search-box">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher par nom, ID..." oninput="applyFilters()" />
+                </div>
+                <select id="statusFilter" onchange="applyFilters()">
+                    <option value="">Tous statuts</option>
+                    <option value="option">Option / Provisoire</option>
+                    <option value="confirmed">Confirmée</option>
+                    <option value="voucher">Garantie Agence</option>
+                    <option value="inhouse">Check-in / In-House</option>
+                    <option value="checkout">Check-out</option>
+                    <option value="no-show">No-Show</option>
+                    <option value="cancelled">Annulée</option>
+                </select>
+                <select id="originFilter" onchange="applyFilters()">
+                    <option value="">Toutes origines</option>
+                    <option value="direct">Direct</option>
+                    <option value="ota">OTA</option>
+                    <option value="agence">Agence</option>
+                    <option value="corporate">Corporate</option>
+                </select>
+                <select id="paymentFilter" onchange="applyFilters()">
+                    <option value="">Tous paiements</option>
+                    <option value="paid">Payé</option>
+                    <option value="unpaid">Impayé</option>
+                    <option value="partial">Partiel</option>
+                    <option value="pending">En Attente</option>
+                    <option value="refunded">Remboursé</option>
+                </select>
+                <button class="btn-outline" onclick="resetFilters()"><i class="ph ph-arrow-counterclockwise"></i> Réinitialiser</button>
+                <button class="btn-primary" onclick="openModal()"><i class="ph ph-plus-circle"></i> Nouvelle Réservation</button>
+            </section>
+
+            <!-- ===== TABLE ===== -->
+            <div class="table-wrapper">
+                <table class="reservation-table" id="reservationTable">
+                    <thead>
+                        <tr>
+                            <th>Réservation & Client</th>
+                            <th>Type Chambre</th>
+                            <th>Dates</th>
+                            <th>Statut</th>
+                            <th>Origine</th>
+                            <th>Paiement</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationTbody">
+                        <tr data-status="inhouse" data-origin="direct" data-payment="paid">
+                            <td><div class="guest-info"><span class="name">Emily Carter</span><span class="id">#BKG-1024</span></div></td>
+                            <td><div class="room-type"><span class="badge suite">Suite</span><span class="room-num">210</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 12 Juin 2026<br><span style="font-weight:600;">Départ:</span> 15 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">3 nuits</span></div></td>
+                            <td>
+                                <span class="status-badge inhouse"><span class="dot"></span> In-House</span>
+                                <select class="status-select" onchange="changeStatus(this)">
+                                    <option value="">Changer…</option>
+                                    <option value="checkout">→ Check-out</option>
+                                    <option value="no-show">→ No-Show</option>
+                                    <option value="cancelled">→ Annulée</option>
+                                </select>
+                            </td>
+                            <td><span class="source-tag"><i class="ph ph-globe"></i> Direct</span></td>
+                            <td><span class="payment-status paid"><i class="ph ph-check-circle"></i> Payé</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="confirmed" data-origin="ota" data-payment="partial">
+                            <td><div class="guest-info"><span class="name">Daniel Wong</span><span class="id">#BKG-2032</span></div></td>
+                            <td><div class="room-type"><span class="badge standard">Standard</span><span class="room-num">118</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 13 Juin 2026<br><span style="font-weight:600;">Départ:</span> 15 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">2 nuits</span></div></td>
+                            <td>
+                                <span class="status-badge confirmed"><span class="dot"></span> Confirmée</span>
+                                <select class="status-select" onchange="changeStatus(this)">
+                                    <option value="">Changer…</option>
+                                    <option value="inhouse">→ Check-in</option>
+                                    <option value="no-show">→ No-Show</option>
+                                    <option value="cancelled">→ Annulée</option>
+                                </select>
+                            </td>
+                            <td><span class="source-tag"><i class="ph ph-buildings"></i> Booking</span></td>
+                            <td><span class="payment-status partial unpaid-flag"><i class="ph ph-circle-half"></i> Partiel</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="voucher" data-origin="agence" data-payment="unpaid">
+                            <td><div class="guest-info"><span class="name">Hannah Lee</span><span class="id">#BKG-2033</span></div></td>
+                            <td><div class="room-type"><span class="badge lodge">Lodge</span><span class="room-num">305</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 14 Juin 2026<br><span style="font-weight:600;">Départ:</span> 19 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">5 nuits</span></div></td>
+                            <td>
+                                <span class="status-badge voucher"><span class="dot"></span> Voucher</span>
+                                <select class="status-select" onchange="changeStatus(this)">
+                                    <option value="">Changer…</option>
+                                    <option value="inhouse">→ Check-in</option>
+                                    <option value="cancelled">→ Annulée</option>
+                                </select>
+                            </td>
+                            <td><span class="source-tag"><i class="ph ph-handshake"></i> Agence</span></td>
+                            <td><span class="payment-status unpaid"><i class="ph ph-x-circle"></i> Impayé</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="option" data-origin="direct" data-payment="unpaid">
+                            <td><div class="guest-info"><span class="name">Liam Johnson</span><span class="id">#BKG-1027</span></div></td>
+                            <td><div class="room-type"><span class="badge suite">Suite</span><span class="room-num">202</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 15 Juin 2026<br><span style="font-weight:600;">Départ:</span> 22 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">7 nuits</span></div></td>
+                            <td>
+                                <span class="status-badge option"><span class="dot"></span> Option</span>
+                                <select class="status-select" onchange="changeStatus(this)">
+                                    <option value="">Changer…</option>
+                                    <option value="confirmed">→ Confirmée</option>
+                                    <option value="cancelled">→ Annulée</option>
+                                </select>
+                            </td>
+                            <td><span class="source-tag"><i class="ph ph-user"></i> Walk-in</span></td>
+                            <td><span class="payment-status unpaid"><i class="ph ph-x-circle"></i> Impayé</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="checkout" data-origin="direct" data-payment="paid">
+                            <td><div class="guest-info"><span class="name">Sophia Miles</span><span class="id">#BKG-1028</span></div></td>
+                            <td><div class="room-type"><span class="badge standard">Standard</span><span class="room-num">101</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 16 Juin 2026<br><span style="font-weight:600;">Départ:</span> 18 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">2 nuits</span></div></td>
+                            <td><span class="status-badge checkout"><span class="dot"></span> Check-out</span></td>
+                            <td><span class="source-tag"><i class="ph ph-phone"></i> Téléphone</span></td>
+                            <td><span class="payment-status paid"><i class="ph ph-check-circle"></i> Payé</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="no-show" data-origin="ota" data-payment="pending">
+                            <td><div class="guest-info"><span class="name">Robert Miles</span><span class="id">#BKG-1029</span></div></td>
+                            <td><div class="room-type"><span class="badge lodge">Lodge</span><span class="room-num">302</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 12 Juin 2026<br><span style="font-weight:600;">Départ:</span> 17 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">5 nuits</span></div></td>
+                            <td><span class="status-badge no-show"><span class="dot"></span> No-Show</span></td>
+                            <td><span class="source-tag"><i class="ph ph-buildings"></i> Expedia</span></td>
+                            <td><span class="payment-status pending"><i class="ph ph-clock"></i> En Attente</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="confirmed" data-origin="corporate" data-payment="paid">
+                            <td><div class="guest-info"><span class="name">Isabella Chen</span><span class="id">#BKG-1030</span></div></td>
+                            <td><div class="room-type"><span class="badge suite">Suite</span><span class="room-num">201</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 17 Juin 2026<br><span style="font-weight:600;">Départ:</span> 20 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">3 nuits</span></div></td>
+                            <td>
+                                <span class="status-badge confirmed"><span class="dot"></span> Confirmée</span>
+                                <select class="status-select" onchange="changeStatus(this)">
+                                    <option value="">Changer…</option>
+                                    <option value="inhouse">→ Check-in</option>
+                                    <option value="cancelled">→ Annulée</option>
+                                </select>
+                            </td>
+                            <td><span class="source-tag"><i class="ph ph-building"></i> Corporate</span></td>
+                            <td><span class="payment-status paid"><i class="ph ph-check-circle"></i> Payé</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                        <tr data-status="cancelled" data-origin="direct" data-payment="refunded">
+                            <td><div class="guest-info"><span class="name">Ethan Brown</span><span class="id">#BKG-1031</span></div></td>
+                            <td><div class="room-type"><span class="badge standard">Standard</span><span class="room-num">103</span></div></td>
+                            <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> 10 Juin 2026<br><span style="font-weight:600;">Départ:</span> 14 Juin 2026<span style="display:block;color:#8a9bb5;font-size:11px;">4 nuits</span></div></td>
+                            <td><span class="status-badge cancelled"><span class="dot"></span> Annulée</span></td>
+                            <td><span class="source-tag"><i class="ph ph-globe"></i> Site Web</span></td>
+                            <td><span class="payment-status refunded"><i class="ph ph-arrow-counterclockwise"></i> Remboursé</span></td>
+                            <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <div class="info">Affichage de <strong>1</strong> à <strong id="rowCount">8</strong> sur <strong>128</strong> réservations</div>
+                    <div class="pages">
+                        <button class="arrow"><i class="ph ph-caret-left"></i></button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>...</button>
+                        <button>16</button>
+                        <button class="arrow"><i class="ph ph-caret-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ===== TAB 2: PLANNING (ROOM SHIFTING) ===== -->
+        <!-- ============================================================ -->
+        <div class="tab-content" id="tab-planning">
+            <div class="planning-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-kanban"></i> Planning Interactif · Room Shifting</h3>
+                    <span style="font-size:12px;color:#8a9bb5;">12 – 18 Juin 2026</span>
+                </div>
+                <div class="planning-note">
+                    <i class="ph ph-info"></i> Glissez-déposez une réservation vers une autre chambre. Le déplacement est bloqué si la chambre cible est occupée ou d'une catégorie différente (sauf validation admin).
+                </div>
+                <div class="planning-legend">
+                    <span class="item"><span class="swatch" style="background:#9aa9be;"></span> Option</span>
+                    <span class="item"><span class="swatch" style="background:#3b82f6;"></span> Confirmée</span>
+                    <span class="item"><span class="swatch" style="background:#10b981;"></span> Garantie Agence</span>
+                    <span class="item"><span class="swatch" style="background:#f59e0b;"></span> In-House</span>
+                    <span class="item"><span class="swatch" style="background:#ef4444;"></span> No-Show</span>
+                </div>
+
+                <div class="planning-grid">
+                    <div class="planning-header-row">
+                        <div class="ph-cell">Chambre</div>
+                        <div class="ph-cell">12 Jun</div>
+                        <div class="ph-cell">13 Jun</div>
+                        <div class="ph-cell">14 Jun</div>
+                        <div class="ph-cell">15 Jun</div>
+                        <div class="ph-cell">16 Jun</div>
+                        <div class="ph-cell">17 Jun</div>
+                        <div class="ph-cell">18 Jun</div>
+                    </div>
+
+                    <div class="planning-row" data-room="101" data-category="standard">
+                        <div class="planning-room-label"><span class="num">101</span><span class="cat">Standard</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar confirmed" draggable="true" ondragstart="handleDragStart(event)" data-guest="Sophia Miles" data-status="confirmed" data-start="5" data-end="7" style="grid-column: 5 / 7;">Sophia Miles</div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="103" data-category="standard">
+                        <div class="planning-room-label"><span class="num">103</span><span class="cat">Standard</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')"></div>
+                    </div>
+                    <div class="planning-row" data-room="118" data-category="standard">
+                        <div class="planning-room-label"><span class="num">118</span><span class="cat">Standard</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar confirmed" draggable="true" ondragstart="handleDragStart(event)" data-guest="Daniel Wong" data-status="confirmed" data-start="2" data-end="4" style="grid-column: 2 / 4;">Daniel Wong</div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="201" data-category="suite">
+                        <div class="planning-room-label"><span class="num">201</span><span class="cat">Suite</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar confirmed" draggable="true" ondragstart="handleDragStart(event)" data-guest="Isabella Chen" data-status="confirmed" data-start="6" data-end="8" style="grid-column: 6 / 8;">Isabella Chen <span class="continues">▶</span></div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="202" data-category="suite">
+                        <div class="planning-room-label"><span class="num">202</span><span class="cat">Suite</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar option" draggable="true" ondragstart="handleDragStart(event)" data-guest="Liam Johnson" data-status="option" data-start="4" data-end="8" style="grid-column: 4 / 8;">Liam Johnson <span class="continues">▶</span></div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="210" data-category="suite">
+                        <div class="planning-room-label"><span class="num">210</span><span class="cat">Suite</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar inhouse" draggable="true" ondragstart="handleDragStart(event)" data-guest="Emily Carter" data-status="inhouse" data-start="1" data-end="4" style="grid-column: 1 / 4;">Emily Carter</div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="302" data-category="lodge">
+                        <div class="planning-room-label"><span class="num">302</span><span class="cat">Lodge</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar no-show" draggable="true" ondragstart="handleDragStart(event)" data-guest="Robert Miles" data-status="no-show" data-start="1" data-end="6" style="grid-column: 1 / 6;">Robert Miles</div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="305" data-category="lodge">
+                        <div class="planning-room-label"><span class="num">305</span><span class="cat">Lodge</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')">
+                            <div class="planning-bar voucher" draggable="true" ondragstart="handleDragStart(event)" data-guest="Hannah Lee" data-status="voucher" data-start="3" data-end="8" style="grid-column: 3 / 8;">Hannah Lee <span class="continues">▶</span></div>
+                        </div>
+                    </div>
+                    <div class="planning-row" data-room="401" data-category="premium">
+                        <div class="planning-room-label"><span class="num">401</span><span class="cat">Premium</span></div>
+                        <div class="planning-cells" ondragover="allowDrop(event)" ondrop="handleDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- ===== MODAL: NOUVELLE RÉSERVATION ===== -->
+    <!-- ============================================================ -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="ph ph-plus-circle"></i> Nouvelle Réservation</h3>
+                <button class="close-btn" onclick="closeModal()"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-field full">
+                        <label>Nom du client</label>
+                        <input type="text" id="fGuestName" placeholder="Ex: Emily Carter" onblur="checkCRM()" />
+                        <div class="crm-note" id="crmNote"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Email</label>
+                        <input type="email" id="fGuestEmail" placeholder="client@email.com" />
+                    </div>
+                    <div class="form-field">
+                        <label>Téléphone</label>
+                        <input type="text" id="fGuestPhone" placeholder="+212 6XX XXX XXX" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Date d'arrivée</label>
+                        <input type="date" id="fArrival" value="2026-06-20" />
+                    </div>
+                    <div class="form-field">
+                        <label>Date de départ</label>
+                        <input type="date" id="fDeparture" value="2026-06-22" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Chambre</label>
+                        <select id="fRoom">
+                            <option value="103|standard">103 — Standard</option>
+                            <option value="401|premium">401 — Premium</option>
+                            <option value="118|standard">118 — Standard</option>
+                            <option value="202|suite">202 — Suite</option>
+                            <option value="302|lodge">302 — Lodge</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Régime (Pension)</label>
+                        <select id="fRegime">
+                            <option value="BB">BB — Bed & Breakfast</option>
+                            <option value="DP">DP — Demi-Pension</option>
+                            <option value="PC">PC — Pension Complète</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field full">
+                        <label>Origine / Segment de réservation</label>
+                        <select id="fSegment">
+                            <optgroup label="Direct">
+                                <option value="direct_walk_in">Walk-in</option>
+                                <option value="direct_phone_mail">Téléphone / WhatsApp / Email</option>
+                                <option value="direct_website">Site Web (amhhospitality.com)</option>
+                            </optgroup>
+                            <optgroup label="OTA">
+                                <option value="ota_booking">Booking.com</option>
+                                <option value="ota_expedia">Expedia</option>
+                                <option value="ota_hotels">Hotels.com</option>
+                                <option value="ota_agoda">Agoda</option>
+                                <option value="ota_airbnb">Airbnb</option>
+                            </optgroup>
+                            <optgroup label="Partenaires">
+                                <option value="b2b_agency">Agence de voyages / Tour-Opérateur</option>
+                                <option value="b2b_corporate">Corporate (Société)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Statut initial</label>
+                        <select id="fStatus">
+                            <option value="option">Option / Provisoire</option>
+                            <option value="confirmed">Confirmée</option>
+                            <option value="voucher">Garantie Agence</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Acompte (%)</label>
+                        <input type="number" id="fAcompte" value="30" min="0" max="100" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+                <button class="btn-confirm" onclick="createReservation()"><i class="ph ph-check"></i> Créer la réservation</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // ===== TOGGLE SOUS-MENUS / NAVIGATION =====
+        // ================================================================
+        document.querySelectorAll('.sidebar nav .nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href !== '#') return;
+                if (this.hasAttribute('onclick')) return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub && sub.classList.contains('sub-menu')) {
+                    sub.classList.toggle('open');
+                    if (arrow) arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            });
+        });
+
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // ================================================================
+        // ===== TABS =====
+        // ================================================================
+        function switchTab(btn, tabId) {
+            document.querySelectorAll('.tabs-container button').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // ================================================================
+        // ===== FILTRES LISTE =====
+        // ================================================================
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const origin = document.getElementById('originFilter').value;
+            const payment = document.getElementById('paymentFilter').value;
+            let visible = 0;
+            document.querySelectorAll('#reservationTbody tr').forEach(row => {
+                const name = row.querySelector('.guest-info .name').textContent.toLowerCase();
+                const id = row.querySelector('.guest-info .id').textContent.toLowerCase();
+                const matchesSearch = !search || name.includes(search) || id.includes(search);
+                const matchesStatus = !status || row.dataset.status === status;
+                const matchesOrigin = !origin || row.dataset.origin === origin;
+                const matchesPayment = !payment || row.dataset.payment === payment;
+                const show = matchesSearch && matchesStatus && matchesOrigin && matchesPayment;
+                row.classList.toggle('row-hidden', !show);
+                if (show) visible++;
+            });
+            document.getElementById('rowCount').textContent = visible;
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('originFilter').value = '';
+            document.getElementById('paymentFilter').value = '';
+            applyFilters();
+        }
+
+        function highlightUnpaid() {
+            document.querySelectorAll('.unpaid-flag').forEach(el => {
+                const row = el.closest('tr');
+                row.style.transition = '0.3s';
+                row.style.background = '#fef2f2';
+                setTimeout(() => { row.style.background = ''; }, 2000);
+            });
+            document.getElementById('statusFilter').value = 'confirmed';
+            applyFilters();
+        }
+
+        // ================================================================
+        // ===== CYCLE DE VIE : CHANGEMENT DE STATUT =====
+        // ================================================================
+        const statusLabels = {
+            option: ['Option', 'option'], confirmed: ['Confirmée', 'confirmed'], voucher: ['Voucher', 'voucher'],
+            inhouse: ['In-House', 'inhouse'], checkout: ['Check-out', 'checkout'],
+            'no-show': ['No-Show', 'no-show'], cancelled: ['Annulée', 'cancelled']
+        };
+        function changeStatus(select) {
+            const newStatus = select.value;
+            if (!newStatus) return;
+            const row = select.closest('tr');
+            const badge = row.querySelector('.status-badge');
+            const [label, cls] = statusLabels[newStatus];
+            badge.className = 'status-badge ' + cls;
+            badge.innerHTML = '<span class="dot"></span> ' + label;
+            row.dataset.status = newStatus;
+            select.value = '';
+
+            if (newStatus === 'inhouse') {
+                alert('🔑 Check-in effectué : ouverture de la facture d\'extras (Folio) pour ' + row.querySelector('.guest-info .name').textContent + '.');
+            } else if (newStatus === 'checkout') {
+                alert('🧹 Check-out effectué : la chambre bascule automatiquement en statut "À nettoyer" pour la gouvernante.');
+            } else if (newStatus === 'cancelled') {
+                alert('🔓 Réservation annulée : la chambre est immédiatement libérée dans l\'inventaire.');
+            } else if (newStatus === 'no-show') {
+                alert('⚠️ No-Show enregistré : la pénalité peut être facturée selon les conditions d\'annulation.');
+            }
+            select.style.display = newStatus === 'checkout' || newStatus === 'cancelled' || newStatus === 'no-show' ? 'none' : '';
+        }
+
+        // ================================================================
+        // ===== MODAL NOUVELLE RÉSERVATION + CRM =====
+        // ================================================================
+        const knownClients = {
+            'emily carter': 'Cliente VIP · Préfère les chambres à l\'étage',
+            'isabella chen': 'Allergique au gluten · Merci de prévenir le restaurant',
+            'daniel wong': 'Client fidèle · 4ᵉ séjour cette année',
+            'robert miles': 'Historique de No-Show · Demander garantie CB'
+        };
+
+        function openModal() { document.getElementById('modalOverlay').classList.add('active'); }
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+        function checkCRM() {
+            const name = document.getElementById('fGuestName').value.trim().toLowerCase();
+            const note = document.getElementById('crmNote');
+            if (!name) { note.classList.remove('active'); return; }
+            if (knownClients[name]) {
+                note.className = 'crm-note active known';
+                note.innerHTML = '<i class="ph ph-user-check"></i> Client existant trouvé — ' + knownClients[name];
+            } else {
+                note.className = 'crm-note active new';
+                note.innerHTML = '<i class="ph ph-user-plus"></i> Nouveau client — une fiche CRM sera créée automatiquement.';
+            }
+        }
+
+        function segmentGroupLabel(value) {
+            if (value.startsWith('direct_')) return { tag: 'direct', icon: 'ph-globe', label: 'Direct' };
+            if (value.startsWith('ota_')) {
+                const map = { ota_booking: 'Booking', ota_expedia: 'Expedia', ota_hotels: 'Hotels.com', ota_agoda: 'Agoda', ota_airbnb: 'Airbnb' };
+                return { tag: 'ota', icon: 'ph-buildings', label: map[value] || 'OTA' };
+            }
+            if (value === 'b2b_agency') return { tag: 'agence', icon: 'ph-handshake', label: 'Agence' };
+            return { tag: 'corporate', icon: 'ph-building', label: 'Corporate' };
+        }
+
+        let bkgCounter = 1032;
+
+        function createReservation() {
+            const name = document.getElementById('fGuestName').value.trim();
+            const arrival = document.getElementById('fArrival').value;
+            const departure = document.getElementById('fDeparture').value;
+            if (!name || !arrival || !departure) {
+                alert('⚠️ Merci de renseigner au minimum le nom du client et les dates de séjour.');
+                return;
+            }
+            const [roomNum, roomCat] = document.getElementById('fRoom').value.split('|');
+            const status = document.getElementById('fStatus').value;
+            const segmentValue = document.getElementById('fSegment').value;
+            const seg = segmentGroupLabel(segmentValue);
+            const [label, cls] = statusLabels[status];
+
+            const tbody = document.getElementById('reservationTbody');
+            const tr = document.createElement('tr');
+            tr.dataset.status = status;
+            tr.dataset.origin = seg.tag;
+            tr.dataset.payment = 'pending';
+            tr.innerHTML = `
+                <td><div class="guest-info"><span class="name">${name}</span><span class="id">#BKG-${++bkgCounter}</span></div></td>
+                <td><div class="room-type"><span class="badge ${roomCat}">${roomCat.charAt(0).toUpperCase() + roomCat.slice(1)}</span><span class="room-num">${roomNum}</span></div></td>
+                <td><div style="font-size:12px;"><span style="font-weight:600;">Arrivée:</span> ${arrival}<br><span style="font-weight:600;">Départ:</span> ${departure}</div></td>
+                <td><span class="status-badge ${cls}"><span class="dot"></span> ${label}</span></td>
+                <td><span class="source-tag"><i class="ph ${seg.icon}"></i> ${seg.label}</span></td>
+                <td><span class="payment-status pending"><i class="ph ph-clock"></i> En Attente</span></td>
+                <td><div class="action-btns"><button class="view" title="Voir"><i class="ph ph-eye"></i></button><button class="edit" title="Modifier"><i class="ph ph-pencil-simple"></i></button></div></td>
+            `;
+            tbody.prepend(tr);
+
+            document.getElementById('statActive').textContent = (parseInt(document.getElementById('statActive').textContent) + 1);
+            applyFilters();
+            closeModal();
+            alert('✅ Réservation #BKG-' + bkgCounter + ' créée pour ' + name + ' — régime ' + document.getElementById('fRegime').value + ', segment ' + seg.label + '.');
+
+            document.getElementById('fGuestName').value = '';
+            document.getElementById('fGuestEmail').value = '';
+            document.getElementById('fGuestPhone').value = '';
+            document.getElementById('crmNote').classList.remove('active');
+        }
+
+        // ================================================================
+        // ===== PLANNING : DRAG & DROP (ROOM SHIFTING) =====
+        // ================================================================
+        let draggedBar = null;
+
+        function handleDragStart(e) {
+            draggedBar = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function allowDrop(e) { e.preventDefault(); }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetCells = e.currentTarget;
+            targetCells.classList.remove('drag-over');
+            if (!draggedBar) return;
+
+            const sourceRow = draggedBar.closest('.planning-row');
+            const targetRow = targetCells.closest('.planning-row');
+            if (sourceRow === targetRow) { draggedBar.classList.remove('dragging'); draggedBar = null; return; }
+
+            const sourceCategory = sourceRow.dataset.category;
+            const targetCategory = targetRow.dataset.category;
+            const start = parseInt(draggedBar.dataset.start);
+            const end = parseInt(draggedBar.dataset.end);
+
+            const overlap = [...targetCells.querySelectorAll('.planning-bar')].some(bar => {
+                const bStart = parseInt(bar.dataset.start), bEnd = parseInt(bar.dataset.end);
+                return start < bEnd && end > bStart;
+            });
+
+            if (targetCategory !== sourceCategory) {
+                const pwd = prompt('⚠️ Catégorie différente (' + sourceCategory + ' → ' + targetCategory + ').\nDéplacement bloqué sauf validation administrateur.\n\nMot de passe admin :');
+                if (pwd !== 'admin123') {
+                    alert('🔒 Déplacement annulé — catégorie de chambre incompatible.');
+                    draggedBar.classList.remove('dragging'); draggedBar = null; return;
+                }
+            } else if (overlap) {
+                const pwd = prompt('⚠️ Chambre ' + targetRow.dataset.room + ' déjà occupée sur ces dates (room_conflict).\nDéplacement bloqué sauf validation administrateur.\n\nMot de passe admin :');
+                if (pwd !== 'admin123') {
+                    alert('🔒 Déplacement annulé — chambre déjà occupée.');
+                    draggedBar.classList.remove('dragging'); draggedBar = null; return;
+                }
+            }
+
+            const fromRoom = sourceRow.dataset.room;
+            targetCells.appendChild(draggedBar);
+            draggedBar.classList.remove('dragging');
+            alert('✅ Chambre changée : ' + draggedBar.dataset.guest + '  ' + fromRoom + ' → ' + targetRow.dataset.room);
+            draggedBar = null;
+        }
+
+        document.querySelectorAll('.planning-bar').forEach(bar => {
+            bar.addEventListener('dragend', () => bar.classList.remove('dragging'));
+        });
+    </script>
+
+</body>
+</html>

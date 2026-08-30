@@ -1,0 +1,299 @@
+@startuml PMS_AMH_Hospitality_UML_Pack
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Helvetica"
+skinparam defaultFontSize 12
+skinparam roundcorner 8
+skinparam shadowing true
+
+skinparam class {
+    BackgroundColor #F5F7FA
+    BorderColor #0E3666
+    ArrowColor #0E3666
+}
+
+skinparam sequence {
+    LifeLineBorderColor #2C3E50
+    LifeLineBackgroundColor #F5F7FA
+    ParticipantBorderColor #0E3666
+    ParticipantBackgroundColor #0E3666
+    ParticipantFontColor #FFFFFF
+    ArrowColor #0E3666
+}
+
+' ==============================================================================
+' 1. DIAGRAMME DE CLASSES DÉTAILLÉ DU DOMAINE MÉTIER
+' ==============================================================================
+package "Domain Model - PMS AMH Hospitality" {
+
+    enum RoomCategory {
+        SUITE_ROYALE
+        SUITE_JUNIOR
+        CHAMBRE_DELUXE
+        CHAMBRE_TRADITIONNELLE
+    }
+
+    enum HousekeepingStatus {
+        DIRTY
+        CLEANING_IN_PROGRESS
+        CLEAN
+        INSPECTED
+        OUT_OF_ORDER
+    }
+
+    enum BookingStatus {
+        CONFIRMED
+        IN_HOUSE
+        CHECKED_OUT
+        CANCELLED
+        NO_SHOW
+    }
+
+    enum FolioStatus {
+        OPEN
+        CLOSED
+        BALANCED
+    }
+
+    class Establishment {
+        + id: UUID
+        + name: String
+        + code: String
+        + city: String
+        + vat_rate: Decimal
+        + tourism_tax: Decimal
+        + promotion_tax: Decimal
+        + created_at: DateTime
+        --
+        + calculateDailyTax(): Decimal
+        + getActiveRooms(): List<Room>
+    }
+
+    class Room {
+        + id: UUID
+        + establishment_id: UUID
+        + room_number: String
+        + category: RoomCategory
+        + floor: Integer
+        + base_capacity: Integer
+        + max_capacity: Integer
+        + status: HousekeepingStatus
+        --
+        + updateStatus(new_status: HousekeepingStatus): void
+        + lockRoom(ttl: Integer): Boolean
+        + releaseLock(): void
+    }
+
+    class Guest {
+        + id: UUID
+        + first_name: String
+        + last_name: String
+        + email: String
+        + phone: String
+        + nationality: String
+        + id_card_number: String
+        + vip_level: Integer
+        --
+        + getFullName(): String
+        + getBookingHistory(): List<Booking>
+    }
+
+    class RatePlan {
+        + id: UUID
+        + establishment_id: UUID
+        + name: String
+        + code: String
+        + base_price: Decimal
+        + is_refundable: Boolean
+        + includes_breakfast: Boolean
+        --
+        + calculatePrice(date: Date, occupancy: Integer): Decimal
+    }
+
+    class Booking {
+        + id: UUID
+        + establishment_id: UUID
+        + guest_id: UUID
+        + check_in_date: Date
+        + check_out_date: Date
+        + adults_count: Integer
+        + children_count: Integer
+        + status: BookingStatus
+        + total_amount: Decimal
+        + channel: String
+        + idempotency_key: String
+        + created_at: DateTime
+        --
+        + confirm(): void
+        + checkIn(): Folio
+        + checkOut(): void
+        + shiftRoom(new_room: Room, reason: String): void
+        + cancel(reason: String): void
+    }
+
+    class Folio {
+        + id: UUID
+        + booking_id: UUID
+        + guest_id: UUID
+        + status: FolioStatus
+        + total_debit: Decimal
+        + total_credit: Decimal
+        + balance: Decimal
+        + closed_at: DateTime
+        --
+        + postCharge(amount: Decimal, category: String): void
+        + postNightlyRate(rate: Decimal, vat: Decimal, ts: Decimal, tpt: Decimal): void
+        + registerPayment(amount: Decimal, method: String): void
+        + isSettled(): Boolean
+    }
+
+    class FolioTransaction {
+        + id: UUID
+        + folio_id: UUID
+        + timestamp: DateTime
+        + amount: Decimal
+        + description: String
+        + transaction_type: String
+        + vat_amount: Decimal
+        + user_id: UUID
+        --
+        + validateTransaction(): void
+    }
+
+    Establishment "1" *-- "1..*" Room : contains >
+    Establishment "1" *-- "0..*" RatePlan : defines >
+    Guest "1" -- "0..*" Booking : makes >
+    Room "1" -- "0..*" Booking : allocated to >
+    RatePlan "1" -- "0..*" Booking : applies to >
+    Booking "1" *-- "1" Folio : manages >
+    Folio "1" *-- "0..*" FolioTransaction : records >
+}
+
+@enduml
+
+' ==============================================================================
+' 2. DIAGRAMME DE SÉQUENCE : WORKFLOW ROOM SHIFT (CHANGEMENT DE CHAMBRE)
+' ==============================================================================
+@startuml Sequence_Room_Shift
+actor "Réceptionniste" as Receptionist
+participant "Frontend Next.js" as UI
+participant "Kong Gateway" as Gateway
+participant "Front-Office Service" as FOService
+participant "Reservation Service" as ResService
+participant "Housekeeping Service" as HKService
+participant "RabbitMQ Event Bus" as Bus
+database "PostgreSQL DB" as DB
+
+Receptionist -> UI : Initie Changement de Chambre (Séjour X -> Chambre 104)
+UI -> Gateway : PATCH /api/v1/bookings/{id}/room-shift (nouvelle chambre, raison)
+Gateway -> FOService : Valide JWT & Transmet la requête
+FOService -> ResService : GET /rooms/104/availability (dates restantes)
+ResService --> FOService : Chambre disponible & propre
+
+FOService -> DB : BEGIN TRANSACTION
+FOService -> DB : Met à jour booking_rooms (date_fin ancienne chambre = Date Courante)
+FOService -> DB : Insère nouvelle allocation (chambre 104, date_debut = Date Courante)
+FOService -> DB : Ajuste le solde prévisionnel du Folio
+FOService -> DB : COMMIT TRANSACTION
+
+FOService -> Bus : publish("room.shifted", {old_room: 102, new_room: 104})
+Bus -> HKService : consume("room.shifted")
+HKService -> DB : Bascule Chambre 102 -> DIRTY (pour nettoyage)
+HKService -> DB : Bascule Chambre 104 -> OCCUPIED
+
+FOService --> Gateway : 200 OK (Room Shift Validé)
+Gateway --> UI : 200 OK + Mise à jour Folio & Calendrier
+UI --> Receptionist : Notification Succès & Bagages à transférer
+@enduml
+
+' ==============================================================================
+' 3. DIAGRAMME D'ACTIVITÉ : WORKFLOW NIGHT AUDIT COMPLET
+' ==============================================================================
+@startuml Activity_Night_Audit
+start
+:Déclenchement Night Audit (Minuit ou Manuel);
+:Vérification des Préconditions d'audit;
+
+if (Reste-t-il des arrivées non enregistrées (Check-in) ?) then (oui)
+    :Traitement des "No-Show";
+    :Facturation de la pénalité de non-présentation;
+    :Libération des chambres pour les dates suivantes;
+else (non)
+endif
+
+:Sélection de tous les séjours actifs au statut IN_HOUSE;
+
+partition "Boucle Imputation par Chambre" {
+    while (Reste-t-il une chambre occupée ?) is (oui)
+        :Récupération du plan tarifaire de la nuitée;
+        :Calcul TVA hôtelière marocaine (10%);
+        :Calcul Taxe de Séjour (TS) et Taxe de Promotion (TPT);
+        :Écriture atomique des débits sur le Folio actif;
+        :Mise à jour du solde cumulé du Folio;
+    endwhile (non)
+}
+
+:Calcul des indicateurs consolidés (RevPAR, Taux d'Occupation, ADR);
+:Fermeture et scellement du grand livre comptable de la journée J;
+:Incrémentation de la date système d'exploitation vers J+1;
+:Génération automatique du rapport PDF consolidé;
+:Archivage immuable du rapport sur MinIO Object Storage (S3);
+:Envoi de l'alerte de synthèse par e-mail à la Direction Générale;
+stop
+@enduml
+
+' ==============================================================================
+' 4. DIAGRAMME DE COMPOSANTS ET ÉVÉNEMENTS MICROSERVICES
+' ==============================================================================
+@startuml Components_Microservices_PMS
+package "Next.js UI & PWA" {
+    [Web Reception Desktop]
+    [Mobile Housekeeping PWA]
+}
+
+package "API Gateway & Security" {
+    [Kong API Gateway]
+    [Keycloak IAM / WebAuthn]
+}
+
+package "Core Backend Services" {
+    [reservation-service]
+    [front-office-service]
+    [housekeeping-service]
+    [pricing-service]
+    [night-audit-service]
+    [channel-manager-service]
+    [analytics-service]
+    [establishment-service]
+    [notification-service]
+}
+
+package "Messaging & Cache & Storage" {
+    queue "RabbitMQ (AMQP Bus)" as RabbitMQ
+    database "Redis 7 (Distributed Locks)" as Redis
+    database "PostgreSQL 15 (Isolated Schemas)" as Postgres
+    folder "MinIO S3 (PDF Archives)" as MinIO
+}
+
+[Web Reception Desktop] --> [Kong API Gateway]
+[Mobile Housekeeping PWA] --> [Kong API Gateway]
+[Kong API Gateway] ..> [Keycloak IAM / WebAuthn] : Validate JWT
+[Kong API Gateway] --> [Core Backend Services]
+
+[reservation-service] ..> Redis : SETNX lock_room
+[reservation-service] ..> Postgres : SQL
+[reservation-service] --> RabbitMQ : booking.created
+[front-office-service] <-- RabbitMQ : consume(booking.created)
+[front-office-service] ..> Postgres : SQL
+
+[housekeeping-service] --> RabbitMQ : room.status_changed
+[front-office-service] <-- RabbitMQ : consume(room.status_changed)
+
+[night-audit-service] ..> Postgres : Imputation Folios
+[night-audit-service] ..> MinIO : Archive PDF Audit
+[night-audit-service] --> RabbitMQ : nightaudit.completed
+[analytics-service] <-- RabbitMQ : recalculate KPI
+
+[channel-manager-service] <-- [External OTA (Booking/Airbnb)] : Webhooks
+[channel-manager-service] --> RabbitMQ : ota.reservation_received
+@enduml

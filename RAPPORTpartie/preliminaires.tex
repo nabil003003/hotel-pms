@@ -1,0 +1,186 @@
+% ==============================================================================
+% PAGES PRÉLIMINAIRES DU RAPPORT DE STAGE / PFA
+% ==============================================================================
+
+% ------------------------------------------------------------------------------
+% PAGE DE GARDE
+% ------------------------------------------------------------------------------
+\begin{titlepage}
+\begin{center}
+
+% En-tête Institutionnel
+{\Large \textbf{\textsc{Royaume du Maroc}}}\\[0.2cm]
+{\large \textbf{Établissement d'Enseignement Supérieur d'Ingénierie}}\\[0.2cm]
+{\small \textbf{Filière : Génie Logiciel \& Systèmes d'Information}}\\[1.2cm]
+
+% Logo / Emblème
+\begin{tikzpicture}
+  \node[draw=primaryBlue, fill=lightGray, rounded corners=8pt, line width=1.5pt, inner sep=12pt] {
+    \begin{tabular}{c}
+      \LARGE\bfseries\color{primaryBlue} AMH HOSPITALITY \\
+      \small\color{secondaryGold}\textbf{EXCELLENCE HÔTELIÈRE \& RIADS DE PRESTIGE}
+    \end{tabular}
+  };
+\end{tikzpicture}
+
+\vspace{1.2cm}
+
+% Titre du Projet
+{\Large \textbf{\textsc{Mémoire de Projet de Fin d'Année / Stage d'Ingénieur}}}\\[0.4cm]
+\rule{\textwidth}{1.5pt}\\[0.4cm]
+{\huge \textbf{\textcolor{primaryBlue}{Conception et Réalisation d'une Plateforme PMS Hôtelière Multi-Établissements}}}\\[0.3cm]
+{\large \textbf{\textcolor{secondaryGold}{Architecture Microservices $\cdot$ Next.js $\cdot$ FastAPI $\cdot$ WebAuthn FIDO2 $\cdot$ PostgreSQL}}}\\[0.2cm]
+\rule{\textwidth}{1.5pt}\\[1.2cm]
+
+% Cadre des Auteurs et Encadrants
+\begin{minipage}[t]{0.52\textwidth}
+  \textbf{\textcolor{primaryBlue}{Réalisé par les Élèves-Ingénieurs :}}\\[0.25cm]
+  {\large \textbf{Nabil BOUDARINE}}\\[0.15cm]
+  {\large \textbf{Youssef OUIZZA}}\\[0.15cm]
+  {\large \textbf{Hamza IBN TALIB}}\\[0.2cm]
+  \textit{Option : Génie Logiciel \& Cloud Computing}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+  \raggedleft
+  \textbf{\textcolor{primaryBlue}{Sous l'encadrement de :}}\\[0.2cm]
+  \textbf{Encadrant Professionnel :}\\\textit{Lead Architect (AMH Hospitality)}\\[0.2cm]
+  \textbf{Encadrant Pédagogique :}\\\textit{Professeur Universitaire}
+\end{minipage}
+
+\vfill
+
+% Organisme et Année
+{\large \textbf{Organisme d'Accueil : AMH Hospitality (Marrakech)}}\\[0.3cm]
+{\normalsize \textbf{Année Universitaire : 2025 -- 2026}}
+
+\end{center}
+\end{titlepage}
+
+% Numérotation romaine pour les pages préliminaires
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+% ------------------------------------------------------------------------------
+% DÉDICACE
+% ------------------------------------------------------------------------------
+\chapter*{Dédicace}
+\addcontentsline{toc}{chapter}{Dédicace}
+
+\begin{quote}
+\textit{À mes très chers parents, dont les sacrifices inconditionnels, la bienveillance infinie et les encouragements constants ont éclairé mon parcours universitaire et personnel.}
+
+\vspace{0.6cm}
+\textit{À mes frères et sœurs, pour leur soutien moral indéfectible et leur présence chaleureuse à chaque étape de ma vie.}
+
+\vspace{0.6cm}
+\textit{À l'ensemble de mes professeurs et formateurs, qui m'ont transmis avec passion la rigueur intellectuelle et l'amour de l'ingénierie logicielle.}
+
+\vspace{0.6cm}
+\textit{À tous mes amis et collègues de promotion, en témoignage des précieux moments de partage et d'entraide.}
+
+\vspace{1cm}
+\begin{flushright}
+\textbf{Nabil BOUDARINE, Youssef OUIZZA \& Hamza IBN TALIB}
+\end{flushright}
+\end{quote}
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% REMERCIEMENTS
+% ------------------------------------------------------------------------------
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Au terme de ce travail de fin d'études, je tiens à exprimer ma profonde gratitude et mes plus sincères remerciements à l'ensemble des personnes ayant contribué, de près ou de loin, à la réussite de ce projet :
+
+\begin{itemize}[label=\textcolor{primaryBlue}{\small$\blacktriangleright$}]
+    \item \textbf{À l'organisme d'accueil AMH Hospitality}, pour m'avoir ouvert ses portes et accordé sa confiance pour mener à bien un projet stratégique de cette envergure ;
+    \item \textbf{À mon encadrant professionnel}, Lead Architect au sein d'AMH Hospitality, pour sa disponibilité constante, ses précieux conseils architecturaux et la rigueur technique qu'il a su m'inculquer tout au long des huit sprints de développement ;
+    \item \textbf{À mon encadrant pédagogique}, pour son suivi bienveillant, ses orientations méthodologiques avisées et ses remarques constructives qui ont grandement enrichi la qualité académique de ce mémoire ;
+    \item \textbf{À l'ensemble du corps professoral et administratif} de notre établissement, pour l'excellence de la formation d'ingénieur dispensée ;
+    \item \textbf{Aux directeurs d'exploitation, réceptionnistes et gouvernantes} des Riads d'AMH Hospitality à Marrakech, pour leur accueil chaleureux, leur précieuse collaboration lors du recueil des besoins et leurs retours d'expérience lors des phases de tests utilisateurs.
+\end{itemize}
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% RÉSUMÉ & ABSTRACT
+% ------------------------------------------------------------------------------
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Le présent projet de fin d'études porte sur la conception, l'architecture et la réalisation d'une plateforme de gestion hôtelière de nouvelle génération (\textit{Property Management System} -- PMS) pour le compte du groupe **AMH Hospitality**, exploitant une collection de Riads de prestige à Marrakech. Face aux limites des outils traditionnels caractérisés par des surréservations fréquentes, une clôture comptable journalière (\textit{Night Audit}) lourde et sujette aux erreurs, et une traçabilité défaillante sur les postes partagés, nous avons développé une solution logicielle cloud-native modulaire et résiliente.
+
+L'architecture repose sur un découpage en **onze microservices autonomes** développés en **Python (FastAPI)** selon les principes du \textit{Domain-Driven Design} et du patron \textit{Database per Service}, interfacés via la passerelle d'API **Kong** et coordonnés de manière asynchrone par un bus d'événements **RabbitMQ**. La sécurité périmétrique est assurée par **Keycloak** avec intégration d'une authentification biométrique sans mot de passe **WebAuthn FIDO2** via QR Code. L'interface web et mobile est propulsée par **Next.js 14** (App Router, TypeScript, WebSockets) et intègre une PWA dédiée à la gouvernance d'étage. Les tests de charge et de sécurité démontrent une réduction de la latence de plus de 74\% (604 ms au $p95$) et une exécution de la clôture comptable en moins de deux minutes pour 50 chambres, garantissant une intégrité financière absolue.
+
+\vspace{0.8cm}
+\noindent\textbf{Mots-clés :} PMS Hôtelier, Architecture Microservices, FastAPI, Next.js 14, Keycloak, WebAuthn FIDO2, PostgreSQL, Redis, RabbitMQ, Docker Compose, Night Audit, Multi-Tenancy.
+
+\clearpage
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+This graduation engineering project presents the design, modeling, and implementation of a next-generation Property Management System (PMS) for **AMH Hospitality**, an operator managing luxury traditional Riads in Marrakech, Morocco. To overcome the challenges of legacy fragmented tools—namely frequent overbooking, tedious and error-prone Night Audits, and lack of accountability on shared reception terminals—we engineered a modern, scalable, and resilient cloud-native platform.
+
+The system architecture is structured into **eleven decoupled microservices** developed in **Python (FastAPI)** adhering to Domain-Driven Design (DDD) and Database-per-Service patterns, exposed through a unified **Kong API Gateway** and asynchronously orchestrated via **RabbitMQ**. High-grade security is enforced using **Keycloak OIDC** combined with passwordless cross-device biometric authentication (**WebAuthn/FIDO2**) via QR codes. The user interface leverages **Next.js 14** (App Router, TypeScript, WebSockets) alongside a dedicated Housekeeping Progressive Web App (PWA). Rigorous load testing and security audits confirmed an end-to-end $p95$ latency reduction of over 74\% (down to 604 ms) and automated Night Audit execution in under two minutes for 50 rooms with immutable financial auditing.
+
+\vspace{0.8cm}
+\noindent\textbf{Keywords :} Hospitality PMS, Microservices Architecture, FastAPI, Next.js 14, Keycloak, WebAuthn FIDO2, PostgreSQL, Redis, RabbitMQ, Docker Compose, Night Audit, Multi-Tenancy.
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% GLOSSAIRE
+% ------------------------------------------------------------------------------
+\chapter*{Glossaire Technique}
+\addcontentsline{toc}{chapter}{Glossaire Technique}
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{p{3.2cm} X}
+\toprule
+\rowcolor{primaryBlue}
+\textbf{\textcolor{white}{Terme / Sigle}} & \textbf{\textcolor{white}{Définition dans le Contexte du Projet}} \\
+\midrule
+\rowcolor{lightGray}
+\textbf{PMS} & \textit{Property Management System} : Système informatique centralisant la gestion opérationnelle, administrative et financière d'un hôtel. \\
+\textbf{OTA} & \textit{Online Travel Agency} : Plateformes de réservation en ligne tierces (Booking.com, Airbnb, Expedia). \\
+\rowcolor{lightGray}
+\textbf{Night Audit} & Clôture comptable journalière nocturne vérifiant et figeant les écritures financières, et imputant les nuitées. \\
+\textbf{Folio} & État de compte client récapitulant l'ensemble des débits (séjour, extras) et crédits (encaissements). \\
+\rowcolor{lightGray}
+\textbf{WebAuthn / FIDO2} & Standard cryptographique d'authentification forte sans mot de passe exploitant la biométrie des terminaux. \\
+\textbf{Multi-Tenancy} & Architecture logicielle permettant de servir plusieurs établissements (Riads) avec isolation stricte des données. \\
+\rowcolor{lightGray}
+\textbf{RevPAR / ADR} & Indicateurs de performance hôtelière (\textit{Revenue Per Available Room} et \textit{Average Daily Rate}). \\
+\textbf{AMQP} & \textit{Advanced Message Queuing Protocol} : Protocole de messagerie asynchrone implémenté par RabbitMQ. \\
+\bottomrule
+\end{tabularx}
+\caption{Glossaire des termes techniques et métiers}
+\label{tab:glossaire}
+\end{table}
+
+\clearpage
+
+% ------------------------------------------------------------------------------
+% LISTES AUTOMATIQUES
+% ------------------------------------------------------------------------------
+\tableofcontents
+\clearpage
+
+\listoffigures
+\addcontentsline{toc}{chapter}{Table des Figures}
+\clearpage
+
+\listoftables
+\addcontentsline{toc}{chapter}{Liste des Tableaux}
+\clearpage
+
+% Reprise de la numérotation arabe pour le corps du document
+\pagenumbering{arabic}
+\setcounter{page}{1}

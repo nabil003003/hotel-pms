@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Palette "warm hospitality" (redesign 2026-07) — valeurs HSL pour la
+   convention shadcn/ui classique (hsl(var(--x)), voir tailwind.config.ts).
+   Ne pas relancer `shadcn init` après modification de ce fichier — le CLI
+   le réécrit en oklch/Tailwind v4 à chaque init, ce qui casse la convention
+   v3 utilisée ici ; utiliser uniquement `shadcn add` pour de nouveaux
+   composants.
+   Note : infra/keycloak/themes/amh-hospitality/login/resources/css/amh-login.css
+   référence encore l'ancienne palette bleue — hors périmètre de ce
+   redesign frontend, à réaligner séparément si besoin. */
+@layer base {
+  :root {
+    --background: 36 40% 97%;        /* #faf6f0 crème chaud */
+    --foreground: 20 18% 15%;        /* #2b2320 expresso chaud */
+
+    --card: 30 45% 99%;              /* #fdfbf8 */
+    --card-foreground: 20 18% 15%;
+
+    --popover: 30 45% 99%;
+    --popover-foreground: 20 18% 15%;
+
+    --primary: 16 68% 42%;           /* #b8502a terracotta brûlée */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 32 25% 93%;         /* #efe6da sable chaud */
+    --secondary-foreground: 20 18% 15%;
+
+    --muted: 32 25% 93%;
+    --muted-foreground: 25 12% 42%;  /* #847469 */
+
+    --accent: 34 45% 90%;            /* #f0e2ce or pâle */
+    --accent-foreground: 20 18% 15%;
+
+    --destructive: 358 72% 48%;      /* #c8332f */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 20% 87%;            /* #e4d9cb */
+    --input: 30 20% 87%;
+    --ring: 16 68% 42%;
+
+    --radius: 0.875rem;              /* ~14px, cartes des maquettes */
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    /* Statuts métier — pas dans la convention shadcn standard,
+       ajoutés pour StatusBadge/RoomCard (voir components/status-badge.tsx).
+       Retunés pour rester distincts du nouveau --primary terracotta. */
+    --status-success: 152 45% 32%;   /* #2c7a56 vert sauge — Propre / Confirmée */
+    --status-warning: 40 88% 48%;    /* #e0a52a ambre doré — Nettoyage / Option */
+    --status-danger: 358 72% 48%;    /* = --destructive — Bloquée / Annulée */
+    --status-neutral: 25 10% 45%;    /* #8a7c72 gris chaud — Sale */
+    --status-info: 205 55% 42%;      /* #2f76a8 bleu-sarcelle — Contrôlée / Check-in */
+  }
+
+  .dark {
+    --background: 20 22% 9%;         /* #1a1512 expresso */
+    --foreground: 34 25% 92%;        /* #ece3d8 */
+
+    --card: 20 20% 12%;              /* #211b17 */
+    --card-foreground: 34 25% 92%;
+
+    --popover: 20 20% 12%;
+    --popover-foreground: 34 25% 92%;
+
+    --primary: 20 75% 55%;           /* #dd7a41 terracotta clair */
+    --primary-foreground: 20 30% 10%;
+
+    --secondary: 20 15% 18%;         /* #332c26 */
+    --secondary-foreground: 34 25% 92%;
+
+    --muted: 20 15% 18%;
+    --muted-foreground: 30 12% 62%;  /* #a89b8d */
+
+    --accent: 20 20% 22%;            /* #453a31 */
+    --accent-foreground: 34 25% 92%;
+
+    --destructive: 358 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 15% 22%;            /* #3d332c */
+    --input: 20 15% 22%;
+    --ring: 20 75% 55%;
+
+    --status-success: 152 40% 48%;
+    --status-warning: 40 85% 58%;
+    --status-danger: 358 65% 55%;
+    --status-neutral: 30 10% 60%;
+    --status-info: 205 55% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

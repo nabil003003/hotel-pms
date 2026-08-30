@@ -1,0 +1,51 @@
+{
+  "rabbit_version": "3.12.0",
+  "users": [
+    { "name": "amh", "password": "amh_dev_password", "tags": ["administrator"] }
+  ],
+  "vhosts": [{ "name": "/" }],
+  "permissions": [
+    { "user": "amh", "vhost": "/", "configure": ".*", "write": ".*", "read": ".*" }
+  ],
+  "exchanges": [
+    { "name": "amh.establishment", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} },
+    { "name": "amh.room", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} },
+    { "name": "amh.booking", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} },
+    { "name": "amh.folio", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} },
+    { "name": "amh.audit", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} },
+    { "name": "amh.channel", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} },
+    { "name": "amh.dlx", "vhost": "/", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {} }
+  ],
+  "queues": [
+    { "name": "housekeeping.establishment_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "analytics.room_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "notification.room_incidents", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "channel.booking_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "reservation.room_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "fo.audit_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "analytics.booking_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "analytics.folio_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "analytics.channel_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "analytics.audit_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "notification.booking_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "notification.channel_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "reservation.audit_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } },
+    { "name": "housekeeping.audit_events", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-dead-letter-exchange": "amh.dlx" } }
+  ],
+  "bindings": [
+    { "source": "amh.establishment", "vhost": "/", "destination": "housekeeping.establishment_events", "destination_type": "queue", "routing_key": "establishment.#", "arguments": {} },
+    { "source": "amh.room", "vhost": "/", "destination": "analytics.room_events", "destination_type": "queue", "routing_key": "room.status_changed", "arguments": {} },
+    { "source": "amh.room", "vhost": "/", "destination": "notification.room_incidents", "destination_type": "queue", "routing_key": "room.incident_reported", "arguments": {} },
+    { "source": "amh.booking", "vhost": "/", "destination": "channel.booking_events", "destination_type": "queue", "routing_key": "booking.#", "arguments": {} },
+    { "source": "amh.room", "vhost": "/", "destination": "reservation.room_events", "destination_type": "queue", "routing_key": "room.status_changed", "arguments": {} },
+    { "source": "amh.audit", "vhost": "/", "destination": "fo.audit_events", "destination_type": "queue", "routing_key": "audit.#", "arguments": {} },
+    { "source": "amh.booking", "vhost": "/", "destination": "analytics.booking_events", "destination_type": "queue", "routing_key": "booking.#", "arguments": {} },
+    { "source": "amh.folio", "vhost": "/", "destination": "analytics.folio_events", "destination_type": "queue", "routing_key": "folio.#", "arguments": {} },
+    { "source": "amh.channel", "vhost": "/", "destination": "analytics.channel_events", "destination_type": "queue", "routing_key": "channel.#", "arguments": {} },
+    { "source": "amh.audit", "vhost": "/", "destination": "analytics.audit_events", "destination_type": "queue", "routing_key": "audit.#", "arguments": {} },
+    { "source": "amh.booking", "vhost": "/", "destination": "notification.booking_events", "destination_type": "queue", "routing_key": "booking.#", "arguments": {} },
+    { "source": "amh.channel", "vhost": "/", "destination": "notification.channel_events", "destination_type": "queue", "routing_key": "channel.#", "arguments": {} },
+    { "source": "amh.audit", "vhost": "/", "destination": "reservation.audit_events", "destination_type": "queue", "routing_key": "audit.#", "arguments": {} },
+    { "source": "amh.audit", "vhost": "/", "destination": "housekeeping.audit_events", "destination_type": "queue", "routing_key": "audit.#", "arguments": {} }
+  ]
+}

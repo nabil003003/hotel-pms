@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== AUTH CONTAINER ===== */
+        .auth-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            max-height: 100vh;
+            background: #fff;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        /* ===== LEFT SIDE - IMAGE AVEC LOGO ===== */
+        .auth-left {
+            flex: 1.2;
+            background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=1000&fit=crop&crop=center') center/cover no-repeat;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 36px;
+        }
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.35), rgba(74, 108, 247, 0.20));
+            pointer-events: none;
+        }
+        .auth-left .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .auth-left .logo i {
+            font-size: 28px;
+            color: #fff;
+        }
+        .auth-left .logo span {
+            font-size: 19px;
+            font-weight: 800;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+        }
+        .auth-left .tagline {
+            position: relative;
+            z-index: 1;
+            color: #fff;
+        }
+        .auth-left .tagline h2 {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+        .auth-left .tagline p {
+            font-size: 14px;
+            opacity: 0.85;
+            max-width: 340px;
+            line-height: 1.5;
+        }
+
+        /* ===== RIGHT SIDE - FORM CENTRÉ ===== */
+        .auth-right {
+            flex: 1;
+            padding: 40px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 460px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #fff;
+        }
+
+        /* ===== HEADER ===== */
+        .auth-right .auth-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .auth-right .auth-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+            font-family: 'Inter', sans-serif;
+        }
+        .auth-right .auth-header p {
+            color: #7a8aa0;
+            font-size: 14px;
+            margin-top: 4px;
+            line-height: 1.5;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ===== SECURE CONNECTION BADGE ("Lien de connexion sécurisé") ===== */
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 30px;
+            margin: 0 auto 24px;
+            width: fit-content;
+        }
+        .secure-badge i {
+            font-size: 15px;
+        }
+
+        /* ===== FORM ===== */
+        .auth-form .form-group {
+            margin-bottom: 14px;
+        }
+        .auth-form .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-family: 'Inter', sans-serif;
+        }
+        .auth-form .form-group .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f4f6fa;
+            border-radius: 10px;
+            padding: 0 14px;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .auth-form .form-group .input-wrapper:focus-within {
+            border-color: #4a6cf7;
+            background: #fff;
+        }
+        .auth-form .form-group .input-wrapper i {
+            color: #8a9bb5;
+            font-size: 18px;
+            margin-right: 10px;
+            transition: 0.2s;
+        }
+        .auth-form .form-group .input-wrapper:focus-within i {
+            color: #4a6cf7;
+        }
+        .auth-form .form-group .input-wrapper input {
+            border: none;
+            background: transparent;
+            padding: 12px 0;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            width: 100%;
+            outline: none;
+            color: #1a1a2e;
+        }
+        .auth-form .form-group .input-wrapper input::placeholder {
+            color: #8a9bb5;
+            font-family: 'Inter', sans-serif;
+        }
+        .auth-form .form-group .input-wrapper .toggle-password {
+            background: none;
+            border: none;
+            color: #8a9bb5;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 4px;
+            transition: 0.2s;
+        }
+        .auth-form .form-group .input-wrapper .toggle-password:hover {
+            color: #4a6cf7;
+        }
+
+        /* ===== ROW: REMEMBER + FORGOT PASSWORD ===== */
+        .auth-form .options-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 4px 0 18px;
+        }
+        .auth-form .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .auth-form .checkbox-group input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: #4a6cf7;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .auth-form .checkbox-group label {
+            font-size: 13px;
+            color: #5a6a7e;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .auth-form .forgot-link {
+            font-size: 13px;
+            color: #4a6cf7;
+            text-decoration: none;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .auth-form .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== BUTTONS ===== */
+        .auth-form .btn-primary {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            background: #4a6cf7;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .auth-form .btn-primary:hover {
+            background: #3b5de7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(74, 108, 247, 0.30);
+        }
+        .auth-form .btn-primary i {
+            font-size: 18px;
+        }
+        .auth-form .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: default;
+            transform: none;
+        }
+
+        /* ===== SEPARATOR ===== */
+        .separator {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0 16px;
+        }
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        .separator span {
+            font-size: 11px;
+            color: #8a9bb5;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ===== BIOMETRY (Touch ID / Face ID) ===== */
+        .biometry-section {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .biometry-section .btn-biometric-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .biometry-section .btn-biometric {
+            background: #f4f6fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 22px;
+            color: #5a6a7e;
+        }
+        .biometry-section .btn-biometric:hover {
+            border-color: #4a6cf7;
+            color: #4a6cf7;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+        .biometry-section span.bio-label {
+            font-size: 11px;
+            color: #8a9bb5;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .auth-footer-note {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 12px;
+            color: #b0bccf;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ===== FORGOT PASSWORD MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.20);
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal h3 {
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .modal h3 i { color: #4a6cf7; }
+        .modal p {
+            font-size: 13px;
+            color: #7a8aa0;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+        .modal .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+        .modal .modal-footer button {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+        }
+        .modal .btn-secondary {
+            background: transparent;
+            border: 1px solid #e5e7eb;
+            color: #5a6a7e;
+        }
+        .modal .btn-secondary:hover { border-color: #4a6cf7; color: #4a6cf7; }
+        .modal .btn-primary {
+            background: #4a6cf7;
+            border: none;
+            color: #fff;
+        }
+        .modal .btn-primary:hover { background: #3b5de7; }
+        .modal .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #8a9bb5;
+            cursor: pointer;
+        }
+        .modal { position: relative; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .auth-left { display: none; }
+            .auth-right {
+                max-width: 100%;
+                padding: 32px 24px;
+                min-height: 100vh;
+            }
+            .auth-container {
+                min-height: 100vh;
+                border-radius: 0;
+            }
+            html, body { overflow: auto; }
+        }
+        @media (max-width: 600px) {
+            .auth-right { padding: 20px 16px; }
+            .auth-right .auth-header h1 { font-size: 22px; }
+            .biometry-section { gap: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- ===== 1. ÉCRAN DE CONNEXION (Authentication Gate) ===== -->
+    <!-- ============================================================ -->
+
+    <div class="auth-container">
+
+        <!-- ===== LEFT SIDE - IMAGE AVEC LOGO ===== -->
+        <div class="auth-left">
+            <div class="logo">
+                <i class="ph ph-buildings"></i>
+                <span>Hotel Management System</span>
+            </div>
+            <div class="tagline">
+                <h2>Le pilotage de votre hôtel, en un coup d'œil.</h2>
+                <p>Planning, KPI temps réel et exploitation centralisés dans une seule interface sécurisée.</p>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT SIDE - FORM CENTRÉ ===== -->
+        <div class="auth-right">
+
+            <div class="auth-header">
+                <h1>Heureux de vous revoir</h1>
+                <p>Connectez-vous pour accéder à votre espace de gestion</p>
+            </div>
+
+            <!-- Lien de connexion sécurisé -->
+            <div class="secure-badge">
+                <i class="ph ph-lock-key"></i> Lien de connexion sécurisé · SSL/TLS
+            </div>
+
+            <!-- ===== LOGIN FORM ===== -->
+            <form class="auth-form" id="loginForm" onsubmit="return handleLogin(event)">
+                <div class="form-group">
+                    <label>Identifiant</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-user"></i>
+                        <input type="text" id="loginId" placeholder="Email ou identifiant" required autocomplete="username" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Entrez votre mot de passe" required autocomplete="current-password" />
+                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)">
+                            <i class="ph ph-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="options-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe" />
+                        <label for="rememberMe">Se souvenir de moi</label>
+                    </div>
+                    <button type="button" class="forgot-link" onclick="openForgotModal()">Mot de passe oublié ?</button>
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <i class="ph ph-arrow-right"></i>
+                    Se connecter
+                </button>
+            </form>
+
+            <!-- ===== BIOMÉTRIE (évolutions prévues dans l'architecture) ===== -->
+            <div class="separator"><span>ou connexion biométrique</span></div>
+
+            <div class="biometry-section">
+                <div class="btn-biometric-wrap">
+                    <button type="button" class="btn-biometric" title="Connexion par empreinte digitale (Touch ID)" onclick="handleBiometric('empreinte digitale (Touch ID)')">
+                        <i class="ph ph-fingerprint"></i>
+                    </button>
+                    <span class="bio-label">Touch ID</span>
+                </div>
+                <div class="btn-biometric-wrap">
+                    <button type="button" class="btn-biometric" title="Connexion par reconnaissance faciale (Face ID)" onclick="handleBiometric('reconnaissance faciale (Face ID)')">
+                        <i class="ph ph-scan-smiley"></i>
+                    </button>
+                    <span class="bio-label">Face ID</span>
+                </div>
+            </div>
+
+            <div class="auth-footer-note">
+                © 2026 Hotel Management System · Accès réservé au personnel autorisé
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===== MODALE MOT DE PASSE OUBLIÉ ===== -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal">
+            <button class="close-btn" onclick="closeForgotModal()"><i class="ph ph-x"></i></button>
+            <h3><i class="ph ph-key"></i> Mot de passe oublié</h3>
+            <p>Saisissez l'adresse email associée à votre compte. Un lien de réinitialisation sécurisé vous sera envoyé.</p>
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <i class="ph ph-envelope"></i>
+                    <input type="email" id="resetEmail" placeholder="Entrez votre email" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeForgotModal()">Annuler</button>
+                <button class="btn-primary" onclick="submitReset()"><i class="ph ph-paper-plane-tilt"></i> Envoyer le lien</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // ===== TOGGLE PASSWORD VISIBILITY =====
+        // ================================================================
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'ph ph-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'ph ph-eye';
+            }
+        }
+
+        // ================================================================
+        // ===== HANDLE LOGIN =====
+        // ================================================================
+        function handleLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!id || !password) {
+                alert('Veuillez remplir tous les champs.');
+                return false;
+            }
+
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<i class="ph ph-spinner spin"></i> Connexion...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 900);
+
+            return false;
+        }
+
+        // ================================================================
+        // ===== BIOMÉTRIE =====
+        // ================================================================
+        function handleBiometric(type) {
+            alert('🔐 Connexion par ' + type + ' (simulée)\n\nCette option biométrique sera activée après enregistrement de l\'appareil dans les paramètres du compte.');
+        }
+
+        // ================================================================
+        // ===== MODALE MOT DE PASSE OUBLIÉ =====
+        // ================================================================
+        function openForgotModal() {
+            document.getElementById('resetEmail').value = '';
+            document.getElementById('forgotModal').classList.add('active');
+        }
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.remove('active');
+        }
+        function submitReset() {
+            const email = document.getElementById('resetEmail').value.trim();
+            if (!email) {
+                alert('Veuillez entrer votre adresse email.');
+                return;
+            }
+            alert('✅ Un lien de réinitialisation sécurisé a été envoyé à ' + email);
+            closeForgotModal();
+        }
+        document.getElementById('forgotModal').addEventListener('click', function(e) {
+            if (e.target === this) closeForgotModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeForgotModal();
+        });
+
+        // ================================================================
+        // ===== SPINNER =====
+        // ================================================================
+        const style = document.createElement('style');
+        style.textContent = `.spin { animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+        document.head.appendChild(style);
+    </script>
+
+</body>
+</html>

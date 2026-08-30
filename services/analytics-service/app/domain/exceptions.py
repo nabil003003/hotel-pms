@@ -1,0 +1,2 @@
+class InvalidPeriodError(Exception):
+    pass

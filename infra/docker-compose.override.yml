@@ -1,0 +1,20 @@
+# Confort dev uniquement : bind mounts + hot reload. Volontairement séparé du
+# fichier de base pour que la CI puisse lancer docker-compose.yml seul, sans
+# dépendre de bind mounts hôte. Chargé automatiquement par `docker compose`
+# quand il est présent à côté du fichier de base.
+
+services:
+  auth-gateway-service:
+    volumes:
+      - ../services/auth-gateway-service/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  establishment-service:
+    volumes:
+      - ../services/establishment-service/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  housekeeping-service:
+    volumes:
+      - ../services/housekeeping-service/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

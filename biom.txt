@@ -1,0 +1,57 @@
+## Objectif
+Authentification WebAuthn FIDO2 Cross-Device pour PMS hôtelier. Postes réception = iMac/PC sans capteur biométrique. Staff = smartphones avec Face ID/Empreinte. Connexion via QR code.
+
+Stack : React, Node.js/Express, PostgreSQL.
+
+## Principe clé
+Le staff doit enregistrer son téléphone UNE SEULE FOIS. Après, connexion quotidienne via QR code sans mot de passe.
+
+---
+
+### Flux A — Enregistrement du téléphone (1 seule fois)
+
+1. Admin crée le compte staff (email + mot de passe temporaire) dans le PMS
+2. Staff se connecte la première fois avec email/mot de passe sur le desktop
+3. Staff clique "Lier mon téléphone" dans son profil
+4. Backend génère `registration_options` avec :
+   - `authenticatorSelection.authenticatorAttachment: "platform"`
+   - `authenticatorSelection.residentKey: "preferred"`
+5. Desktop affiche un **QR code** avec URL FIDO2
+6. Staff scanne le QR avec son téléphone → Safari/Chrome mobile ouvre l'URL → Face ID/Touch ID
+7. Téléphone génère le credential et l'envoie au backend
+8. Backend stocke la **clé publique** (jamais de biométrie brute)
+9. ✅ Le téléphone est maintenant lié au compte
+
+---
+
+### Flux B — Connexion quotidienne (QR Code)
+
+1. Page login desktop affiche un **QR code** par défaut
+2. Backend génère `authentication_options` avec :
+   - `allowCredentials` vide (discoverable credential)
+   - `transport: ["hybrid", "ble"]`
+   - `timeout: 120000`
+3. Staff scanne le QR avec son téléphone → Face ID/Empreinte → signe le challenge
+4. Téléphone communique avec desktop via Bluetooth/cloud relay
+5. Backend vérifie la signature, met à jour `sign_count`
+6. Backend émet JWT httpOnly cookie
+7. Desktop redirige vers le dashboard PMS
+
+---
+
+### Contraintes
+- RP ID identique : `pms.amhhospitality.com`
+- Jamais de biométrie brute sur le serveur
+- Vérifier `sign_count` à chaque auth
+- Fallback : QR non scanné dans 2 min → login email/password
+- Session JWT : 4h max
+
+---
+
+### Livrables
+1. API : `register/begin`, `register/finish`, `login/begin`, `login/finish`
+2. Composant `BiometricLogin` (QR code + fallback password)
+3. Page mobile `/auth/hybrid`
+4. Tables : `webauthn_credentials`, `auth_audit_log`
+
+Commence par le **Flux B (Login QR)** car c'est le plus critique, puis le Flux A (Register).

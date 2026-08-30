@@ -1,0 +1,169 @@
+_format_version: "3.0"
+_transform: true
+
+# Sprint 8 (D15) : Kong OSS (image kong:3.5, pas Kong Enterprise) n'a pas de
+# Dev Portal natif pour agréger des schémas OpenAPI — cette fonctionnalité
+# est réservée à l'édition Enterprise. Ce fichier route donc le
+# `/openapi.json` natif de chacun des 11 services à travers Kong sous un
+# chemin prévisible (`/openapi/{service}.json`). Un conteneur `swagger-ui`
+# séparé (profil `gateway`, son propre port hôte 8090 — pas routé via Kong,
+# voir le commentaire sur ce service dans docker-compose.yml) consomme ces
+# 11 URLs pour les présenter dans un sélecteur unique, servant le même
+# besoin (§8.3 point 1 : "documentation unifiée agrégeant les schémas
+# OpenAPI de chaque service") sans prétendre que Kong OSS fait nativement
+# quelque chose qu'il ne fait pas.
+#
+# Le routage applicatif réel (API métier) continue de passer par le BFF
+# Next.js (`frontend/app/api/proxy/{service}/...` -> `lib/proxy.ts`),
+# vérifié de bout en bout depuis le Sprint 1 — Kong n'est PAS mis dans ce
+# chemin ce sprint (aucun besoin de rate-limiting/routing centralisé validé
+# jusqu'ici, et le réintroduire maintenant remplacerait un mécanisme déjà
+# testé par un nouveau non testé). Kong sert uniquement de point d'entrée
+# pour la doc agrégée dans ce sprint.
+
+services:
+  - name: auth-gateway-service
+    url: http://auth-gateway-service:8000
+    routes:
+      - name: auth-gateway-openapi
+        paths: ["/openapi/auth-gateway-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: establishment-service
+    url: http://establishment-service:8000
+    routes:
+      - name: establishment-openapi
+        paths: ["/openapi/establishment-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: housekeeping-service
+    url: http://housekeeping-service:8000
+    routes:
+      - name: housekeeping-openapi
+        paths: ["/openapi/housekeeping-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: pricing-service
+    url: http://pricing-service:8000
+    routes:
+      - name: pricing-openapi
+        paths: ["/openapi/pricing-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: partner-service
+    url: http://partner-service:8000
+    routes:
+      - name: partner-openapi
+        paths: ["/openapi/partner-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: channel-manager-service
+    url: http://channel-manager-service:8000
+    routes:
+      - name: channel-manager-openapi
+        paths: ["/openapi/channel-manager-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: reservation-service
+    url: http://reservation-service:8000
+    routes:
+      - name: reservation-openapi
+        paths: ["/openapi/reservation-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: front-office-service
+    url: http://front-office-service:8000
+    routes:
+      - name: front-office-openapi
+        paths: ["/openapi/front-office-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: analytics-service
+    url: http://analytics-service:8000
+    routes:
+      - name: analytics-openapi
+        paths: ["/openapi/analytics-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: night-audit-service
+    url: http://night-audit-service:8000
+    routes:
+      - name: night-audit-openapi
+        paths: ["/openapi/night-audit-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+  - name: notification-service
+    url: http://notification-service:8000
+    routes:
+      - name: notification-openapi
+        paths: ["/openapi/notification-service.json"]
+        strip_path: true
+        methods: ["GET"]
+    plugins:
+      - name: request-transformer
+        config:
+          replace:
+            uri: /openapi.json
+
+consumers: []
+plugins: []

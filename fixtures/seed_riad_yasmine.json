@@ -1,0 +1,68 @@
+{
+  "_comment": "Jeu de données de référence unique (D5) — réutilisé par scripts/seed_sprint1.sh, les fixtures pytest de chaque service, et les futurs tests Playwright (Sprint 7). Ne pas dupliquer ailleurs.",
+  "establishment": {
+    "name": "Riad Yasmine",
+    "address": "12 Derb El Ferrane, Médina",
+    "city": "Marrakech",
+    "country": "Maroc",
+    "phone": "+212524000000",
+    "email": "contact@riadyasmine.amhhospitality.com",
+    "total_rooms": 12
+  },
+  "rooms": [
+    { "numero": "R01", "categorie": "Chambre Standard", "floor": 0, "capacity_adults": 2, "capacity_children": 1 },
+    { "numero": "R02", "categorie": "Chambre Standard", "floor": 0, "capacity_adults": 2, "capacity_children": 1 },
+    { "numero": "R03", "categorie": "Chambre Standard", "floor": 0, "capacity_adults": 2, "capacity_children": 0 },
+    { "numero": "R04", "categorie": "Chambre Standard", "floor": 1, "capacity_adults": 2, "capacity_children": 1 },
+    { "numero": "R05", "categorie": "Chambre Deluxe", "floor": 1, "capacity_adults": 2, "capacity_children": 1 },
+    { "numero": "R06", "categorie": "Chambre Deluxe", "floor": 1, "capacity_adults": 2, "capacity_children": 1 },
+    { "numero": "R07", "categorie": "Chambre Deluxe", "floor": 1, "capacity_adults": 3, "capacity_children": 0 },
+    { "numero": "R08", "categorie": "Suite Junior", "floor": 2, "capacity_adults": 2, "capacity_children": 2 },
+    { "numero": "R09", "categorie": "Suite Junior", "floor": 2, "capacity_adults": 2, "capacity_children": 2 },
+    { "numero": "R10", "categorie": "Suite Royale", "floor": 2, "capacity_adults": 3, "capacity_children": 2 },
+    { "numero": "R11", "categorie": "Suite Royale", "floor": 2, "capacity_adults": 3, "capacity_children": 2 },
+    { "numero": "R12", "categorie": "Riad Entier", "floor": 0, "capacity_adults": 10, "capacity_children": 6 }
+  ],
+  "establishment_services": [
+    { "code": "HAM", "label": "Hammam Traditionnel", "category": "Hammam", "prix_ht": 250.00, "tva_rate": 20.00 },
+    { "code": "TRF", "label": "Transfert Aéroport", "category": "Transfert", "prix_ht": 200.00, "tva_rate": 20.00 },
+    { "code": "EXC", "label": "Excursion Vallée de l'Ourika", "category": "Excursion", "prix_ht": 450.00, "tva_rate": 20.00 },
+    { "code": "DIN", "label": "Dîner Traditionnel Marocain", "category": "Diner", "prix_ht": 300.00, "tva_rate": 10.00 },
+    { "code": "EXC2", "label": "Cours de Cuisine Marocaine", "category": "Cours_Cuisine", "prix_ht": 350.00, "tva_rate": 20.00 }
+  ],
+  "seasons": [
+    { "label": "Haute saison 2026", "date_debut": "2026-06-01", "date_fin": "2026-09-01" },
+    { "label": "Basse saison 2026", "date_debut": "2026-01-01", "date_fin": "2026-06-01" }
+  ],
+  "rate_grid": [
+    { "room_category": "Chambre Standard", "season_label": "Haute saison 2026", "regime": "BB", "prix_ht": 727.27, "prix_ttc": 800.00, "tva_rate": 10.00 },
+    { "room_category": "Chambre Standard", "season_label": "Basse saison 2026", "regime": "BB", "prix_ht": 545.45, "prix_ttc": 600.00, "tva_rate": 10.00 },
+    { "room_category": "Chambre Deluxe", "season_label": "Haute saison 2026", "regime": "BB", "prix_ht": 909.09, "prix_ttc": 1000.00, "tva_rate": 10.00 }
+  ],
+  "taxes_config": [
+    { "type": "TVA_HEBERGEMENT", "taux_ou_montant": 10.00, "mode_calcul": "PERCENTAGE" },
+    { "type": "TS", "taux_ou_montant": 15.00, "mode_calcul": "FIXED_PER_PAX" }
+  ],
+  "extras_catalog": [
+    { "categorie": "SPA", "libelle": "Massage Traditionnel 1h", "description": "Massage aux huiles d'argan", "prix_ht": 300.00, "tva_rate": 20.00 },
+    { "categorie": "Restaurant", "libelle": "Petit-déjeuner à la carte", "description": null, "prix_ht": 90.91, "tva_rate": 10.00 }
+  ],
+  "partners": [
+    { "type": "AGENCE", "nom": "Atlas Voyages", "contact_name": "Karim Benali", "email": "karim@atlasvoyages.ma", "phone": "+212524111111", "ice": "001234567000012", "rc": "45678", "address": "Gueliz, Marrakech", "payment_terms": 30 },
+    { "type": "OTA", "nom": "Booking.com", "contact_name": null, "email": "partners@booking.com", "phone": null, "ice": null, "rc": null, "address": null, "payment_terms": 15 }
+  ],
+  "partner_rates": [
+    { "partner_nom": "Atlas Voyages", "season_label": "Haute saison 2026", "room_category": "Chambre Standard", "regime": "BB", "tarif_negocie": 700.00, "commission_pct": 12.00 }
+  ],
+  "ota_mappings": [
+    { "ota_name": "booking_com", "ota_property_id": "riad-yasmine-12345", "ota_room_type_id": "std-room", "internal_room_category": "Chambre Standard" }
+  ],
+  "channel_connections": [
+    { "ota_name": "booking_com", "is_active": true, "two_way_sync_enabled": false, "credentials": "dev-placeholder-api-key" }
+  ],
+  "market_segments": [
+    { "code": "WALKIN", "label": "Walk-in / Direct", "category": "DIRECT", "color": "#2E86AB" },
+    { "code": "BOOKING_COM", "label": "Booking.com", "category": "OTA", "color": "#003580" },
+    { "code": "AGENCE", "label": "Agences & TO", "category": "PARTENAIRES", "color": "#F18F01" }
+  ]
+}

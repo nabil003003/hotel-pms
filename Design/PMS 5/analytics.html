@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Management System • Analytics & Segmentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
+            color: #1a1a2e;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 270px;
+            background: #ffffff;
+            border-right: 1px solid #eef2f6;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 6px 24px 6px;
+            border-bottom: 1px solid #f0f2f6;
+            margin-bottom: 16px;
+        }
+        .sidebar .logo i { color: #4a6cf7; font-size: 24px; flex-shrink: 0; }
+        .sidebar .logo .logo-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+        .sidebar .logo .logo-text .title { font-size: 15px; font-weight: 800; color: #1a1a2e; white-space: nowrap; }
+        .sidebar .logo .logo-text .title span { color: #4a6cf7; }
+        .sidebar .logo .logo-text .subtitle { font-size: 10px; font-weight: 600; color: #8a9bb5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar nav { flex: 1; }
+        .sidebar nav .nav-item { margin-bottom: 2px; }
+        .sidebar nav .nav-item > a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #5a6a7e;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar nav .nav-item > a i { width: 20px; font-size: 18px; color: #8a9bb5; transition: 0.2s; }
+        .sidebar nav .nav-item > a .arrow { margin-left: auto; font-size: 12px; transition: transform 0.3s; color: #b0bccf; }
+        .sidebar nav .nav-item > a:hover,
+        .sidebar nav .nav-item > a.active { background: #eef2ff; color: #4a6cf7; }
+        .sidebar nav .nav-item > a:hover i,
+        .sidebar nav .nav-item > a.active i { color: #4a6cf7; }
+        .sidebar nav .sub-menu {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+            opacity: 0; padding-left: 20px;
+        }
+        .sidebar nav .sub-menu.open { max-height: 600px; opacity: 1; }
+        .sidebar nav .sub-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 14px 8px 44px;
+            border-radius: 8px; color: #6b7a8e; font-size: 13px; font-weight: 400;
+            text-decoration: none; transition: all 0.2s; position: relative;
+        }
+        .sidebar nav .sub-menu a::before {
+            content: ''; position: absolute; left: 26px;
+            width: 4px; height: 4px; border-radius: 50%; background: #d1d5db;
+        }
+        .sidebar nav .sub-menu a:hover { background: #f0f2ff; color: #4a6cf7; }
+        .sidebar nav .sub-menu a:hover::before { background: #4a6cf7; }
+        .sidebar nav .sub-menu a i { font-size: 14px; color: #9aa9be; width: 18px; }
+        .sidebar .logout-block { margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+        .sidebar .logout-block a {
+            display: flex; align-items: center; gap: 14px;
+            padding: 10px 14px; border-radius: 10px;
+            color: #ef4444; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s;
+        }
+        .sidebar .logout-block a:hover { background: #fef2f2; }
+        .sidebar .logout-block a i { font-size: 18px; }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: #1a1a2e; cursor: pointer; }
+
+        /* ===== MAIN ===== */
+        .main { margin-left: 270px; flex: 1; padding: 24px 32px; min-height: 100vh; }
+
+        /* ===== TOP BAR ===== */
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .topbar .greeting h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .topbar .greeting h1 i { color: #4a6cf7; font-size: 22px; }
+        .topbar .greeting p { color: #7a8aa0; font-size: 14px; }
+        .topbar .actions { display: flex; align-items: center; gap: 16px; }
+        .topbar .actions .notification {
+            background: #fff; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .topbar .actions .notification:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .topbar .actions .notification .badge {
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff;
+            font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .actions .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;
+        }
+
+        /* ============================================================ */
+        /* ===== ANALYTICS ===== */
+        /* ============================================================ */
+
+        .analytics-filters {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px;
+            background: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .analytics-filters select,
+        .analytics-filters button {
+            padding: 8px 16px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff;
+            font-size: 12px; font-weight: 500; color: #374151; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s;
+        }
+        .analytics-filters select:hover,
+        .analytics-filters button:hover { border-color: #4a6cf7; }
+        .analytics-filters .btn-primary { background: #4a6cf7; color: #fff; border: none; display: flex; align-items: center; gap: 8px; }
+        .analytics-filters .btn-primary:hover { background: #3b5de7; box-shadow: 0 4px 12px rgba(74, 108, 247, 0.30); }
+        .analytics-filters .btn-outline { background: transparent; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 6px; }
+        .analytics-filters .btn-outline:hover { border-color: #4a6cf7; color: #4a6cf7; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .kpi-analytics-card {
+            background: #fff; border-radius: 14px; padding: 16px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); transition: all 0.25s ease; border: 1px solid transparent;
+        }
+        .kpi-analytics-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74, 108, 247, 0.08); border-color: #eef2ff; }
+        .kpi-analytics-card .label {
+            font-size: 11px; color: #7a8aa0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .kpi-analytics-card .label i { font-size: 16px; color: #4a6cf7; }
+        .kpi-analytics-card .value { font-size: 24px; font-weight: 700; color: #1a1a2e; margin-top: 4px; }
+        .kpi-analytics-card .change {
+            font-size: 12px; font-weight: 600; margin-top: 2px; display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 10px; border-radius: 20px;
+        }
+        .kpi-analytics-card .change.up { color: #16a34a; background: #f0fdf4; }
+        .kpi-analytics-card .change.down { color: #dc2626; background: #fef2f2; }
+
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .chart-card { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        .chart-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .chart-card .card-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #1a1a2e; }
+        .chart-card .card-header h3 i { color: #4a6cf7; font-size: 18px; }
+        .chart-card .card-header .legend { display: flex; gap: 12px; font-size: 11px; flex-wrap: wrap; }
+        .chart-card .card-header .legend .item { display: flex; align-items: center; gap: 5px; color: #5a6a7e; }
+        .chart-card .card-header .legend .item .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .chart-wrapper { position: relative; height: 220px; }
+
+        .chart-full { grid-column: 1 / -1; }
+        .chart-full .chart-wrapper { height: 250px; }
+
+        .comparatif-section {
+            grid-column: 1 / -1; background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .comparatif-section .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .comparatif-section .card-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #1a1a2e; }
+        .comparatif-section .card-header h3 i { color: #4a6cf7; font-size: 18px; }
+        .comparatif-section .card-header .period { font-size: 13px; color: #7a8aa0; }
+        .comparatif-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .comparatif-item { background: #f8f9fc; border-radius: 12px; padding: 16px 20px; border: 1px solid #f0f2f6; transition: 0.2s; }
+        .comparatif-item:hover { border-color: #eef2ff; background: #fafbff; }
+        .comparatif-item .comp-label {
+            font-size: 11px; color: #7a8aa0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .comparatif-item .comp-label i { font-size: 14px; color: #4a6cf7; }
+        .comparatif-item .comp-values { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; }
+        .comparatif-item .comp-values .current { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+        .comparatif-item .comp-values .previous { font-size: 13px; color: #8a9bb5; }
+        .comparatif-item .comp-change {
+            font-size: 12px; font-weight: 600; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 12px; border-radius: 20px;
+        }
+        .comparatif-item .comp-change.up { color: #16a34a; background: #f0fdf4; }
+        .comparatif-item .comp-change.down { color: #dc2626; background: #fef2f2; }
+
+        /* --- SEGMENTATION MARCHÉ (RÉFÉRENTIEL) --- */
+        .segments-ref { grid-column: 1 / -1; background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); margin-bottom: 24px; }
+        .segments-ref .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .segments-ref .card-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #1a1a2e; }
+        .segments-ref .card-header h3 i { color: #4a6cf7; font-size: 18px; }
+        .segments-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .segment-group { background: #f8f9fc; border-radius: 10px; padding: 12px 14px; border: 1px solid #f0f2f6; }
+        .segment-group .grp-title { font-size: 11px; font-weight: 700; color: #4a6cf7; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+        .segment-group .sub { font-size: 12px; color: #5a6a7e; padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+        .segment-group .sub i { font-size: 12px; color: #9aa9be; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .comparatif-grid { grid-template-columns: 1fr 1fr; }
+            .segments-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; padding: 16px; }
+            .hamburger { display: block !important; }
+            .analytics-filters { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 600px) {
+            .kpi-row { grid-template-columns: 1fr; }
+            .comparatif-grid { grid-template-columns: 1fr; }
+            .segments-grid { grid-template-columns: 1fr; }
+            .chart-card .card-header { flex-direction: column; align-items: flex-start; }
+            .comparatif-section .card-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <i class="ph ph-buildings"></i>
+            <div class="logo-text">
+                <span class="title">Hotel <span>Management</span></span>
+                <span class="subtitle">System · PMS</span>
+            </div>
+        </div>
+        <nav>
+            <div class="nav-item">
+                <a href="../PMS 1/dashboard.html"><i class="ph ph-gauge"></i> Dashboard <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 5/reservations.html"><i class="ph ph-book-open"></i> Réservations <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/front-office.html"><i class="ph ph-door"></i> Front Office <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 2/housekeeping.html"><i class="ph ph-broom"></i> Housekeeping <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-bed"></i> Chambres <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-user-circle"></i> Clients (CRM) <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 4/tarifs-fiscalite.html"><i class="ph ph-currency-dollar"></i> Tarifs & Fiscalité <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="../PMS 3/night-audit.html"><i class="ph ph-coins"></i> Finance <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="active"><i class="ph ph-chart-line"></i> Analytics <i class="ph ph-caret-right arrow"></i></a>
+                <div class="sub-menu open">
+                    <a href="#"><i class="ph ph-pie-chart"></i> Segmentation</a>
+                    <a href="#"><i class="ph ph-trend-up"></i> Évolution Mensuelle</a>
+                    <a href="#"><i class="ph ph-arrow-left-right"></i> Comparatif N-1</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a><i class="ph ph-gear-six"></i> Administration <i class="ph ph-caret-right arrow"></i></a>
+            </div>
+        </nav>
+        <div class="logout-block">
+            <a href="../PMS 1/login.html"><i class="ph ph-sign-out"></i> Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <header class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="hamburger" id="hamburger"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h1><i class="ph ph-chart-line"></i> Analytics & Segmentation</h1>
+                    <p>Tableau de bord stratégique · <strong>Hôtel Marrakech Palace</strong></p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="notification"><i class="ph ph-bell"></i><span class="badge">3</span></div>
+                <div class="avatar">YE</div>
+            </div>
+        </header>
+
+        <!-- ===== FILTERS ===== -->
+        <section class="analytics-filters">
+            <select id="periodFilter" onchange="updateCharts()">
+                <option value="2026">Année 2026</option>
+                <option value="2025">Année 2025</option>
+                <option value="2024">Année 2024</option>
+            </select>
+            <select id="segmentFilter" onchange="updateCharts()">
+                <option value="all">Tous les segments</option>
+                <option value="direct">Direct</option>
+                <option value="ota">OTA</option>
+                <option value="agence">Agence</option>
+                <option value="corporate">Corporate</option>
+            </select>
+            <select id="monthFilter" onchange="updateCharts()">
+                <option value="all">Tous les mois</option>
+                <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
+                <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
+                <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
+                <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
+            </select>
+            <button class="btn-primary" onclick="updateCharts()"><i class="ph ph-funnel"></i> Appliquer</button>
+            <button class="btn-outline" onclick="exportData()"><i class="ph ph-download-simple"></i> Exporter</button>
+        </section>
+
+        <!-- ===== SEGMENTATION MARCHÉ (RÉFÉRENTIEL) ===== -->
+        <section class="segments-ref">
+            <div class="card-header">
+                <h3><i class="ph ph-tree-structure"></i> Nomenclature des Segments de Marché (market_segment_id)</h3>
+            </div>
+            <div class="segments-grid">
+                <div class="segment-group">
+                    <div class="grp-title">Direct</div>
+                    <div class="sub"><i class="ph ph-user"></i> Walk-in</div>
+                    <div class="sub"><i class="ph ph-phone"></i> Téléphone / WhatsApp / Email</div>
+                    <div class="sub"><i class="ph ph-globe"></i> Site Web (API)</div>
+                </div>
+                <div class="segment-group">
+                    <div class="grp-title">OTA</div>
+                    <div class="sub"><i class="ph ph-buildings"></i> Booking.com</div>
+                    <div class="sub"><i class="ph ph-buildings"></i> Expedia</div>
+                    <div class="sub"><i class="ph ph-buildings"></i> Hotels.com</div>
+                    <div class="sub"><i class="ph ph-buildings"></i> Agoda</div>
+                    <div class="sub"><i class="ph ph-buildings"></i> Airbnb</div>
+                </div>
+                <div class="segment-group">
+                    <div class="grp-title">Agences / TO</div>
+                    <div class="sub"><i class="ph ph-handshake"></i> Liée à la fiche agence (Module 4)</div>
+                    <div class="sub"><i class="ph ph-percent"></i> Tarif négocié / commission appliqués</div>
+                </div>
+                <div class="segment-group">
+                    <div class="grp-title">Corporate</div>
+                    <div class="sub"><i class="ph ph-building"></i> Liée à la fiche société (Module 4)</div>
+                    <div class="sub"><i class="ph ph-users-three"></i> Tarifs société / séminaires</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== KPI ROW ===== -->
+        <section class="kpi-row">
+            <div class="kpi-analytics-card">
+                <div class="label"><i class="ph ph-chart-bar"></i> Taux d'Occupation (TO)</div>
+                <div class="value">78%</div>
+                <span class="change up"><i class="ph ph-caret-up"></i> +5% vs N-1</span>
+            </div>
+            <div class="kpi-analytics-card">
+                <div class="label"><i class="ph ph-currency-dollar"></i> Prix Moyen (ADR)</div>
+                <div class="value">1 250 DH</div>
+                <span class="change up"><i class="ph ph-caret-up"></i> +8% vs N-1</span>
+            </div>
+            <div class="kpi-analytics-card">
+                <div class="label"><i class="ph ph-trend-up"></i> Revenu par Chambre (RevPAR)</div>
+                <div class="value">975 DH</div>
+                <span class="change up"><i class="ph ph-caret-up"></i> +12% vs N-1</span>
+            </div>
+            <div class="kpi-analytics-card">
+                <div class="label"><i class="ph ph-wallet"></i> Chiffre d'Affaires Total</div>
+                <div class="value">875 000 DH</div>
+                <span class="change up"><i class="ph ph-caret-up"></i> +15% vs N-1</span>
+            </div>
+        </section>
+
+        <!-- ===== CHARTS ===== -->
+        <section class="charts-grid">
+            <div class="chart-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-pie-chart"></i> Répartition des nuitées par origine</h3>
+                    <div class="legend">
+                        <span class="item"><span class="dot" style="background:#4a6cf7;"></span> Direct</span>
+                        <span class="item"><span class="dot" style="background:#f59e0b;"></span> OTA</span>
+                        <span class="item"><span class="dot" style="background:#22c55e;"></span> Agence</span>
+                        <span class="item"><span class="dot" style="background:#8b5cf6;"></span> Corporate</span>
+                    </div>
+                </div>
+                <div class="chart-wrapper"><canvas id="pieChart"></canvas></div>
+            </div>
+
+            <div class="chart-card">
+                <div class="card-header">
+                    <h3><i class="ph ph-chart-bar"></i> Chiffre d'Affaires par Segment</h3>
+                    <div class="legend"><span class="item"><span class="dot" style="background:#4a6cf7;"></span> CA Brut</span></div>
+                </div>
+                <div class="chart-wrapper"><canvas id="barChart"></canvas></div>
+            </div>
+
+            <div class="chart-card chart-full">
+                <div class="card-header">
+                    <h3><i class="ph ph-chart-line"></i> Évolution Mensuelle - TO & ADR</h3>
+                    <div class="legend">
+                        <span class="item"><span class="dot" style="background:#4a6cf7;"></span> Taux d'Occupation</span>
+                        <span class="item"><span class="dot" style="background:#f59e0b;"></span> Prix Moyen (ADR)</span>
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="height:250px;"><canvas id="lineChart"></canvas></div>
+            </div>
+        </section>
+
+        <!-- ===== COMPARATIF YTD ===== -->
+        <section class="comparatif-section">
+            <div class="card-header">
+                <h3><i class="ph ph-arrow-left-right"></i> Comparatif YTD (N vs N-1)</h3>
+                <span class="period">Mai 2026 vs Mai 2025</span>
+            </div>
+            <div class="comparatif-grid">
+                <div class="comparatif-item">
+                    <div class="comp-label"><i class="ph ph-chart-bar"></i> Taux d'Occupation (TO)</div>
+                    <div class="comp-values"><span class="current">78%</span><span class="previous">72%</span></div>
+                    <span class="comp-change up"><i class="ph ph-caret-up"></i> +6%</span>
+                </div>
+                <div class="comparatif-item">
+                    <div class="comp-label"><i class="ph ph-currency-dollar"></i> ADR</div>
+                    <div class="comp-values"><span class="current">1 250 DH</span><span class="previous">1 100 DH</span></div>
+                    <span class="comp-change up"><i class="ph ph-caret-up"></i> +13%</span>
+                </div>
+                <div class="comparatif-item">
+                    <div class="comp-label"><i class="ph ph-trend-up"></i> RevPAR</div>
+                    <div class="comp-values"><span class="current">975 DH</span><span class="previous">792 DH</span></div>
+                    <span class="comp-change up"><i class="ph ph-caret-up"></i> +23%</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // ================================================================
+        // ===== CHART.JS - GRAPHIQUES =====
+        // ================================================================
+        let pieChart, barChart, lineChart;
+
+        const data = {
+            pie: { labels: ['Direct', 'OTA', 'Agence', 'Corporate'], values: [35, 30, 20, 15], colors: ['#4a6cf7', '#f59e0b', '#22c55e', '#8b5cf6'] },
+            bar: { labels: ['Direct', 'OTA', 'Agence', 'Corporate'], values: [350000, 280000, 180000, 120000], color: '#4a6cf7' },
+            line: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+                to: [65, 68, 70, 72, 78, 82, 85, 80, 75, 70, 68, 65],
+                adr: [1100, 1150, 1180, 1200, 1250, 1300, 1350, 1280, 1220, 1180, 1150, 1120]
+            }
+        };
+
+        function initCharts() {
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: { labels: data.pie.labels, datasets: [{ data: data.pie.values, backgroundColor: data.pie.colors, borderWidth: 3, borderColor: '#fff' }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) {
+                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            let percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': ' + context.parsed + '% (' + percentage + '%)';
+                        } } }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.bar.labels,
+                    datasets: [{
+                        label: 'CA (DH)', data: data.bar.values,
+                        backgroundColor: ['rgba(74, 108, 247, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(139, 92, 246, 0.8)'],
+                        borderColor: ['#4a6cf7', '#f59e0b', '#22c55e', '#8b5cf6'], borderWidth: 2, borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) { return context.parsed.y.toLocaleString() + ' DH'; } } }
+                    },
+                    scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return (value / 1000) + 'k DH'; } } } }
+                }
+            });
+
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: data.line.labels,
+                    datasets: [
+                        { label: 'TO (%)', data: data.line.to, borderColor: '#4a6cf7', backgroundColor: 'rgba(74, 108, 247, 0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#4a6cf7', pointRadius: 4 },
+                        { label: 'ADR (DH)', data: data.line.adr, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#f59e0b', pointRadius: 4, yAxisID: 'y1' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) {
+                            return context.dataset.label === 'TO (%)' ? context.parsed.y + '%' : context.parsed.y + ' DH';
+                        } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, position: 'left', ticks: { callback: function(value) { return value + '%'; } } },
+                        y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { callback: function(value) { return value + ' DH'; } } }
+                    }
+                }
+            });
+        }
+
+        // ================================================================
+        // ===== UPDATE CHARTS (FILTRES) =====
+        // ================================================================
+        function updateCharts() {
+            document.querySelectorAll('.chart-card').forEach(card => {
+                card.style.opacity = '0.6';
+                setTimeout(() => { card.style.opacity = '1'; }, 300);
+            });
+
+            const newPieData = [Math.floor(Math.random() * 20) + 30, Math.floor(Math.random() * 20) + 25, Math.floor(Math.random() * 15) + 15, Math.floor(Math.random() * 10) + 10];
+            pieChart.data.datasets[0].data = newPieData;
+            pieChart.update();
+
+            const newBarData = [Math.floor(Math.random() * 100000) + 300000, Math.floor(Math.random() * 80000) + 200000, Math.floor(Math.random() * 60000) + 150000, Math.floor(Math.random() * 50000) + 100000];
+            barChart.data.datasets[0].data = newBarData;
+            barChart.update();
+
+            const newTO = data.line.to.map(v => v + Math.floor(Math.random() * 6) - 3);
+            const newADR = data.line.adr.map(v => v + Math.floor(Math.random() * 60) - 30);
+            lineChart.data.datasets[0].data = newTO;
+            lineChart.data.datasets[1].data = newADR;
+            lineChart.update();
+
+            const kpiValues = document.querySelectorAll('.kpi-analytics-card .value');
+            const kpiChanges = document.querySelectorAll('.kpi-analytics-card .change');
+            if (kpiValues.length >= 4) {
+                const newTOVal = Math.floor(Math.random() * 20) + 70;
+                const newADRVal = Math.floor(Math.random() * 300) + 1000;
+                const newRevPARVal = Math.floor(Math.random() * 200) + 800;
+                const newCAVal = Math.floor(Math.random() * 200000) + 700000;
+
+                kpiValues[0].textContent = newTOVal + '%';
+                kpiValues[1].textContent = newADRVal.toLocaleString() + ' DH';
+                kpiValues[2].textContent = newRevPARVal.toLocaleString() + ' DH';
+                kpiValues[3].textContent = newCAVal.toLocaleString() + ' DH';
+
+                const changes = [Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 15) + 1, Math.floor(Math.random() * 20) + 1];
+                kpiChanges.forEach((el, index) => {
+                    const isUp = Math.random() > 0.3;
+                    el.className = 'change ' + (isUp ? 'up' : 'down');
+                    el.innerHTML = (isUp ? '<i class="ph ph-caret-up"></i> +' : '<i class="ph ph-caret-down"></i> -') + changes[index] + '% vs N-1';
+                });
+            }
+
+            const compValues = document.querySelectorAll('.comp-values .current');
+            const compPrev = document.querySelectorAll('.comp-values .previous');
+            const compChanges = document.querySelectorAll('.comp-change');
+            if (compValues.length >= 3) {
+                const newTO = Math.floor(Math.random() * 20) + 70;
+                const newADR = Math.floor(Math.random() * 300) + 1000;
+                const newRevPAR = Math.floor(Math.random() * 200) + 800;
+                const prevTO = newTO - Math.floor(Math.random() * 10) - 2;
+                const prevADR = newADR - Math.floor(Math.random() * 150) - 50;
+                const prevRevPAR = newRevPAR - Math.floor(Math.random() * 150) - 30;
+
+                compValues[0].textContent = newTO + '%';
+                compValues[1].textContent = newADR.toLocaleString() + ' DH';
+                compValues[2].textContent = newRevPAR.toLocaleString() + ' DH';
+                compPrev[0].textContent = prevTO + '%';
+                compPrev[1].textContent = prevADR.toLocaleString() + ' DH';
+                compPrev[2].textContent = prevRevPAR.toLocaleString() + ' DH';
+
+                const diffTO = ((newTO - prevTO) / prevTO * 100).toFixed(0);
+                const diffADR = ((newADR - prevADR) / prevADR * 100).toFixed(0);
+                const diffRevPAR = ((newRevPAR - prevRevPAR) / prevRevPAR * 100).toFixed(0);
+
+                compChanges[0].innerHTML = '<i class="ph ph-caret-up"></i> +' + diffTO + '%'; compChanges[0].className = 'comp-change up';
+                compChanges[1].innerHTML = '<i class="ph ph-caret-up"></i> +' + diffADR + '%'; compChanges[1].className = 'comp-change up';
+                compChanges[2].innerHTML = '<i class="ph ph-caret-up"></i> +' + diffRevPAR + '%'; compChanges[2].className = 'comp-change up';
+            }
+        }
+
+        function exportData() {
+            alert('📊 Export des données en cours...\n\n✅ Données exportées au format CSV\n✅ Graphiques exportés au format PNG\n✅ Rapport PDF généré');
+        }
+
+        // ================================================================
+        // ===== TOGGLE SOUS-MENUS / NAVIGATION =====
+        // ================================================================
+        document.querySelectorAll('.nav-item > a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href') && this.getAttribute('href') !== '#') return;
+                e.preventDefault();
+                const sub = this.nextElementSibling;
+                const arrow = this.querySelector('.arrow');
+                if (sub && sub.classList.contains('sub-menu')) {
+                    sub.classList.toggle('open');
+                    if (arrow) arrow.style.transform = sub.classList.contains('open') ? 'rotate(90deg)' : 'rotate(0deg)';
+                }
+            });
+        });
+
+        document.getElementById('hamburger').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() { initCharts(); });
+    </script>
+
+</body>
+</html>
