@@ -41,3 +41,5 @@ Thumbs.db
 *.exe
 cloudflared.exe
 latex test/
+pdf_previews/
+RAPPORTpartie/pdf_previews/
